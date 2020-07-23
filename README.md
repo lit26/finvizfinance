@@ -34,20 +34,24 @@ stock_fundament = stock.TickerFundament()
 stock_description = stock.TickerDescription()
 
 # stock_description
-stock_description = 'Tesla, Inc. designs, develops, manufactures, ...'
+# stock_description = 'Tesla, Inc. designs, develops, manufactures, ...'
 ```
 
 #### Outer Ratings
 ```python
 outer_ratings_df = stock.TickerOuterRatings()
 ``` 
-
+![Outer Ratings example](asset/outer_rating.png)
 #### Stock News
 ```python
 news_df = stock.TickerNews()
 ```
+![news example](asset/news.png)
 
 #### Inside Trader
 ```python
 inside_trader_df = stock.TickerInsideTrader()
 ```
+![insider trader example](asset/insider_trader.png)
+
+
