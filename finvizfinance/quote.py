@@ -1,4 +1,4 @@
-from webrequest import webScrap
+from finvizfinance.webrequest import webScrap
 import pandas as pd
 from datetime import datetime
 
@@ -109,11 +109,6 @@ class finvizfinance:
         self.TickerNews()
         self.TickerInsideTrader()
         return self.info
-
-if __name__ == '__main__':
-    tsla = finvizfinance('tsla')
-    tsla_info = tsla.TickerFullInfo()
-    print(tsla_info)
 
 
 

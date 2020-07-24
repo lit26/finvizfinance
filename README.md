@@ -3,8 +3,8 @@
 Fetch information from finviz
 
 ```python
-import finvizfinance
 import pandas as pd
+from finvizfinance.quote import finvizfinance
 
 stock = finvizfinance('tsla')
 ```
