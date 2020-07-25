@@ -4,7 +4,7 @@ Fetch information from finviz
 
 ### Quote
 
-Getting information (fundament, description, outer rating, stock news, inside trader) of an individual stock
+Getting information (fundament, description, outer rating, stock news, inside trader) of an individual stock.
 
 ```python
 import pandas as pd
@@ -60,12 +60,14 @@ inside_trader_df = stock.TickerInsideTrader()
 
 ### News
 
+Getting recent financial news from finviz.
+
 ```python
 from finvizfinance.news import finviznews
 fnews = finviznews()
 all_news = fnews.getNews()
 ```
-Finviz News include 'news' and 'blogs'
+Finviz News include 'news' and 'blogs'.
 ```python
 all_news['news'].head()
 ```
