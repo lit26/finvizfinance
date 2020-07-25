@@ -7,14 +7,21 @@ QUOTE_URL = 'https://finviz.com/quote.ashx?t={ticker}'
 class finvizfinance:
     def __init__(self,ticker):
         self.ticker = ticker
+        self.flag = False
         self.quote_url = QUOTE_URL.format(ticker=ticker)
         self.soup = webScrap(self.quote_url)
         if self._checkexist():
-            print('Ticker not found.')
+            self.flag = True
         self.info = {}
 
     def _checkexist(self):
-        return 'not found' in self.soup.find('td', class_='body-text').text
+        try:
+            if 'not found' in self.soup.find('td', class_='body-text').text:
+                print('Ticker not found.')
+                return False
+        except:
+            print('Ticker exists.')
+            return True
 
     def TickerFundament(self):
         fundament_table = self.soup.find('table', class_='snapshot-table2')
