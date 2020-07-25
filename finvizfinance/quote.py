@@ -1,4 +1,4 @@
-from finvizfinance.webrequest import webScrap
+from webrequest import webScrap
 import pandas as pd
 from datetime import datetime
 
@@ -9,7 +9,12 @@ class finvizfinance:
         self.ticker = ticker
         self.quote_url = QUOTE_URL.format(ticker=ticker)
         self.soup = webScrap(self.quote_url)
+        if self._checkexist():
+            print('Ticker not found.')
         self.info = {}
+
+    def _checkexist(self):
+        return 'not found' in self.soup.find('td', class_='body-text').text
 
     def TickerFundament(self):
         fundament_table = self.soup.find('table', class_='snapshot-table2')
@@ -109,6 +114,11 @@ class finvizfinance:
         self.TickerNews()
         self.TickerInsideTrader()
         return self.info
+
+if __name__ == '__main__':
+    tsla = finvizfinance('tsla')
+    tsla_info = tsla.TickerFullInfo()
+    print(tsla_info['inside trader'][:5])
 
 
 
