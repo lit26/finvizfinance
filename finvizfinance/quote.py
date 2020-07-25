@@ -66,11 +66,12 @@ class finvizfinance:
         rows = fullview_news_outer.findAll('tr')
 
         last_date = ''
-        df = pd.DataFrame([], columns=['Date', 'Title'])
+        df = pd.DataFrame([], columns=['Date', 'Title', 'Link'])
         for row in rows:
             cols = row.findAll('td')
             date = cols[0].text
             title = cols[1].a.text
+            link = cols[1].a['href']
             newsTime = date.split()
             if len(newsTime) == 2:
                 last_date = newsTime[0]
@@ -78,7 +79,7 @@ class finvizfinance:
             else:
                 newsTime = last_date + ' ' + newsTime[0]
             newsTime = datetime.strptime(newsTime, '%b-%d-%y %I:%M%p')
-            df = df.append({'Date': newsTime, 'Title': title}, ignore_index=True)
+            df = df.append({'Date': newsTime, 'Title': title, 'Link': link}, ignore_index=True)
         self.info['news'] = df
         return df
 
