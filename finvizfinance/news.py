@@ -19,14 +19,15 @@ class finviznews:
         return self.news
 
     def _getNewsHelper(self, rows):
-        df = pd.DataFrame([], columns=['Date', 'Title', 'Link'])
+        df = pd.DataFrame([], columns=['Date', 'Title','Source','Link'])
         rows = rows.findAll('tr')
         for row in rows:
             cols = row.findAll('td')
             date = cols[1].text
             title = cols[2].text
             link = cols[2].a['href']
-            df = df.append({'Date': date, 'Title': title, 'Link': link},
+            source = link.split('/')[2]
+            df = df.append({'Date': date, 'Title': title, 'Source':source, 'Link': link},
                            ignore_index=True)
         return df
 
