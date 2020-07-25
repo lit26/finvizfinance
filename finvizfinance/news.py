@@ -3,7 +3,7 @@ import pandas as pd
 
 NEWS_URL = 'https://finviz.com/news.ashx'
 
-class finviznews:
+class News:
     def __init__(self):
         self.all_news = {}
         self.soup = webScrap(NEWS_URL)
