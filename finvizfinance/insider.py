@@ -11,6 +11,7 @@ class Insider:
             self.soup = webScrap(INSIDER_URL+'?or=-10&tv=100000&tc=7&o=-transactionValue')
         elif option == 'top owner trade':
             self.soup = webScrap(INSIDER_URL+'?or=10&tv=1000000&tc=7&o=-transactionValue')
+        self.df = None
 
     def getInsider(self):
         insider_trader = self.soup.findAll('table')[5]
@@ -44,4 +45,5 @@ class Insider:
                             'Value ($)': value,
                             '#Shares Total': n_shares_total,
                             'SEC Form 4': sec_form}, ignore_index=True)
+        self.df = df
         return df
