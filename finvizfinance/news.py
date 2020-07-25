@@ -27,6 +27,8 @@ class finviznews:
             title = cols[2].text
             link = cols[2].a['href']
             source = link.split('/')[2]
+            if source == 'feedproxy.google.com':
+                source = link.split('/')[4]
             df = df.append({'Date': date, 'Title': title, 'Source':source, 'Link': link},
                            ignore_index=True)
         return df
