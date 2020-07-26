@@ -64,6 +64,7 @@ Getting recent financial news from finviz.
 
 ```python
 from finvizfinance.news import finviznews
+
 fnews = finviznews()
 all_news = fnews.getNews()
 ```
@@ -76,3 +77,18 @@ all_news['news'].head()
 all_news['blogs'].head()
 ```
 ![news example](asset/news_blogs.png)
+
+### Insider
+
+Getting insider trading information.
+
+```python
+from finvizfinance.insider import Insider
+
+finsider = Insider(option='top owner trade')
+# option: latest, top week, top owner trade
+# default: latest
+
+insider_trader = finsider.getInsider()
+```
+![insider example](asset/insider.png)
