@@ -89,7 +89,7 @@ class Overview:
 
         for i in range(1, page):
             print('[Info] loading page {}/{} ...'.format((i+1),page))
-            soup = webScrap(self.url+'&r={}'.format((page-1)*20+1))
+            soup = webScrap(self.url+'&r={}'.format(i*20+1))
             table = soup.findAll('table')[18]
             rows = table.findAll('tr')
             df = self._get_table(rows, df, num_col_index, table_header)
