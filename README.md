@@ -109,3 +109,7 @@ df.head()
 ```
 ![insider example](asset/screen_overview.png)
 
+### Screener (Ticker)
+
+Getting list of tickers according to the filters.
+
