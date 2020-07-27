@@ -92,3 +92,20 @@ finsider = Insider(option='top owner trade')
 insider_trader = finsider.getInsider()
 ```
 ![insider example](asset/insider.png)
+
+### Screener
+
+Getting multiple ticker information according to the filters.
+
+#### Overview
+
+```python
+from finvizfinance.screener.overview import Overview
+foverview = Overview()
+filters_dict = {'Index':'S&P 500','Sector':'Basic Materials'}
+foverview.set_filter(filters_dict)
+df = foverview.ScreenerView()
+df.head()
+```
+![insider example](asset/screen_overview.png)
+
