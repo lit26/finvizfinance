@@ -93,11 +93,11 @@ insider_trader = finsider.getInsider()
 ```
 ![insider example](asset/insider.png)
 
-### Screener
+### Screener (Overview, Valuation, Financial, Ownership, Performance, Technical)
 
-Getting multiple ticker information according to the filters.
+Getting multiple tickers' information according to the filters.
 
-#### Overview
+#### Example: Overview
 
 ```python
 from finvizfinance.screener.overview import Overview
