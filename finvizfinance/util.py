@@ -17,5 +17,7 @@ def numberCovert(num):
         return float(num[:-1]) * 1000000000
     elif num[-1] == 'M':
         return float(num[:-1]) * 1000000
+    elif num[-1] == 'K':
+        return float(num[:-1]) * 1000
     else:
         return float(''.join(num.split(',')))
