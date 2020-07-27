@@ -1,4 +1,4 @@
-from finvizfinance.webrequest import webScrap
+from finvizfinance.util import webScrap, numberCovert
 import pandas as pd
 
 class Overview:
@@ -57,18 +57,6 @@ class Overview:
         options = soup.findAll('table')[17].findAll('option')
         return len(options)
 
-    def _number_covert(self, num):
-        if num == '-':
-            return None
-        elif num[-1] == '%':
-            return float(num[:-1]) / 100
-        elif num[-1] == 'B':
-            return float(num[:-1]) * 1000000000
-        elif num[-1] == 'M':
-            return float(num[:-1]) * 1000000
-        else:
-            return float(''.join(num.split(',')))
-
     def _get_table(self, rows, df, num_col_index,table_header):
         rows = rows[1:]
         for row in rows:
@@ -79,7 +67,7 @@ class Overview:
                 if i not in num_col_index:
                     info_dict[table_header[i]] = col.text
                 else:
-                    info_dict[table_header[i]] = self._number_covert(col.text)
+                    info_dict[table_header[i]] = numberCovert(col.text)
             df = df.append(info_dict, ignore_index=True)
         return df
 

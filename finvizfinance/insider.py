@@ -1,4 +1,4 @@
-from finvizfinance.webrequest import webScrap
+from finvizfinance.util import webScrap
 import pandas as pd
 
 INSIDER_URL = 'https://finviz.com/insidertrading.ashx'
