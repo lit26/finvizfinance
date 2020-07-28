@@ -1,4 +1,4 @@
-from finvizfinance.util import webScrap
+from finvizfinance.util import webScrap, numberCovert
 import pandas as pd
 from datetime import datetime
 
@@ -89,30 +89,17 @@ class finvizfinance:
         table_header = [i.text for i in rows[0].findAll('td')]
         df = pd.DataFrame([], columns=table_header)
         rows = rows[1:]
+        num_col = ['Cost','#Shares','Value ($)','#Shares Total']
+        num_col_index = [table_header.index(i) for i in table_header if i in num_col]
         for row in rows:
             cols = row.findAll('td')
-            insider_trading = cols[0].text
-            relationship = cols[1].text
-            date = cols[2].text
-            transaction = cols[3].text
-            cost = cols[4].text
-            cost = float(cost)
-            n_shares = cols[5].text
-            n_shares = float(''.join(n_shares.split(',')))
-            value = cols[6].text
-            value = float(''.join(value.split(',')))
-            n_shares_total = cols[7].text
-            n_shares_total = float(''.join(n_shares_total.split(',')))
-            sec_form = cols[8].text
-            df = df.append({'Insider Trading': insider_trading,
-                            'Relationship': relationship,
-                            'Date': date,
-                            'Transaction': transaction,
-                            'Cost': cost,
-                            '#Shares': n_shares,
-                            'Value ($)': value,
-                            '#Shares Total': n_shares_total,
-                            'SEC Form 4': sec_form}, ignore_index=True)
+            info_dict = {}
+            for i, col in enumerate(cols):
+                if i not in num_col_index:
+                    info_dict[table_header[i]] = col.text
+                else:
+                    info_dict[table_header[i]] = numberCovert(col.text)
+            df = df.append(info_dict, ignore_index=True)
         self.info['inside trader'] = df
         return df
 
