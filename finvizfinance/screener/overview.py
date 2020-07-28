@@ -3,13 +3,22 @@ import pandas as pd
 
 class Overview:
     def __init__(self):
-        self.BASE_URL = 'https://finviz.com/screener.ashx?v=111{filter}&ft=4'
+        self.BASE_URL = 'https://finviz.com/screener.ashx?v=111{signal}{filter}&ft=4{ticker}'
         self.NUMBER_COL = ['Market Cap', 'P/E', 'Price', 'Change', 'Volume']
-        self.url = self.BASE_URL.format(filter='')
-        self._loadfilter()
+        self.url = self.BASE_URL.format(signal='', filter='',ticker='')
+        self._loadfilters()
 
-    def _loadfilter(self):
+    def _loadfilters(self):
         soup = webScrap(self.url)
+
+        # signal
+        select = soup.find(id='signalSelect')
+        options = select.findAll('option')[1:]
+        key = [i.text for i in options]
+        value = [i['value'].split('&')[1].split('=')[1] for i in options]
+        self.signal_dict = dict(zip(key, value))
+
+        # filter
         table = soup.find('td', class_='filters-border')
         rows = table.find('table').children
         filter_dict = {}
@@ -35,7 +44,16 @@ class Overview:
                             filter_dict[header] = option_dict
         self.filter_dict = filter_dict
 
-    def set_filter(self, filters_dict):
+    def _set_signal(self,signal):
+        url_signal = ''
+        if signal not in self.signal_dict and signal != '':
+            print('No "{}" signal. Please try again.'.format(signal))
+            raise ValueError()
+        elif signal != '':
+            url_signal = '&s=' + self.signal_dict[signal]
+        return url_signal
+    
+    def _set_filters(self, filters_dict):
         filters = []
         for key, value in filters_dict.items():
             if key not in self.filter_dict:
@@ -51,7 +69,22 @@ class Overview:
         filter_url = ''
         if len(filters) != 0:
             filter_url = '&f=' + ','.join(filters)
-        self.url = self.BASE_URL.format(filter=filter_url)
+        return filter_url
+
+    def _set_ticker(self,ticker):
+        if ticker == '':
+            return ''
+        else:
+            return '&t='+ticker
+
+    def set_filter(self, signal='', filters_dict={}, ticker=''):
+        if signal == '' and filters_dict == {} and ticker =='':
+            self.url = self.BASE_URL.format(signal='',filter='', ticker='')
+        else:
+            url_signal = self._set_signal(signal)
+            url_filter = self._set_filters(filters_dict)
+            url_ticker = self._set_ticker(ticker)
+            self.url = self.BASE_URL.format(signal=url_signal,filter=url_filter,ticker=url_ticker)
 
     def _get_page(self,soup):
         options = soup.findAll('table')[17].findAll('option')
