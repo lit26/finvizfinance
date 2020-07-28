@@ -13,6 +13,11 @@ from finvizfinance.quote import finvizfinance
 stock = finvizfinance('tsla')
 ```
 
+#### Chart
+```python
+stock.TickerCharts()
+```
+
 #### Fundament
 ```python
 stock_fundament = stock.TickerFundament()
