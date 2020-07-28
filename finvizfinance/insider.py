@@ -1,10 +1,20 @@
 from finvizfinance.util import webScrap, numberCovert
 import pandas as pd
+"""
+Module:         insider
+Description:    Getting information from the finviz insider page.
+Author:         Tianning Li
+"""
 
 INSIDER_URL = 'https://finviz.com/insidertrading.ashx'
 
 class Insider:
     def __init__(self, option='latest'):
+        """initiate module
+
+        Parameters:
+           option (str): choose a option (latest, top week, top owner trade)
+        """
         if option == 'latest':
             self.soup = webScrap(INSIDER_URL)
         elif option == 'top week':
@@ -14,6 +24,11 @@ class Insider:
         self.df = None
 
     def getInsider(self):
+        """Get insider information table.
+
+        Returns:
+            df(pandas.DataFrame): insider information table
+        """
         insider_trader = self.soup.findAll('table')[5]
         rows = insider_trader.findAll('tr')
         table_header = [i.text.strip() for i in rows[0].findAll('td')]

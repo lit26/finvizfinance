@@ -1,14 +1,23 @@
 from finvizfinance.util import webScrap, numberCovert
 import pandas as pd
+"""
+Module:         screen.overview 
+Description:    Getting information from the finviz screener overview page.
+Author:         Tianning Li
+"""
 
 class Overview:
     def __init__(self):
+        """initiate module
+        """
         self.BASE_URL = 'https://finviz.com/screener.ashx?v=111{signal}{filter}&ft=4{ticker}'
         self.NUMBER_COL = ['Market Cap', 'P/E', 'Price', 'Change', 'Volume']
         self.url = self.BASE_URL.format(signal='', filter='',ticker='')
         self._loadfilters()
 
     def _loadfilters(self):
+        """load all the signals and filters
+        """
         soup = webScrap(self.url)
 
         # signal
@@ -45,6 +54,13 @@ class Overview:
         self.filter_dict = filter_dict
 
     def _set_signal(self,signal):
+        """set signal
+
+        Parameters:
+            signal(str): ticker signal
+        Return:
+            url_signal(str): signal string for url
+        """
         url_signal = ''
         if signal not in self.signal_dict and signal != '':
             print('No "{}" signal. Please try again.'.format(signal))
@@ -54,6 +70,13 @@ class Overview:
         return url_signal
     
     def _set_filters(self, filters_dict):
+        """set filters
+
+        Parameters:
+            filters_dict(dict): dictionary of filters
+        Return:
+            url_filter(str): filter string for url
+        """
         filters = []
         for key, value in filters_dict.items():
             if key not in self.filter_dict:
@@ -66,18 +89,32 @@ class Overview:
             urlcode = self.filter_dict[key]['option'][value]
             if urlcode != '':
                 filters.append('{}_{}'.format(prefix, urlcode))
-        filter_url = ''
+        url_filter = ''
         if len(filters) != 0:
-            filter_url = '&f=' + ','.join(filters)
-        return filter_url
+            url_filter = '&f=' + ','.join(filters)
+        return url_filter
 
     def _set_ticker(self,ticker):
+        """set ticker
+
+        Parameters:
+            ticker(str): ticker string
+        Return:
+            url_ticker(str): ticker string for url
+        """
         if ticker == '':
             return ''
         else:
             return '&t='+ticker
 
     def set_filter(self, signal='', filters_dict={}, ticker=''):
+        """update the settings.
+
+        Parameters:
+            signal(str): ticker signal
+            filters_dict(dict): dictionary of filters
+            ticker(str): ticker string
+        """
         if signal == '' and filters_dict == {} and ticker =='':
             self.url = self.BASE_URL.format(signal='',filter='', ticker='')
         else:
@@ -87,10 +124,17 @@ class Overview:
             self.url = self.BASE_URL.format(signal=url_signal,filter=url_filter,ticker=url_ticker)
 
     def _get_page(self,soup):
+        """check the page number
+        """
         options = soup.findAll('table')[17].findAll('option')
         return len(options)
 
     def _get_table(self, rows, df, num_col_index,table_header):
+        """Get screener table helper function.
+
+        Returns:
+            df(pandas.DataFrame): screener information table
+        """
         rows = rows[1:]
         for row in rows:
             cols = row.findAll('td')[1:]
@@ -105,6 +149,13 @@ class Overview:
         return df
 
     def ScreenerView(self, verbose=1):
+        """Get screener table.
+
+        Parameters:
+            verbose(int): choice of visual the progress.
+        Returns:
+            tickers(list): get all the tickers as list.
+        """
         soup = webScrap(self.url)
         page = self._get_page(soup)
         if page == 0:
@@ -121,7 +172,8 @@ class Overview:
         df = self._get_table(rows, df, num_col_index, table_header)
 
         for i in range(1, page):
-            print('[Info] loading page {}/{} ...'.format((i+1),page))
+            if verbose == 1:
+                print('[Info] loading page {}/{} ...'.format((i+1),page))
             soup = webScrap(self.url+'&r={}'.format(i*20+1))
             table = soup.findAll('table')[18]
             rows = table.findAll('tr')

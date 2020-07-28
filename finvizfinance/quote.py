@@ -1,11 +1,20 @@
-from finvizfinance.util import webScrap, numberCovert
+from finvizfinance.util import webScrap, imageScrap, numberCovert
 import pandas as pd
 from datetime import datetime
-
+"""
+Module:         quote
+Description:    Getting information from the individual ticker.
+Author:         Tianning Li
+"""
 QUOTE_URL = 'https://finviz.com/quote.ashx?t={ticker}'
 
 class finvizfinance:
     def __init__(self,ticker):
+        """initiate module
+
+        Parameters:
+            ticker(str): ticker string
+        """
         self.ticker = ticker
         self.flag = False
         self.quote_url = QUOTE_URL.format(ticker=ticker)
@@ -23,7 +32,33 @@ class finvizfinance:
             print('Ticker exists.')
             return True
 
+    def TickerCharts(self, timeframe='daily', charttype='advanced', out_dir=''):
+        if timeframe not in ['daily','weekly','monthly']:
+            raise ValueError()
+        if charttype not in ['candle', 'line','advanced']:
+            raise ValueError()
+        url_type = 'c'
+        url_ta = '0'
+        if charttype == 'line':
+            url_type = 'l'
+        elif charttype == 'advanced' and timeframe != 'weekly' and timeframe != 'monthly':
+            url_ta = '1'
+
+        url_timeframe = 'd'
+        if timeframe == 'week':
+            url_timeframe = 'w'
+        elif timeframe == 'monthly':
+            url_timeframe = 'm'
+        chart_url = 'https://finviz.com/chart.ashx?t={ticker}&ty={type}&ta={ta}&p={timeframe}'.format(ticker=self.ticker,
+                                                    type=url_type, ta=url_ta, timeframe=url_timeframe)
+        imageScrap(chart_url, self.ticker, out_dir)
+
     def TickerFundament(self):
+        """Get ticker fundament.
+
+        Returns:
+            fundament(dict): ticker fundament.
+        """
         fundament_table = self.soup.find('table', class_='snapshot-table2')
         fundament_info = {}
         rows = fundament_table.findAll('tr')
@@ -41,9 +76,19 @@ class finvizfinance:
         return fundament_info
 
     def TickerDescription(self):
+        """Get ticker description.
+
+        Returns:
+            description(str): ticker description.
+        """
         return self.soup.find('td',class_='fullview-profile').text
 
     def TickerOuterRatings(self):
+        """Get outer ratings table.
+
+        Returns:
+            df(pandas.DataFrame): outer ratings table
+        """
         fullview_ratings_outer = self.soup.find('table', class_="fullview-ratings-outer")
         df = pd.DataFrame([], columns=['Date', 'Status', 'Outer', 'Rating', 'Price'])
         rows = fullview_ratings_outer.findAll('td', class_="fullview-ratings-inner")
@@ -62,6 +107,11 @@ class finvizfinance:
         return df
 
     def TickerNews(self):
+        """Get news information table.
+
+        Returns:
+            df(pandas.DataFrame): news information table
+        """
         fullview_news_outer = self.soup.find('table', class_='fullview-news-outer')
         rows = fullview_news_outer.findAll('tr')
 
@@ -84,6 +134,11 @@ class finvizfinance:
         return df
 
     def TickerInsideTrader(self):
+        """Get insider information table.
+
+        Returns:
+            df(pandas.DataFrame): insider information table
+        """
         inside_trader = self.soup.find('table', class_='body-table')
         rows = inside_trader.findAll('tr')
         table_header = [i.text for i in rows[0].findAll('td')]
@@ -104,16 +159,17 @@ class finvizfinance:
         return df
 
     def TickerFullInfo(self):
+        """Get insider information table.
+
+        Returns:
+            df(pandas.DataFrame): insider information table
+        """
         self.TickerFundament()
         self.TickerOuterRatings()
         self.TickerNews()
         self.TickerInsideTrader()
         return self.info
 
-if __name__ == '__main__':
-    tsla = finvizfinance('tsla')
-    tsla_info = tsla.TickerFullInfo()
-    print(tsla_info['inside trader'][:5])
 
 
 
