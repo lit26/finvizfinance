@@ -34,6 +34,10 @@ def test_screener_overview():
 
 if __name__ == "__main__":
     test_finvizfinance_quote()
+    print('Quote module test pass.')
     test_finvizfinance_news()
+    print('News module test pass.')
     test_finvizfinance_insider()
+    print('Insider module test pass.')
     test_screener_overview()
+    print('Screener module test pass.')
