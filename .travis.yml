@@ -11,9 +11,7 @@ matrix:
       sudo: true
 
 install:
-  - pip install Cython
   - pip install -r requirements.txt
-  - pip install .
 
 script:
   - nosetests
