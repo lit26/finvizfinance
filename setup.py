@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = '0.1.0'
+VERSION = '0.1.1'
 PACKAGE_NAME = 'finvizfinance'
 AUTHOR = 'Tianning Li'
 AUTHOR_EMAIL = 'ltianningli@gmail.com'
@@ -11,7 +11,7 @@ URL = 'https://github.com/lit26/finvizfinance'
 
 LICENSE = 'The MIT License (MIT)'
 DESCRIPTION = 'Finviz Finance. Information downloader'
-LONG_DESCRIPTION = (HERE / "README.md").read_text()
+LONG_DESCRIPTION = (HERE / "README_pypi.md").read_text()
 LONG_DESC_TYPE = "text/markdown"
 
 INSTALL_REQUIRES = [
