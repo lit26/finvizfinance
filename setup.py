@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = '0.1.1'
+VERSION = '0.1.3'
 PACKAGE_NAME = 'finvizfinance'
 AUTHOR = 'Tianning Li'
 AUTHOR_EMAIL = 'ltianningli@gmail.com'
@@ -20,6 +20,12 @@ INSTALL_REQUIRES = [
       'requests',
       'bs4'
 ]
+CLASSIFIERS = [
+      'Programming Language :: Python :: 3.5',
+      'Programming Language :: Python :: 3.6',
+      'Programming Language :: Python :: 3.7',
+      'License :: OSI Approved :: MIT License'
+]
 
 setup(name=PACKAGE_NAME,
       version=VERSION,
@@ -30,6 +36,7 @@ setup(name=PACKAGE_NAME,
       license=LICENSE,
       author_email=AUTHOR_EMAIL,
       url=URL,
+      classifiers=CLASSIFIERS,
       install_requires=INSTALL_REQUIRES,
       packages=find_packages()
       )

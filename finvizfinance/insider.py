@@ -21,6 +21,8 @@ class Insider:
             self.soup = webScrap(INSIDER_URL+'?or=-10&tv=100000&tc=7&o=-transactionValue')
         elif option == 'top owner trade':
             self.soup = webScrap(INSIDER_URL+'?or=10&tv=1000000&tc=7&o=-transactionValue')
+        elif option.isdigit():
+            self.soup = webScrap(INSIDER_URL+'?oc='+option+'&tc=7')
         self.df = None
 
     def getInsider(self):

@@ -142,6 +142,7 @@ class finvizfinance:
         inside_trader = self.soup.find('table', class_='body-table')
         rows = inside_trader.findAll('tr')
         table_header = [i.text for i in rows[0].findAll('td')]
+        table_header += ['Insider_id']
         df = pd.DataFrame([], columns=table_header)
         rows = rows[1:]
         num_col = ['Cost','#Shares','Value ($)','#Shares Total']
@@ -154,6 +155,7 @@ class finvizfinance:
                     info_dict[table_header[i]] = col.text
                 else:
                     info_dict[table_header[i]] = numberCovert(col.text)
+            info_dict['Insider_id'] = cols[0].a['href'].split('oc=')[1].split('&tc=')[0]
             df = df.append(info_dict, ignore_index=True)
         self.info['inside trader'] = df
         return df
