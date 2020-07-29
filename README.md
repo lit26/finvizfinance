@@ -1,3 +1,6 @@
+![PyPI](https://img.shields.io/pypi/v/finvizfinance?color=green)
+![PyPI - Wheel](https://img.shields.io/pypi/wheel/finvizfinance)
+![PyPI - License](https://img.shields.io/pypi/l/finvizfinance?color=gre)
 # finvizfinance
 
 Fetch information from finviz
