@@ -9,6 +9,8 @@
 
 Fetch information from finviz
 
+Docs: https://finvizfinance.readthedocs.io/en/latest/index.html
+
 ### Quote
 
 Getting information (fundament, description, outer rating, stock news, inside trader) of an individual stock.
