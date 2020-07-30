@@ -9,7 +9,7 @@
 
 Fetch information from finviz
 
-Docs: https://finvizfinance.readthedocs.io/en/latest/index.html
+Docs: https://finvizfinance.readthedocs.io/en/latest/
 
 ### Quote
 
