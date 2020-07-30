@@ -1,11 +1,16 @@
 from finvizfinance.screener.overview import Overview
 """
-Module:         screen.technical inherit screen.overview 
-Description:    Getting information from the finviz screener technical page.
-Author:         Tianning Li
+.. module:: screen.technical
+   :synopsis: screen technical table.
+
+.. moduleauthor:: Tianning Li <ltianningli@gmail.com>
+
 """
 
 class Technical(Overview):
+    """Technical inherit from overview module.
+    Getting information from the finviz screener technical page.
+    """
     def __init__(self):
         """initiate module
         """

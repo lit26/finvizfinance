@@ -1,14 +1,20 @@
 from finvizfinance.util import webScrap
 import pandas as pd
 """
-Module:         news
-Description:    Getting information from the finviz news page.
-Author:         Tianning Li
+.. module:: news
+   :synopsis: news table.
+
+.. moduleauthor:: Tianning Li <ltianningli@gmail.com>
+
 """
 
 NEWS_URL = 'https://finviz.com/news.ashx'
 
 class News:
+    """News
+    Getting information from the finviz news page.
+
+    """
     def __init__(self):
         """initiate module
         """
@@ -19,9 +25,11 @@ class News:
     def getNews(self):
         """Get insider information table.
 
+        Retrieves table information from finviz finance news.
+
         Returns:
-            dict('news':pandas.DataFrame,'blogs':pandas.DataFrame):
-                news information table, blogs information table
+            news(dict): news table
+
         """
         tables = self.soup.findAll('table')
         news = tables[6]
@@ -34,10 +42,12 @@ class News:
     def _getNewsHelper(self, rows):
         """Get insider information table helper function.
 
-        Parameters:
+        Args:
             rows(beautiful soup): rows of website information
+
         Returns:
             df(pandas.DataFrame): news information table
+
         """
         df = pd.DataFrame([], columns=['Date', 'Title','Source','Link'])
         rows = rows.findAll('tr')

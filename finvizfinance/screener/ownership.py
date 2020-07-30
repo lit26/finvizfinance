@@ -1,11 +1,16 @@
 from finvizfinance.screener.overview import Overview
 """
-Module:         screen.ownership inherit screen.overview 
-Description:    Getting information from the finviz screener ownership page.
-Author:         Tianning Li
+.. module:: screen.ownership
+   :synopsis: screen ownership table.
+
+.. moduleauthor:: Tianning Li <ltianningli@gmail.com>
+
 """
 
 class Ownership(Overview):
+    """Ownership inherit from overview module.
+    Getting information from the finviz screener ownership page.
+    """
     def __init__(self):
         """initiate module
         """

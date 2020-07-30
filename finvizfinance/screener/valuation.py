@@ -1,11 +1,16 @@
 from finvizfinance.screener.overview import Overview
 """
-Module:         screen.valuation inherit screen.overview 
-Description:    Getting information from the finviz screener valuation page.
-Author:         Tianning Li
+.. module:: screen.valuation
+   :synopsis: screen valuation table.
+
+.. moduleauthor:: Tianning Li <ltianningli@gmail.com>
+
 """
 
 class Valuation(Overview):
+    """Valuation inherit from overview module.
+        Getting information from the finviz screener valuation page.
+    """
     def __init__(self):
         """initiate module
         """

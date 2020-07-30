@@ -2,18 +2,23 @@ from finvizfinance.util import webScrap, imageScrap, numberCovert
 import pandas as pd
 from datetime import datetime
 """
-Module:         quote
-Description:    Getting information from the individual ticker.
-Author:         Tianning Li
+.. module:: finvizfinance
+   :synopsis: individual ticker.
+
+.. moduleauthor:: Tianning Li <ltianningli@gmail.com>
+
 """
 QUOTE_URL = 'https://finviz.com/quote.ashx?t={ticker}'
 
 class finvizfinance:
+    """finvizfinance
+    Getting information from the individual ticker.
+
+    Args:
+        ticker(str): ticker string
+    """
     def __init__(self,ticker):
         """initiate module
-
-        Parameters:
-            ticker(str): ticker string
         """
         self.ticker = ticker
         self.flag = False
@@ -33,6 +38,13 @@ class finvizfinance:
             return True
 
     def TickerCharts(self, timeframe='daily', charttype='advanced', out_dir=''):
+        """Download ticker charts.
+
+        Args:
+            timeframe(str): choice of timeframe (daily, weekly, monthly).
+            charttype(str): choice of type of chart (candle, line, advanced).
+            out_dir(str): output image directory. default none.
+        """
         if timeframe not in ['daily','weekly','monthly']:
             raise ValueError()
         if charttype not in ['candle', 'line','advanced']:
@@ -161,7 +173,7 @@ class finvizfinance:
         return df
 
     def TickerFullInfo(self):
-        """Get insider information table.
+        """Get all the ticker information.
 
         Returns:
             df(pandas.DataFrame): insider information table

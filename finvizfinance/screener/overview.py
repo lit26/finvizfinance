@@ -1,12 +1,17 @@
 from finvizfinance.util import webScrap, numberCovert
 import pandas as pd
 """
-Module:         screen.overview 
-Description:    Getting information from the finviz screener overview page.
-Author:         Tianning Li
+.. module:: screen.overview
+   :synopsis: screen overview table.
+
+.. moduleauthor:: Tianning Li <ltianningli@gmail.com>
+
 """
 
 class Overview:
+    """Overview
+    Getting information from the finviz screener overview page.
+    """
     def __init__(self):
         """initiate module
         """
@@ -56,9 +61,9 @@ class Overview:
     def _set_signal(self,signal):
         """set signal
 
-        Parameters:
+        Args:
             signal(str): ticker signal
-        Return:
+        Returns:
             url_signal(str): signal string for url
         """
         url_signal = ''
@@ -72,9 +77,9 @@ class Overview:
     def _set_filters(self, filters_dict):
         """set filters
 
-        Parameters:
+        Args:
             filters_dict(dict): dictionary of filters
-        Return:
+        Returns:
             url_filter(str): filter string for url
         """
         filters = []
@@ -97,9 +102,9 @@ class Overview:
     def _set_ticker(self,ticker):
         """set ticker
 
-        Parameters:
+        Args:
             ticker(str): ticker string
-        Return:
+        Returns:
             url_ticker(str): ticker string for url
         """
         if ticker == '':
@@ -110,7 +115,7 @@ class Overview:
     def set_filter(self, signal='', filters_dict={}, ticker=''):
         """update the settings.
 
-        Parameters:
+        Args:
             signal(str): ticker signal
             filters_dict(dict): dictionary of filters
             ticker(str): ticker string
@@ -151,8 +156,8 @@ class Overview:
     def ScreenerView(self, verbose=1):
         """Get screener table.
 
-        Parameters:
-            verbose(int): choice of visual the progress.
+        Args:
+            verbose(int): choice of visual the progress. 1 for visualize progress
         Returns:
             tickers(list): get all the tickers as list.
         """

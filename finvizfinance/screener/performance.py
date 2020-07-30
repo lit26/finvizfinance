@@ -1,11 +1,16 @@
 from finvizfinance.screener.overview import Overview
 """
-Module:         screen.performance inherit screen.overview 
-Description:    Getting information from the finviz screener performance page.
-Author:         Tianning Li
+.. module:: screen.performance
+   :synopsis: screen performance table.
+
+.. moduleauthor:: Tianning Li <ltianningli@gmail.com>
+
 """
 
 class Performance(Overview):
+    """Performance inherit from overview module.
+    Getting information from the finviz screener performance page.
+    """
     def __init__(self):
         """initiate module
         """

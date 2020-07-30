@@ -1,12 +1,17 @@
 from finvizfinance.screener.overview import Overview
 from finvizfinance.util import webScrap
 """
-Module:         screen.ticker inherit screen.overview 
-Description:    Getting information from the finviz screener ticker page.
-Author:         Tianning Li
+.. module:: screen.ticker
+   :synopsis: screen ticker table.
+
+.. moduleauthor:: Tianning Li <ltianningli@gmail.com>
+
 """
 
 class Ticker(Overview):
+    """Financial inherit from overview module.
+    Getting information from the finviz screener ticker page.
+    """
     def __init__(self):
         """initiate module
         """
@@ -17,8 +22,8 @@ class Ticker(Overview):
     def ScreenerView(self, verbose=1):
         """Get screener table.
 
-        Parameters:
-            verbose(int): choice of visual the progress.
+        Args:
+            verbose(int): choice of visual the progress. 1 for visualize progress
         Returns:
             tickers(list): get all the tickers as list.
         """

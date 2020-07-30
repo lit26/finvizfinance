@@ -1,19 +1,24 @@
 from finvizfinance.util import webScrap, numberCovert
 import pandas as pd
 """
-Module:         insider
-Description:    Getting information from the finviz insider page.
-Author:         Tianning Li
+.. module:: insider
+   :synopsis: insider table.
+
+.. moduleauthor:: Tianning Li <ltianningli@gmail.com>
+
 """
 
 INSIDER_URL = 'https://finviz.com/insidertrading.ashx'
 
 class Insider:
+    """Insider
+    Getting information from the finviz insider page.
+
+    Args:
+        option (str): choose a option (latest, top week, top owner trade, insider_id)
+    """
     def __init__(self, option='latest'):
         """initiate module
-
-        Parameters:
-           option (str): choose a option (latest, top week, top owner trade)
         """
         if option == 'latest':
             self.soup = webScrap(INSIDER_URL)
