@@ -3,10 +3,13 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/finvizfinance)
 ![PyPI - License](https://img.shields.io/pypi/l/finvizfinance?color=gre)
 ![Travis (.org)](https://img.shields.io/travis/lit26/finvizfinance)
+![Read the Docs](https://img.shields.io/readthedocs/finvizfinance)
 
 # finvizfinance
 
 Fetch information from finviz
+
+Docs: https://finvizfinance.readthedocs.io/en/latest/
 
 ### Quote
 
