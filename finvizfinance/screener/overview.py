@@ -21,7 +21,7 @@ class Overview:
         self._loadfilters()
 
     def _loadfilters(self):
-        """load all the signals and filters
+        """load all the signals and filters.
         """
         soup = webScrap(self.url)
 
@@ -59,7 +59,7 @@ class Overview:
         self.filter_dict = filter_dict
 
     def _set_signal(self,signal):
-        """set signal
+        """set signal.
 
         Args:
             signal(str): ticker signal
@@ -73,12 +73,44 @@ class Overview:
         elif signal != '':
             url_signal = '&s=' + self.signal_dict[signal]
         return url_signal
-    
+
+    def getSignal(self):
+        """Get signals.
+
+        Returns:
+            signals(list): all the available trading signals
+        """
+        return list(self.signal_dict.keys())
+
+    def getFilters(self):
+        """Get filters.
+
+        Returns:
+            filters(list): all the available filters
+        """
+        return list(self.filter_dict.keys())
+
+    def getFilterOptions(self, screen_filter):
+        """Get filters options.
+
+        Args:
+            screen_filter(str): screen filter for checking options
+
+        Returns:
+            filter_options(list): all the available filters
+        """
+        if screen_filter not in self.filter_dict:
+            print('Invalid filter.')
+            raise ValueError()
+        else:
+            return list(self.filter_dict[screen_filter]['option'])
+
     def _set_filters(self, filters_dict):
-        """set filters
+        """Set filters.
 
         Args:
             filters_dict(dict): dictionary of filters
+
         Returns:
             url_filter(str): filter string for url
         """
@@ -100,7 +132,7 @@ class Overview:
         return url_filter
 
     def _set_ticker(self,ticker):
-        """set ticker
+        """Set ticker.
 
         Args:
             ticker(str): ticker string
@@ -113,7 +145,7 @@ class Overview:
             return '&t='+ticker
 
     def set_filter(self, signal='', filters_dict={}, ticker=''):
-        """update the settings.
+        """Update the settings.
 
         Args:
             signal(str): ticker signal
@@ -129,7 +161,7 @@ class Overview:
             self.url = self.BASE_URL.format(signal=url_signal,filter=url_filter,ticker=url_ticker)
 
     def _get_page(self,soup):
-        """check the page number
+        """Check the page number
         """
         options = soup.findAll('table')[17].findAll('option')
         return len(options)

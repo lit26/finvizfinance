@@ -23,7 +23,7 @@ class Ticker(Overview):
         """Get screener table.
 
         Args:
-            verbose(int): choice of visual the progress. 1 for visualize progress
+            verbose(int): choice of visual the progress. 1 for visualize progress.
         Returns:
             tickers(list): get all the tickers as list.
         """

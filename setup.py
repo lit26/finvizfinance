@@ -10,7 +10,7 @@ AUTHOR_EMAIL = 'ltianningli@gmail.com'
 URL = 'https://github.com/lit26/finvizfinance'
 
 LICENSE = 'The MIT License (MIT)'
-DESCRIPTION = 'Finviz Finance. Information downloader'
+DESCRIPTION = 'Finviz Finance. Information downloader.'
 LONG_DESCRIPTION = (HERE / "README_pypi.md").read_text()
 LONG_DESC_TYPE = "text/markdown"
 
@@ -18,7 +18,8 @@ INSTALL_REQUIRES = [
       'pandas',
       'datetime',
       'requests',
-      'bs4'
+      'bs4',
+      'lxml'
 ]
 CLASSIFIERS = [
       'Programming Language :: Python :: 3.5',
@@ -26,6 +27,7 @@ CLASSIFIERS = [
       'Programming Language :: Python :: 3.7',
       'License :: OSI Approved :: MIT License'
 ]
+PYTHON_REQUIRES='>=3.5'
 
 setup(name=PACKAGE_NAME,
       version=VERSION,
@@ -38,5 +40,6 @@ setup(name=PACKAGE_NAME,
       url=URL,
       classifiers=CLASSIFIERS,
       install_requires=INSTALL_REQUIRES,
-      packages=find_packages()
+      packages=find_packages(),
+      python_requires=PYTHON_REQUIRES
       )
