@@ -18,4 +18,4 @@ class Technical(Overview):
         self.NUMBER_COL = ['Beta', 'ATR', 'SMA20', 'SMA50', 'SMA200', '52W High',
                            '52W Low', 'RSI', 'Price', 'Change', 'from Open', 'Gap', 'Volume']
         self.url = self.BASE_URL.format(filter='')
-        self._loadfilter()
+        Overview._loadfilters(self)

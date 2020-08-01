@@ -19,4 +19,4 @@ class Valuation(Overview):
                            'P/FCF', 'EPS this Y', 'EPS next Y', 'EPS past 5Y', 'EPS next 5Y', \
                            'Sales past 5Y', 'Price', 'Change', 'Volume']
         self.url = self.BASE_URL.format(filter='')
-        self._loadfilter()
+        Overview._loadfilters(self)

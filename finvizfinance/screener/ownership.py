@@ -19,4 +19,4 @@ class Ownership(Overview):
                            'Insider Trans', 'Inst Own', 'Inst Trans', 'Float Short',
                            'Short Ratio', 'Avg Volume', 'Price', 'Change', 'Volume']
         self.url = self.BASE_URL.format(filter='')
-        self._loadfilter()
+        Overview._loadfilters(self)

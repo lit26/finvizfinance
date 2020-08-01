@@ -1,0 +1,351 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Screener &mdash; finvizfinance 0.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="News" href="news.html" />
+    <link rel="prev" title="Quote" href="quote.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> finvizfinance
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quote.html">Quote</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Screener</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-finvizfinance.screener.overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-finvizfinance.screener.valuation">Valuation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-finvizfinance.screener.financial">Financial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-finvizfinance.screener.ownership">Ownership</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-finvizfinance.screener.technical">Technical</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-finvizfinance.screener.ticker">Tickers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="news.html">News</a></li>
+<li class="toctree-l1"><a class="reference internal" href="insider.html">Insider</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">finvizfinance</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Screener</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/screener.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="screener">
+<h1>Screener<a class="headerlink" href="#screener" title="Permalink to this headline">¶</a></h1>
+<p>Getting screener information.</p>
+<div class="section" id="module-finvizfinance.screener.overview">
+<span id="overview"></span><h2>Overview<a class="headerlink" href="#module-finvizfinance.screener.overview" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="finvizfinance.screener.overview.Overview">
+<em class="property">class </em><code class="sig-prename descclassname">finvizfinance.screener.overview.</code><code class="sig-name descname">Overview</code><a class="headerlink" href="#finvizfinance.screener.overview.Overview" title="Permalink to this definition">¶</a></dt>
+<dd><p>Getting information from the finviz screener overview page.</p>
+<dl class="py method">
+<dt id="finvizfinance.screener.overview.Overview.ScreenerView">
+<code class="sig-name descname">ScreenerView</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#finvizfinance.screener.overview.Overview.ScreenerView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get screener table.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>verbose(int): choice of visual the progress. 1 for visualize progress</p>
+</dd>
+<dt>Returns:</dt><dd><p>tickers(list): get all the tickers as list.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="finvizfinance.screener.overview.Overview.getFilterOptions">
+<code class="sig-name descname">getFilterOptions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">screen_filter</span></em><span class="sig-paren">)</span><a class="headerlink" href="#finvizfinance.screener.overview.Overview.getFilterOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get filters options.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>screen_filter(str): screen filter for checking options</p>
+</dd>
+<dt>Returns:</dt><dd><p>filter_options(list): all the available filters</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="finvizfinance.screener.overview.Overview.getFilters">
+<code class="sig-name descname">getFilters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#finvizfinance.screener.overview.Overview.getFilters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get filters.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>filters(list): all the available filters</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="finvizfinance.screener.overview.Overview.getSignal">
+<code class="sig-name descname">getSignal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#finvizfinance.screener.overview.Overview.getSignal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get signals.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>signals(list): all the available trading signals</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="finvizfinance.screener.overview.Overview.set_filter">
+<code class="sig-name descname">set_filter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">signal</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">filters_dict</span><span class="o">=</span><span class="default_value">{}</span></em>, <em class="sig-param"><span class="n">ticker</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="headerlink" href="#finvizfinance.screener.overview.Overview.set_filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the settings.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>signal(str): ticker signal
+filters_dict(dict): dictionary of filters
+ticker(str): ticker string</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-finvizfinance.screener.valuation">
+<span id="valuation"></span><h2>Valuation<a class="headerlink" href="#module-finvizfinance.screener.valuation" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="finvizfinance.screener.valuation.Valuation">
+<em class="property">class </em><code class="sig-prename descclassname">finvizfinance.screener.valuation.</code><code class="sig-name descname">Valuation</code><a class="headerlink" href="#finvizfinance.screener.valuation.Valuation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Valuation inherit from overview module.
+Getting information from the finviz screener valuation page.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-finvizfinance.screener.financial">
+<span id="financial"></span><h2>Financial<a class="headerlink" href="#module-finvizfinance.screener.financial" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="finvizfinance.screener.financial.Financial">
+<em class="property">class </em><code class="sig-prename descclassname">finvizfinance.screener.financial.</code><code class="sig-name descname">Financial</code><a class="headerlink" href="#finvizfinance.screener.financial.Financial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Financial inherit from overview module.
+Getting information from the finviz screener financial page.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-finvizfinance.screener.ownership">
+<span id="ownership"></span><h2>Ownership<a class="headerlink" href="#module-finvizfinance.screener.ownership" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="finvizfinance.screener.ownership.Ownership">
+<em class="property">class </em><code class="sig-prename descclassname">finvizfinance.screener.ownership.</code><code class="sig-name descname">Ownership</code><a class="headerlink" href="#finvizfinance.screener.ownership.Ownership" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ownership inherit from overview module.
+Getting information from the finviz screener ownership page.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-finvizfinance.screener.technical">
+<span id="technical"></span><h2>Technical<a class="headerlink" href="#module-finvizfinance.screener.technical" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="finvizfinance.screener.technical.Technical">
+<em class="property">class </em><code class="sig-prename descclassname">finvizfinance.screener.technical.</code><code class="sig-name descname">Technical</code><a class="headerlink" href="#finvizfinance.screener.technical.Technical" title="Permalink to this definition">¶</a></dt>
+<dd><p>Technical inherit from overview module.
+Getting information from the finviz screener technical page.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-finvizfinance.screener.ticker">
+<span id="tickers"></span><h2>Tickers<a class="headerlink" href="#module-finvizfinance.screener.ticker" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="finvizfinance.screener.ticker.Ticker">
+<em class="property">class </em><code class="sig-prename descclassname">finvizfinance.screener.ticker.</code><code class="sig-name descname">Ticker</code><a class="headerlink" href="#finvizfinance.screener.ticker.Ticker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Financial inherit from overview module.
+Getting information from the finviz screener ticker page.</p>
+<dl class="py method">
+<dt id="finvizfinance.screener.ticker.Ticker.ScreenerView">
+<code class="sig-name descname">ScreenerView</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#finvizfinance.screener.ticker.Ticker.ScreenerView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get screener table.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>verbose(int): choice of visual the progress. 1 for visualize progress.</p>
+</dd>
+<dt>Returns:</dt><dd><p>tickers(list): get all the tickers as list.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="news.html" class="btn btn-neutral float-right" title="News" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="quote.html" class="btn btn-neutral float-left" title="Quote" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Tianning Li
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
