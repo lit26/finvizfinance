@@ -5,7 +5,6 @@ from finvizfinance.util import webScrap
    :synopsis: screen ticker table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
-
 """
 
 class Ticker(Overview):

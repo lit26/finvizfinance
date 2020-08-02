@@ -4,7 +4,6 @@ from finvizfinance.screener.overview import Overview
    :synopsis: screen valuation table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
-
 """
 
 class Valuation(Overview):
