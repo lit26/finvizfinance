@@ -4,6 +4,7 @@
 ![PyPI - License](https://img.shields.io/pypi/l/finvizfinance?color=gre)
 ![Travis (.org)](https://img.shields.io/travis/lit26/finvizfinance)
 ![Read the Docs](https://img.shields.io/readthedocs/finvizfinance)
+[![CodeFactor](https://www.codefactor.io/repository/github/lit26/finvizfinance/badge/master)](https://www.codefactor.io/repository/github/lit26/finvizfinance/overview/master)
 
 # finvizfinance
 
