@@ -18,4 +18,4 @@ class Performance(Overview):
                            'Perf Year', 'Perf YTD', 'Volatility W', 'Volatility M',
                            'Recom', 'Avg Volume', 'Rel Volume', 'Price', 'Change', 'Volume']
         self.url = self.BASE_URL.format(filter='')
-        Overview._loadfilters(self)
+        Overview._loadSetting(self)

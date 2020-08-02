@@ -18,4 +18,4 @@ class Financial(Overview):
                            'Curr R', 'Quick R', 'LTDebt/Eq', 'Debt/Eq', 'Gross M',
                            'Oper M', 'Profit M', 'Price', 'Change', 'Volume']
         self.url = self.BASE_URL.format(filter='')
-        Overview._loadfilters(self)
+        Overview._loadSetting(self)

@@ -13,16 +13,14 @@ class Overview:
     Getting information from the finviz screener overview page.
     """
     def __init__(self):
-        """initiate module
-        """
+        """initiate module"""
         self.BASE_URL = 'https://finviz.com/screener.ashx?v=111{signal}{filter}&ft=4{ticker}'
         self.NUMBER_COL = ['Market Cap', 'P/E', 'Price', 'Change', 'Volume']
         self.url = self.BASE_URL.format(signal='', filter='',ticker='')
-        self._loadfilters()
+        self._loadSetting()
 
-    def _loadfilters(self):
-        """load all the signals and filters.
-        """
+    def _loadSetting(self):
+        """load all the signals and filters."""
         soup = webScrap(self.url)
 
         # signal
@@ -46,7 +44,7 @@ class Overview:
                         continue
                     if header != 'After-Hours Close' and header != 'After-Hours Change':
                         select = col.find('select')
-                        if select != None:
+                        if select is not None:
                             option_dict = {}
                             prefix = select['data-filter']
                             option_dict['prefix'] = prefix
@@ -57,6 +55,13 @@ class Overview:
                                     option_dict['option'][option.text] = option['value']
                             filter_dict[header] = option_dict
         self.filter_dict = filter_dict
+
+        # order
+        select = soup.find(id='orderSelect')
+        options = select.findAll('option')
+        key = [i.text for i in options]
+        value = [i['value'].split('&')[2] for i in options]
+        self.order_dict = dict(zip(key, value))
 
     def _set_signal(self,signal):
         """set signal.
@@ -102,8 +107,15 @@ class Overview:
         if screen_filter not in self.filter_dict:
             print('Invalid filter.')
             raise ValueError()
-        else:
-            return list(self.filter_dict[screen_filter]['option'])
+        return list(self.filter_dict[screen_filter]['option'])
+
+    def getOrders(self):
+        """Get orders.
+
+        Returns:
+            orders(list): all the available orders
+        """
+        return list(self.order_dict.keys())
 
     def _set_filters(self, filters_dict):
         """Set filters.
@@ -141,8 +153,7 @@ class Overview:
         """
         if ticker == '':
             return ''
-        else:
-            return '&t='+ticker
+        return '&t='+ticker
 
     def set_filter(self, signal='', filters_dict={}, ticker=''):
         """Update the settings.
@@ -185,15 +196,21 @@ class Overview:
             df = df.append(info_dict, ignore_index=True)
         return df
 
-    def ScreenerView(self, verbose=1):
+    def ScreenerView(self, order='ticker', verbose=1):
         """Get screener table.
 
         Args:
+            order(str): sort the table by the choice of order
             verbose(int): choice of visual the progress. 1 for visualize progress
         Returns:
             tickers(list): get all the tickers as list.
         """
-        soup = webScrap(self.url)
+        url = self.url
+        if order != 'ticker':
+            if order not in self.order_dict:
+                raise ValueError()
+            url = self.url+'&'+self.order_dict[order]
+        soup = webScrap(url)
         page = self._get_page(soup)
         if page == 0:
             print('No ticker found.')
@@ -216,5 +233,3 @@ class Overview:
             rows = table.findAll('tr')
             df = self._get_table(rows, df, num_col_index, table_header)
         return df
-
-

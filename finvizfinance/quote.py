@@ -6,7 +6,6 @@ from datetime import datetime
    :synopsis: individual ticker.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
-
 """
 QUOTE_URL = 'https://finviz.com/quote.ashx?t={ticker}'
 
@@ -183,9 +182,3 @@ class finvizfinance:
         self.TickerNews()
         self.TickerInsideTrader()
         return self.info
-
-
-
-
-
-

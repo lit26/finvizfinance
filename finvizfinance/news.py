@@ -5,7 +5,6 @@ import pandas as pd
    :synopsis: news table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
-
 """
 
 NEWS_URL = 'https://finviz.com/news.ashx'
@@ -62,4 +61,3 @@ class News:
             df = df.append({'Date': date, 'Title': title, 'Source':source, 'Link': link},
                            ignore_index=True)
         return df
-

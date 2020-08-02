@@ -16,7 +16,7 @@ class Ticker(Overview):
         """
         self.BASE_URL = 'https://finviz.com/screener.ashx?v=411{filter}&ft=4'
         self.url = self.BASE_URL.format(filter='')
-        Overview._loadfilters(self)
+        Overview._loadSetting(self)
 
     def ScreenerView(self, verbose=1):
         """Get screener table.
