@@ -5,7 +5,6 @@ import pandas as pd
    :synopsis: insider table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
-
 """
 
 INSIDER_URL = 'https://finviz.com/insidertrading.ashx'
