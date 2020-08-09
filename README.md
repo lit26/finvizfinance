@@ -8,7 +8,7 @@
 
 # finvizfinance
 
-Fetch information from finviz
+Getting stock fundament information, technical analysis, stock charts, insider information and stock news from finviz.
 
 Docs: https://finvizfinance.readthedocs.io/en/latest/
 
