@@ -1,4 +1,4 @@
-.. Technical Analysis Library in Python documentation master file, created by
+.. Finviz Finance in Python documentation master file, created by
    sphinx-quickstart on Tue Apr 10 15:47:09 2018.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
@@ -82,6 +82,8 @@ Contents
    Screener <screener>
    News <news>
    Insider <insider>
+   Forex <forex>
+   Crypto <crypto>
 
 
 Indices and tables

@@ -14,7 +14,6 @@ class Ticker(Overview):
     def __init__(self):
         """initiate module
         """
-        self.BASE_URL = 'https://finviz.com/screener.ashx?v=411{filter}&ft=4'
         self.BASE_URL = 'https://finviz.com/screener.ashx?v=411{signal}{filter}&ft=4{ticker}'
         self.url = self.BASE_URL.format(signal='', filter='',ticker='')
         Overview._loadSetting(self)

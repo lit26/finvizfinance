@@ -1,4 +1,5 @@
 import requests
+import pandas as pd
 from bs4 import BeautifulSoup
 
 """
@@ -42,6 +43,67 @@ def imageScrap(url, ticker, out_dir):
     else:
         print('Error...')
         print(r.status_code)
+
+def scrapFunction(url):
+    """Scrap forex, crypto information.
+
+    Parameters:
+        url(str): website
+    Returns:
+        df(pandas.DataFrame): performance table
+    """
+    soup = webScrap(url)
+    table = soup.findAll('table')[3]
+    rows = table.findAll('tr')
+    table_header = [i.text.strip() for i in rows[0].findAll('td')][1:]
+    df = pd.DataFrame([], columns=table_header)
+    rows = rows[1:]
+    num_col_index = [i for i in range(2, len(table_header))]
+    for row in rows:
+        cols = row.findAll('td')[1:]
+        info_dict = {}
+        for i, col in enumerate(cols):
+            if i not in num_col_index:
+                info_dict[table_header[i]] = col.text
+            else:
+                info_dict[table_header[i]] = numberCovert(col.text)
+        df = df.append(info_dict, ignore_index=True)
+    return df
+
+def imageScrapFunction(url, chart, timeframe):
+    """Scrap forex, crypto information.
+
+    Parameters:
+        url(str): website
+        chart(str): choice of chart
+        timeframe (str): choice of timeframe(5M, H, D, W, M)
+    """
+    if timeframe == '5M':
+        url += 'm5'
+    elif timeframe == 'H':
+        url += 'h1'
+    elif timeframe == 'D':
+        url += 'd1'
+    elif timeframe == 'W':
+        url += 'w1'
+    elif timeframe == 'M':
+        url += 'mo'
+    else:
+        print('Invalid timeframe.')
+        raise ValueError()
+
+    soup = webScrap(url)
+    content = soup.find('div', class_='container')
+    imgs = content.findAll('img')
+    for img in imgs:
+        website = img['src']
+        name = website.split('?')[1].split('&')[0].split('.')[0]
+        chart_name = name.split('_')[0]
+        if chart.lower() == chart_name:
+            imageScrap('https://finviz.com/' + website, name, '')
+            break
+        else:
+            continue
 
 def numberCovert(num):
     """covert number(str) to number(float)
