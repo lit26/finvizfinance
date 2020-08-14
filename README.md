@@ -13,6 +13,20 @@ Getting stock fundament information, technical analysis, stock charts, insider i
 
 Docs: https://finvizfinance.readthedocs.io/en/latest/
 
+### Downloads
+
+To download the latest version from GitHub:
+
+```
+$ git clone https://github.com/lit26/finvizfinance.git
+```
+Or install from PyPi:
+```
+$ pip install finvizfinance
+```
+
+
+
 ### Quote
 
 Getting information (fundament, description, outer rating, stock news, inside trader) of an individual stock.
