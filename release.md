@@ -1,5 +1,6 @@
 | Date | Version | Comment |
 | ------------- | ------------- | ------------- |
+| 2020/08/13 | 0.5.1 | Fix bug in group folder |
 | 2020/08/13 | 0.5 | Update Quote module and add compare function to screener |
 | 2020/08/13 | 0.4.1 | Adding group spectrum module |
 | 2020/08/13 | 0.4 | Adding group folder |
