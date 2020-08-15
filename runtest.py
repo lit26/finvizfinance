@@ -1,9 +1,4 @@
 from finvizfinance.quote import finvizfinance
-from finvizfinance.news import News
-from finvizfinance.insider import Insider
-from finvizfinance.forex import Forex
-from finvizfinance.crypto import Crypto
-from finvizfinance.screener.overview import Overview
 
 def test_finvizfinance_quote():
     stock = finvizfinance('tsla')
@@ -11,6 +6,7 @@ def test_finvizfinance_quote():
     assert(stock_info is not None)
 
 def test_finvizfinance_news():
+    from finvizfinance.news import News
     fnews = News()
     all_news = fnews.getNews()
     news = all_news['news']
@@ -19,11 +15,13 @@ def test_finvizfinance_news():
     assert(blogs is not None)
 
 def test_finvizfinance_insider():
+    from finvizfinance.insider import Insider
     finsider = Insider(option='top owner trade')
     insider = finsider.getInsider()
     assert(insider is not None)
 
 def test_screener_overview():
+    from finvizfinance.screener.overview import Overview
     foverview = Overview()
     filters_dict = {'Exchange': 'AMEX', 'Sector': 'Basic Materials'}
     foverview.set_filter(filters_dict=filters_dict)
@@ -35,13 +33,21 @@ def test_screener_overview():
     assert(df is not None)
 
 def test_finvizfinance_forex():
+    from finvizfinance.forex import Forex
     fforex = Forex()
     df = fforex.performance()
     assert (df is not None)
 
 def test_finvizfinance_crypto():
+    from finvizfinance.crypto import Crypto
     fcrypto = Crypto()
     df = fcrypto.performance()
+    assert (df is not None)
+
+def test_group_overview():
+    from finvizfinance.group.overview import Overview
+    fgoverview = Overview()
+    df = fgoverview.ScreenerView(group='Industry')
     assert (df is not None)
 
 if __name__ == "__main__":
@@ -57,3 +63,5 @@ if __name__ == "__main__":
     print('Forex module test pass.')
     test_finvizfinance_crypto()
     print('Crypto module test pass.')
+    test_group_overview()
+    print('Group module test pass')
