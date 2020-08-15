@@ -203,7 +203,7 @@ class Overview:
             order(str): sort the table by the choice of order
             verbose(int): choice of visual the progress. 1 for visualize progress
         Returns:
-            tickers(list): get all the tickers as list.
+            df(pandas.DataFrame): screener information table
         """
         url = self.url
         if order != 'ticker':

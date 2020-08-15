@@ -80,6 +80,7 @@ Contents
 .. toctree::
    Quote <quote>
    Screener <screener>
+   Group <group>
    News <news>
    Insider <insider>
    Forex <forex>
