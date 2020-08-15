@@ -1,5 +1,7 @@
 | Date | Version | Comment |
 | ------------- | ------------- | ------------- |
+| 2020/08/13 | 0.4.1 | Adding group spectrum module |
+| 2020/08/13 | 0.4 | Adding group folder |
 | 2020/08/13 | 0.3 | Adding forex and crypto module |
 | 2020/08/02 | 0.2.3 | Update filter in screener |
 | 2020/08/02 | 0.2.2 | Fix a bug in screen order|
