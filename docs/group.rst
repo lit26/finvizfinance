@@ -20,3 +20,9 @@ Performance
 
 .. automodule:: finvizfinance.group.performance
    :members:
+
+Spectrum
+=============
+
+.. automodule:: finvizfinance.group.spectrum
+   :members:
