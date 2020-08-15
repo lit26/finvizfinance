@@ -3,9 +3,10 @@ import pandas as pd
 from bs4 import BeautifulSoup
 
 """
-Module:         util
-Description:    General function for the package.
-Author:         Tianning Li
+.. module:: util
+   :synopsis: General function for the package.
+
+.. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) \
@@ -14,7 +15,7 @@ headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) \
 def webScrap(url):
     """Scrap website.
 
-    Parameters:
+    Args:
         url(str): website
     Returns:
         soup(beautiful soup): website html
@@ -26,7 +27,7 @@ def webScrap(url):
 def imageScrap(url, ticker, out_dir):
     """scrap website and download image
 
-    Parameters:
+    Args:
         url(str): website (image)
         ticker(str): output image name
         out_dir(str): output directory
@@ -47,7 +48,7 @@ def imageScrap(url, ticker, out_dir):
 def scrapFunction(url):
     """Scrap forex, crypto information.
 
-    Parameters:
+    Args:
         url(str): website
     Returns:
         df(pandas.DataFrame): performance table
@@ -73,7 +74,7 @@ def scrapFunction(url):
 def imageScrapFunction(url, chart, timeframe):
     """Scrap forex, crypto information.
 
-    Parameters:
+    Args:
         url(str): website
         chart(str): choice of chart
         timeframe (str): choice of timeframe(5M, H, D, W, M)
@@ -108,7 +109,7 @@ def imageScrapFunction(url, chart, timeframe):
 def numberCovert(num):
     """covert number(str) to number(float)
 
-    Parameters:
+    Args:
         num(str): number of string
     Return:
         num(float): number of string
