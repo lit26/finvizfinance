@@ -49,19 +49,11 @@ stock.TickerCharts()
 stock_fundament = stock.TickerFundament()
 
 # result
-# stock_fundament = {'Index': '-',
-#  'P/E': '-',
-#  'EPS (ttm)': '-0.87',
-#  'Insider Own': '0.10%',
-#  'Shs Outstand': '183.00M',
-#  'Perf Week': '3.00%',
-#  'Market Cap': '295.14B',
-#  'Forward P/E': '135.32',
-#  'EPS next Y': '131.09%',
-#  'Insider Trans': '-33.47%',
-#  'Shs Float': '147.41M',
-#  'Perf Month': '60.14%',
-#  'Income': '-144.30M',...}
+# stock_fundament = {'Company': 'Tesla, Inc.', 'Sector': 'Consumer Cyclical', 
+# 'Industry': 'Auto Manufacturers', 'Country': 'USA', 'Index': '-', 'P/E': '849.57', 
+# 'EPS (ttm)': '1.94', 'Insider Own': '0.10%', 'Shs Outstand': '186.00M', 
+# 'Perf Week': '13.63%', 'Market Cap': '302.10B', 'Forward P/E': '106.17',
+# ...}
 ```
 
 #### Description

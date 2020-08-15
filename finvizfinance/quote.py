@@ -70,8 +70,15 @@ class finvizfinance:
         Returns:
             fundament(dict): ticker fundament.
         """
-        fundament_table = self.soup.find('table', class_='snapshot-table2')
         fundament_info = {}
+
+        table = self.soup.findAll('table')[5]
+        rows = table.findAll('tr')
+
+        fundament_info['Company'] = rows[3].text
+        fundament_info['Sector'], fundament_info['Industry'], fundament_info['Country'] = rows[4].text.split(' | ')
+
+        fundament_table = self.soup.find('table', class_='snapshot-table2')
         rows = fundament_table.findAll('tr')
 
         for row in rows:

@@ -1,4 +1,5 @@
 from finvizfinance.util import webScrap, numberCovert
+from finvizfinance.quote import finvizfinance
 import pandas as pd
 """
 .. module:: screen.overview
@@ -236,3 +237,33 @@ class Overview:
             rows = table.findAll('tr')
             df = self._get_table(rows, df, num_col_index, table_header)
         return df
+
+    def compare(self, ticker, compare_list, order='ticker', verbose=1):
+        """Get screener table of similar property (Sector, Industry, Country)
+
+        Args:
+            ticker(str): the ticker to compare
+            compare_list(list): choice of compare property (Sector, Industry, Country) or combination.
+            order(str): sort the table by the choice of order
+            verbose(int): choice of visual the progress. 1 for visualize progress
+        Returns:
+            df(pandas.DataFrame): screener information table
+        """
+        check_list = ['Sector', 'Industry', 'Country']
+        error_list = [i for i in compare_list if i not in check_list]
+        if len(error_list) != 0:
+            print('Please check: {}'.format(error_list))
+            raise ValueError()
+
+        stock = finvizfinance(ticker)
+        stock_fundament = stock.TickerFundament()
+        filters_dict = {}
+        for compare in compare_list:
+            filters_dict[compare] = stock_fundament[compare]
+
+        self.set_filter(filters_dict=filters_dict)
+        df = self.ScreenerView(order=order, verbose=verbose)
+        return df
+
+
+
