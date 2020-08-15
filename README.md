@@ -6,6 +6,7 @@
 ![Read the Docs](https://img.shields.io/readthedocs/finvizfinance)
 [![Downloads](https://pepy.tech/badge/finvizfinance)](https://pepy.tech/project/finvizfinance)
 [![CodeFactor](https://www.codefactor.io/repository/github/lit26/finvizfinance/badge/master)](https://www.codefactor.io/repository/github/lit26/finvizfinance/overview/master)
+[![Donate PayPal](https://img.shields.io/badge/Donate%20%24-PayPal-brightgreen.svg)](https://www.paypal.me/TIANNINGL/)
 
 # finvizfinance
 
@@ -144,3 +145,5 @@ df.head()
 
 Getting list of tickers according to the filters.
 
+### Credit
+Developed by Tianning Li. Feel free to give comments or suggestions.
