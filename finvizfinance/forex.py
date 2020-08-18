@@ -17,8 +17,9 @@ class Forex:
 
     def performance(self, change='percent'):
         """Get forex performance table.
+
         Args:
-            change (str): choose a option of change(percent, PIPS)
+            change (str): choose an option of change(percent, PIPS)
 
         Returns:
             df(pandas.DataFrame): forex performance table
@@ -36,6 +37,7 @@ class Forex:
 
     def chart(self, forex, timeframe='D'):
         """Get forex chart.
+        
         Args:
             forex (str): foreign exchange name
             timeframe (str): choice of timeframe(5M, H, D, W, M)
