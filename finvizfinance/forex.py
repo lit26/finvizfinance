@@ -37,7 +37,7 @@ class Forex:
 
     def chart(self, forex, timeframe='D'):
         """Get forex chart.
-        
+
         Args:
             forex (str): foreign exchange name
             timeframe (str): choice of timeframe(5M, H, D, W, M)

@@ -1,5 +1,6 @@
 | Date | Version | Comment |
 | ------------- | ------------- | ------------- |
+| 2020/08/13 | 0.6.1 | Fix PyPi package error |
 | 2020/08/13 | 0.6 | Add earning module |
 | 2020/08/13 | 0.5.1 | Fix bug in group folder |
 | 2020/08/13 | 0.5 | Update Quote module and add compare function to screener |
