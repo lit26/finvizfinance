@@ -17,17 +17,21 @@ class Earnings:
     """Earnings
         Partition dataframe of ticker information of period of earning dates(This Week,
         Next Week, Previous Week, This Month) into dates
-
+        
+    Args:
+        period(str): choose an option of period(This Week, Next Week,
+                     Previous Week, This Month).
     """
-    def __init__(self):
+    def __init__(self, period='This Week'):
         """initiate module
         """
         self.earning_days = []
         self.df_days = {}
         self.df = None
-        self.period = ''
+        self.period = period
+        self._setPeriod(period)
 
-    def setPeriod(self, period='This Week'):
+    def _setPeriod(self, period):
         """Set the period.
 
         Args:
