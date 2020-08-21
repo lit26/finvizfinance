@@ -40,7 +40,6 @@ def imageScrap(url, ticker, out_dir):
         f = open('{}{}.jpg'.format(out_dir, ticker), "wb")
         f.write(r.content)
         f.close()
-        print('Done')
     else:
         print('Error...')
         print(r.status_code)
