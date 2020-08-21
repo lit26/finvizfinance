@@ -15,25 +15,27 @@ class finvizfinance:
 
     Args:
         ticker(str): ticker string
+        verbose(int): choice of visual the progress. 1 for visualize progress.
     """
-    def __init__(self,ticker):
+    def __init__(self, ticker, verbose=0):
         """initiate module
         """
         self.ticker = ticker
         self.flag = False
         self.quote_url = QUOTE_URL.format(ticker=ticker)
         self.soup = webScrap(self.quote_url)
-        if self._checkexist():
+        if self._checkexist(verbose):
             self.flag = True
         self.info = {}
 
-    def _checkexist(self):
+    def _checkexist(self, verbose):
         try:
             if 'not found' in self.soup.find('td', class_='body-text').text:
                 print('Ticker not found.')
                 return False
         except:
-            print('Ticker exists.')
+            if verbose == 1:
+                print('Ticker exists.')
             return True
 
     def TickerCharts(self, timeframe='daily', charttype='advanced', out_dir=''):
