@@ -1,4 +1,4 @@
-Forex
+Earnings
 **************************
 
 Getting earning dates information.
