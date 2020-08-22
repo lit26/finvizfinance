@@ -15,8 +15,8 @@ from finvizfinance.screener.technical import Technical
 
 class Earnings:
     """Earnings
-        Partition dataframe of ticker information of period of earning dates(This Week,
-        Next Week, Previous Week, This Month) into dates
+    Partition dataframe of ticker information of period of earning dates(This Week,
+    Next Week, Previous Week, This Month) into dates
         
     Args:
         period(str): choose an option of period(This Week, Next Week,
