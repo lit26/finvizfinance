@@ -11,7 +11,7 @@
 # finvizfinance
 
 finvizfinance is a package which collects financial information from FinViz website. The package provides the information of the following:
-* Stock fundamental & technical information, insider information and stock news
+* Stock charts, fundamental & technical information, insider information and stock news
 * Forex charts and performance
 * Crypto charts and performance
 
