@@ -178,14 +178,17 @@ class Overview:
         options = soup.findAll('table')[17].findAll('option')
         return len(options)
 
-    def _get_table(self, rows, df, num_col_index,table_header):
+    def _get_table(self, rows, df, num_col_index, table_header, limit=-1):
         """Get screener table helper function.
 
         Returns:
             df(pandas.DataFrame): screener information table
         """
         rows = rows[1:]
-        for row in rows:
+        if limit != -1:
+            rows = rows[0:limit]
+
+        for index, row in enumerate(rows):
             cols = row.findAll('td')[1:]
             info_dict = {}
             for i, col in enumerate(cols):
@@ -197,11 +200,24 @@ class Overview:
             df = df.append(info_dict, ignore_index=True)
         return df
 
-    def ScreenerView(self, order='ticker', verbose=1):
+    def _screener_helper(self, i, page, rows, df, num_col_index, table_header, limit):
+        """Get screener table helper function.
+
+        Returns:
+            df(pandas.DataFrame): screener information table
+        """
+        if i == page - 1:
+            df = self._get_table(rows, df, num_col_index, table_header, limit=((limit - 1) % 20 + 1))
+        else:
+            df = self._get_table(rows, df, num_col_index, table_header)
+        return df
+
+    def ScreenerView(self, order='ticker', limit=-1, verbose=1):
         """Get screener table.
 
         Args:
             order(str): sort the table by the choice of order
+            limit(int): set the top k rows of the screener
             verbose(int): choice of visual the progress. 1 for visualize progress
         Returns:
             df(pandas.DataFrame): screener information table
@@ -212,10 +228,15 @@ class Overview:
                 raise ValueError()
             url = self.url+'&'+self.order_dict[order]
         soup = webScrap(url)
+
         page = self._get_page(soup)
         if page == 0:
             print('No ticker found.')
             return None
+
+        if limit != -1:
+            if page > (limit-1)//20+1:
+                page = (limit-1)//20+1
 
         if verbose == 1:
             print('[Info] loading page 1/{} ...'.format(page))
@@ -224,7 +245,7 @@ class Overview:
         table_header = [i.text for i in rows[0].findAll('td')][1:]
         num_col_index = [table_header.index(i) for i in table_header if i in self.NUMBER_COL]
         df = pd.DataFrame([], columns=table_header)
-        df = self._get_table(rows, df, num_col_index, table_header)
+        df = self._screener_helper(0, page, rows, df, num_col_index, table_header, limit)
 
         for i in range(1, page):
             if verbose == 1:
@@ -235,7 +256,7 @@ class Overview:
                 soup = webScrap(self.url + '&r={}'.format(i * 20 + 1)+'&'+self.order_dict[order])
             table = soup.findAll('table')[18]
             rows = table.findAll('tr')
-            df = self._get_table(rows, df, num_col_index, table_header)
+            df = self._screener_helper(i, page, rows, df, num_col_index, table_header, limit)
         return df
 
     def compare(self, ticker, compare_list, order='ticker', verbose=1):

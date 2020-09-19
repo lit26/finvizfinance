@@ -18,7 +18,15 @@ class Ticker(Overview):
         self.url = self.BASE_URL.format(signal='', filter='',ticker='')
         Overview._loadSetting(self)
 
-    def ScreenerView(self, verbose=1):
+    def _screener_helper(self, i, page, soup, tickers, limit):
+        table = soup.findAll('table')[18]
+        page_tickers = table.findAll('span')
+        if i == page - 1:
+            page_tickers = page_tickers[:((limit - 1) % 1000 + 1)]
+        tickers = tickers + [i.text.split('\xa0')[1] for i in page_tickers]
+        return tickers
+
+    def ScreenerView(self, limit=-1, verbose=1):
         """Get screener table.
 
         Args:
@@ -32,17 +40,19 @@ class Ticker(Overview):
             print('No ticker found.')
             return None
 
+        if limit != -1:
+            if page > (limit-1)//1000+1:
+                page = (limit-1)//1000+1
+
         if verbose == 1:
             print('[Info] loading page 1/{} ...'.format(page))
-        table = soup.findAll('table')[18]
-        tickers = table.findAll('span')
-        tickers = [i.text.split('\xa0')[1] for i in tickers]
+
+        tickers = []
+        tickers = self._screener_helper(0, page, soup, tickers, limit)
 
         for i in range(1, page):
             if verbose == 1:
                 print('[Info] loading page {}/{} ...'.format((i + 1), page))
             soup = webScrap(self.url + '&r={}'.format(i * 1000 + 1))
-            table = soup.findAll('table')[18]
-            page_tickers = table.findAll('span')
-            tickers = tickers + [i.text.split('\xa0')[1] for i in page_tickers]
+            tickers = self._screener_helper(i, page, soup, tickers, limit)
         return tickers

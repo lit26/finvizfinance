@@ -20,8 +20,12 @@ def webScrap(url):
     Returns:
         soup(beautiful soup): website html
     """
-    website = requests.get(url, headers=headers)
-    soup = BeautifulSoup(website.text, 'lxml')
+    try:
+        website = requests.get(url, headers=headers)
+        website.raise_for_status()
+        soup = BeautifulSoup(website.text, 'lxml')
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
     return soup
 
 def imageScrap(url, ticker, out_dir):
@@ -32,17 +36,17 @@ def imageScrap(url, ticker, out_dir):
         ticker(str): output image name
         out_dir(str): output directory
     """
-    r = requests.get(url, stream=True, headers=headers)
-    if r.status_code == 200:
+    try:
+        r = requests.get(url, stream=True, headers=headers)
+        r.raise_for_status()
         r.raw.decode_content = True
         if len(out_dir) != 0:
             out_dir +='/'
         f = open('{}{}.jpg'.format(out_dir, ticker), "wb")
         f.write(r.content)
         f.close()
-    else:
-        print('Error...')
-        print(r.status_code)
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
 
 def scrapFunction(url):
     """Scrap forex, crypto information.
