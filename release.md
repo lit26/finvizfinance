@@ -1,5 +1,6 @@
 | Date | Version | Comment |
 | ------------- | ------------- | ------------- |
+| 2020/09/19 | 0.7 | Adding top K rows in the screener dataframe and update request error |
 | 2020/08/21 | 0.6.2 | Update printing |
 | 2020/08/17 | 0.6.1 | Fix PyPi package error |
 | 2020/08/17 | 0.6 | Add earning module |
