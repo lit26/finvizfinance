@@ -46,7 +46,7 @@ class Overview:
         """Get groups.
 
         Returns:
-            groups(list): all the available groups
+            groups(list): all the available groups.
         """
         return list(self.group_dict.keys())
 
@@ -55,7 +55,7 @@ class Overview:
         """Get orders.
 
         Returns:
-            orders(list): all the available orders
+            orders(list): all the available orders.
         """
         return list(self.order_dict.keys())
 
@@ -63,10 +63,10 @@ class Overview:
         """Get screener table.
 
         Args:
-            group(str): choice of group option
-            order(str): sort the table by the choice of order
+            group(str): choice of group option.
+            order(str): sort the table by the choice of order.
         Returns:
-            df(pandas.DataFrame): group information table
+            df(pandas.DataFrame): group information table.
         """
         if group not in self.group_dict:
             raise ValueError()

@@ -23,8 +23,8 @@ class Spectrum(Overview):
         """Get screener table.
 
         Args:
-            group(str): choice of group option
-            order(str): sort the table by the choice of order
+            group(str): choice of group option.
+            order(str): sort the table by the choice of order.
         """
         if group not in self.group_dict:
             raise ValueError()
