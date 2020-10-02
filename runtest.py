@@ -44,6 +44,12 @@ def test_finvizfinance_crypto():
     df = fcrypto.performance()
     assert (df is not None)
 
+def test_finvizfinance_future():
+    from finvizfinance.future import Future
+    ffuture = Future()
+    df = ffuture.performance()
+    assert (df is not None)
+
 def test_group_overview():
     from finvizfinance.group.overview import Overview
     fgoverview = Overview()
@@ -63,5 +69,7 @@ if __name__ == "__main__":
     print('Forex module test pass.')
     test_finvizfinance_crypto()
     print('Crypto module test pass.')
+    test_finvizfinance_future()
+    print('Future module test pass.')
     test_group_overview()
     print('Group module test pass')
