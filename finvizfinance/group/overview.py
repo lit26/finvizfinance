@@ -65,6 +65,7 @@ class Overview:
         Args:
             group(str): choice of group option.
             order(str): sort the table by the choice of order.
+
         Returns:
             df(pandas.DataFrame): group information table.
         """

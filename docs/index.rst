@@ -85,6 +85,7 @@ Contents
    Insider <insider>
    Forex <forex>
    Crypto <crypto>
+   Future <future>
    Earnings <earnings>
 
 
