@@ -38,13 +38,17 @@ class finvizfinance:
                 print('Ticker exists.')
             return True
 
-    def TickerCharts(self, timeframe='daily', charttype='advanced', out_dir=''):
+    def TickerCharts(self, timeframe='daily', charttype='advanced', out_dir='', urlonly=False):
         """Download ticker charts.
 
         Args:
             timeframe(str): choice of timeframe (daily, weekly, monthly).
             charttype(str): choice of type of chart (candle, line, advanced).
             out_dir(str): output image directory. default none.
+            urlonly (bool): choice of downloading charts, default: downloading chart
+
+        Returns:
+            charturl(str): url for the chart
         """
         if timeframe not in ['daily','weekly','monthly']:
             raise ValueError()
@@ -64,7 +68,9 @@ class finvizfinance:
             url_timeframe = 'm'
         chart_url = 'https://finviz.com/chart.ashx?t={ticker}&ty={type}&ta={ta}&p={timeframe}'.format(ticker=self.ticker,
                                                     type=url_type, ta=url_ta, timeframe=url_timeframe)
-        imageScrap(chart_url, self.ticker, out_dir)
+        if not urlonly:
+            imageScrap(chart_url, self.ticker, out_dir)
+        return chart_url
 
     def TickerFundament(self):
         """Get ticker fundament.

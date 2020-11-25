@@ -74,7 +74,7 @@ def scrapFunction(url):
         df = df.append(info_dict, ignore_index=True)
     return df
 
-def imageScrapFunction(url, chart, timeframe):
+def imageScrapFunction(url, chart, timeframe, urlonly):
     """Scrap forex, crypto information.
 
     Args:
@@ -93,8 +93,7 @@ def imageScrapFunction(url, chart, timeframe):
     elif timeframe == 'M':
         url += 'mo'
     else:
-        print('Invalid timeframe.')
-        raise ValueError()
+        raise ValueError('Invalid timeframe.')
 
     soup = webScrap(url)
     content = soup.find('div', class_='container')
@@ -104,8 +103,10 @@ def imageScrapFunction(url, chart, timeframe):
         name = website.split('?')[1].split('&')[0].split('.')[0]
         chart_name = name.split('_')[0]
         if chart.lower() == chart_name:
-            imageScrap('https://finviz.com/' + website, name, '')
-            break
+            charturl = 'https://finviz.com/' + website
+            if not urlonly:
+                imageScrap(charturl, name, '')
+            return charturl
         else:
             continue
 

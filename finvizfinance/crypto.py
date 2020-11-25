@@ -26,15 +26,17 @@ class Crypto:
         df = scrapFunction(url)
         return df
 
-    def chart(self, crypto, timeframe='D'):
+    def chart(self, crypto, timeframe='D', urlonly=False):
         """Get crypto chart.
 
         Args:
             crypto (str): crypto currency
             timeframe (str): choice of timeframe(5M, H, D, W, M)
+            urlonly (bool): choice of downloading charts, default: downloading chart
+        Returns:
+            charturl(str): url for the chart
         """
-        if crypto == '':
-            return None
 
         url = 'https://finviz.com/crypto_charts.ashx?t=ALL&tf='
-        imageScrapFunction(url, crypto, timeframe)
+        charturl = imageScrapFunction(url, crypto, timeframe, urlonly)
+        return charturl

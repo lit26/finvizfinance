@@ -35,15 +35,19 @@ class Forex:
         df = scrapFunction(url)
         return df
 
-    def chart(self, forex, timeframe='D'):
+    def chart(self, forex, timeframe='D', urlonly=False):
         """Get forex chart.
 
         Args:
             forex (str): foreign exchange name
             timeframe (str): choice of timeframe(5M, H, D, W, M)
+            urlonly (bool): choice of downloading charts, default: downloading chart
+        Returns:
+            charturl(str): url for the chart
         """
         if forex == '':
             return None
 
         url = 'https://finviz.com/forex_charts.ashx?t=ALL&tf='
-        imageScrapFunction(url, forex, timeframe)
+        charturl = imageScrapFunction(url, forex, timeframe, urlonly)
+        return charturl
