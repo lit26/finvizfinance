@@ -1,5 +1,6 @@
 | Date | Version | Comment |
 | ------------- | ------------- | ------------- |
+| 2020/12/29 | 0.7.3 | Adding stock trading signals in quote, fixing bug in stock fundamental |
 | 2020/11/24 | 0.7.2 | Adding optional download for charts |
 | 2020/10/01 | 0.7.1 | Adding future module |
 | 2020/09/19 | 0.7 | Adding top K rows in the screener dataframe and update request error |
