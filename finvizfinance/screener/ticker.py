@@ -37,7 +37,8 @@ class Ticker(Overview):
         soup = webScrap(self.url)
         page = self._get_page(soup)
         if page == 0:
-            print('No ticker found.')
+            if verbose == 1:
+                print('No ticker found.')
             return None
 
         if limit != -1:

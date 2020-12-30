@@ -83,8 +83,8 @@ class finvizfinance:
         table = self.soup.findAll('table')[5]
         rows = table.findAll('tr')
 
-        fundament_info['Company'] = rows[3].text
-        fundament_info['Sector'], fundament_info['Industry'], fundament_info['Country'] = rows[4].text.split(' | ')
+        fundament_info['Company'] = rows[1].text
+        fundament_info['Sector'], fundament_info['Industry'], fundament_info['Country'] = rows[2].text.split(' | ')
 
         fundament_table = self.soup.find('table', class_='snapshot-table2')
         rows = fundament_table.findAll('tr')
@@ -185,6 +185,31 @@ class finvizfinance:
             df = df.append(info_dict, ignore_index=True)
         self.info['inside trader'] = df
         return df
+
+    def TickerSignal(self):
+        """Get all the trading signals from finviz.
+
+        Returns:
+            ticker_signals(list): get all the ticker signals as list.
+        """
+        from finvizfinance.screener.ticker import Ticker
+        fticker = Ticker()
+        signals = ['Top Gainers', 'Top Losers', 'New High', 'New Low',
+                   'Most Volatile', 'Most Active', 'Unusual Volume',
+                   'Overbought', 'Oversold', 'Downgrades', 'Upgrades',
+                   'Earnings Before', 'Earnings After', 'Recent Insider Buying',
+                   'Recent Insider Selling', 'Major News', 'Horizontal S/R',
+                   'TL Resistance', 'TL Support', 'Wedge Up', 'Wedge Down',
+                   'Triangle Ascending', 'Triangle Descending', 'Wedge',
+                   'Channel Up', 'Channel Down', 'Channel', 'Double Top',
+                   'Double Bottom', 'Multiple Top', 'Multiple Bottom',
+                   'Head & Shoulders', 'Head & Shoulders Inverse']
+        ticker_signal = []
+        for signal in signals:
+            fticker.set_filter(signal=signal, ticker=self.ticker.upper())
+            if fticker.ScreenerView(verbose=0) == [self.ticker.upper()]:
+                ticker_signal.append(signal)
+        return ticker_signal
 
     def TickerFullInfo(self):
         """Get all the ticker information.
