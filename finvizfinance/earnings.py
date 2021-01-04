@@ -92,7 +92,7 @@ class Earnings:
         self.df_days = df2_days
         return self.df_days
 
-    def outputExcel(self,output_file='earning_days.xlsx'):
+    def outputExcel(self, output_file='earning_days.xlsx'):
         """Output dataframes to single Excel file.
 
         Args:

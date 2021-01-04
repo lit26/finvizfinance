@@ -1,5 +1,5 @@
 from finvizfinance.screener.overview import Overview
-from finvizfinance.util import webScrap
+from finvizfinance.util import webScrap, progressBar
 """
 .. module:: screen.ticker
    :synopsis: screen ticker table.
@@ -46,14 +46,14 @@ class Ticker(Overview):
                 page = (limit-1)//1000+1
 
         if verbose == 1:
-            print('[Info] loading page 1/{} ...'.format(page))
+            progressBar(1, page)
 
         tickers = []
         tickers = self._screener_helper(0, page, soup, tickers, limit)
 
         for i in range(1, page):
             if verbose == 1:
-                print('[Info] loading page {}/{} ...'.format((i + 1), page))
+                progressBar(i+1, page)
             soup = webScrap(self.url + '&r={}'.format(i * 1000 + 1))
             tickers = self._screener_helper(i, page, soup, tickers, limit)
         return tickers

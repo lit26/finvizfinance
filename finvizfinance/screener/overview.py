@@ -1,4 +1,4 @@
-from finvizfinance.util import webScrap, numberCovert
+from finvizfinance.util import webScrap, numberCovert, progressBar
 from finvizfinance.quote import finvizfinance
 import pandas as pd
 """
@@ -239,7 +239,7 @@ class Overview:
                 page = (limit-1)//20+1
 
         if verbose == 1:
-            print('[Info] loading page 1/{} ...'.format(page))
+            progressBar(1, page)
         table = soup.findAll('table')[18]
         rows = table.findAll('tr')
         table_header = [i.text for i in rows[0].findAll('td')][1:]
@@ -249,7 +249,7 @@ class Overview:
 
         for i in range(1, page):
             if verbose == 1:
-                print('[Info] loading page {}/{} ...'.format((i+1),page))
+                progressBar(i+1, page)
             if order == 'ticker':
                 soup = webScrap(self.url+'&r={}'.format(i*20+1))
             else:

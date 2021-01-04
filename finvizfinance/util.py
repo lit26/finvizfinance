@@ -1,6 +1,7 @@
 import requests
 import pandas as pd
 from bs4 import BeautifulSoup
+import sys
 
 """
 .. module:: util
@@ -130,3 +131,10 @@ def numberCovert(num):
         return float(num[:-1]) * 1000
     else:
         return float(''.join(num.split(',')))
+
+def progressBar(page, total):
+    bar_len = 30
+    filled_len = int(round(bar_len * page / float(total)))
+    bar = '#' * filled_len + '-' * (bar_len - filled_len)
+    sys.stdout.write(f'[Info] loading page [{bar}] {page}/{total} \r')
+    sys.stdout.flush()
