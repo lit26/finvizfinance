@@ -9,6 +9,20 @@ from datetime import datetime
 """
 QUOTE_URL = 'https://finviz.com/quote.ashx?t={ticker}'
 
+class Quote:
+    """quote
+    Getting current price of the ticker
+
+    """
+    def getCurrent(self, ticker):
+        """Getting current price of the ticker.
+
+        Returns:
+            price(float): price of the ticker
+        """
+        soup = webScrap(f"https://finviz.com/request_quote.ashx?t={ticker}")
+        return soup.text
+
 class finvizfinance:
     """finvizfinance
     Getting information from the individual ticker.
