@@ -1,5 +1,6 @@
 | Date | Version | Comment |
 | ------------- | ------------- | ------------- |
+| 2021/01/11 | 0.7.5 | Add current price function |
 | 2021/01/04 | 0.7.4 | Update progress bar |
 | 2020/12/29 | 0.7.3 | Adding stock trading signals in quote, fixing bug in stock fundamental |
 | 2020/11/24 | 0.7.2 | Adding optional download for charts |
