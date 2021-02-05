@@ -132,7 +132,7 @@ from finvizfinance.screener.overview import Overview
 
 foverview = Overview()
 filters_dict = {'Index':'S&P 500','Sector':'Basic Materials'}
-foverview.set_filter(filters_dict)
+foverview.set_filter(filters_dict=filters_dict)
 df = foverview.ScreenerView()
 df.head()
 ```
