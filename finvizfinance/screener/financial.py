@@ -6,6 +6,7 @@ from finvizfinance.screener.overview import Overview
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+
 class Financial(Overview):
     """Financial inherit from overview module.
     Getting information from the finviz screener financial page.

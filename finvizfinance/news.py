@@ -9,6 +9,7 @@ import pandas as pd
 
 NEWS_URL = 'https://finviz.com/news.ashx'
 
+
 class News:
     """News
     Getting information from the finviz news page.
@@ -35,7 +36,7 @@ class News:
         news_df = self._getNewsHelper(news)
         blog = tables[7]
         blog_df = self._getNewsHelper(blog)
-        self.news = {'news':news_df, 'blogs':blog_df}
+        self.news = {'news': news_df, 'blogs': blog_df}
         return self.news
 
     def _getNewsHelper(self, rows):
@@ -48,7 +49,7 @@ class News:
             df(pandas.DataFrame): news information table
 
         """
-        df = pd.DataFrame([], columns=['Date', 'Title','Source','Link'])
+        df = pd.DataFrame([], columns=['Date', 'Title', 'Source', 'Link'])
         rows = rows.findAll('tr')
         for row in rows:
             cols = row.findAll('td')
@@ -58,6 +59,6 @@ class News:
             source = link.split('/')[2]
             if source == 'feedproxy.google.com':
                 source = link.split('/')[4]
-            df = df.append({'Date': date, 'Title': title, 'Source':source, 'Link': link},
+            df = df.append({'Date': date, 'Title': title, 'Source': source, 'Link': link},
                            ignore_index=True)
         return df

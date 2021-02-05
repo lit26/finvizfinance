@@ -8,6 +8,7 @@ import pandas as pd
 
 """
 
+
 class Overview:
     """Overview
     Getting information from the finviz group overview page.
@@ -49,7 +50,6 @@ class Overview:
             groups(list): all the available groups.
         """
         return list(self.group_dict.keys())
-
 
     def getOrders(self):
         """Get orders.

@@ -9,6 +9,7 @@ import pandas as pd
 
 INSIDER_URL = 'https://finviz.com/insidertrading.ashx'
 
+
 class Insider:
     """Insider
     Getting information from the finviz insider page.

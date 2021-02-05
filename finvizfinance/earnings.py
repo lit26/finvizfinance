@@ -13,6 +13,7 @@ from finvizfinance.screener.technical import Technical
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+
 class Earnings:
     """Earnings
     Partition dataframe of ticker information of period of earning dates(This Week,
@@ -38,7 +39,7 @@ class Earnings:
             period(str): choose an option of period(This Week, Next Week,
                          Previous Week, This Month).
         """
-        check_list = ['This Week', 'Next Week', 'Previous Week','This Month']
+        check_list = ['This Week', 'Next Week', 'Previous Week', 'This Month']
         if period not in check_list:
             print('Available period: {}'.format(check_list))
             raise ValueError()
@@ -57,7 +58,7 @@ class Earnings:
             mode(str): choose an option of period(financial, overview, valuation, ownership,
                        performance, technical).
         """
-        check_list = ['financial', 'overview', 'valuation', 'ownership','performance','technical']
+        check_list = ['financial', 'overview', 'valuation', 'ownership', 'performance', 'technical']
         if mode not in check_list:
             print('Available mode: {}'.format(check_list))
             raise ValueError()

@@ -13,6 +13,7 @@ import sys
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) \
             AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36'}
 
+
 def webScrap(url):
     """Scrap website.
 
@@ -29,6 +30,7 @@ def webScrap(url):
         raise SystemExit(err)
     return soup
 
+
 def imageScrap(url, ticker, out_dir):
     """scrap website and download image
 
@@ -42,12 +44,13 @@ def imageScrap(url, ticker, out_dir):
         r.raise_for_status()
         r.raw.decode_content = True
         if len(out_dir) != 0:
-            out_dir +='/'
+            out_dir += '/'
         f = open('{}{}.jpg'.format(out_dir, ticker), "wb")
         f.write(r.content)
         f.close()
     except requests.exceptions.HTTPError as err:
         raise SystemExit(err)
+
 
 def scrapFunction(url):
     """Scrap forex, crypto information.
@@ -74,6 +77,7 @@ def scrapFunction(url):
                 info_dict[table_header[i]] = numberCovert(col.text)
         df = df.append(info_dict, ignore_index=True)
     return df
+
 
 def imageScrapFunction(url, chart, timeframe, urlonly):
     """Scrap forex, crypto information.
@@ -111,6 +115,7 @@ def imageScrapFunction(url, chart, timeframe, urlonly):
         else:
             continue
 
+
 def numberCovert(num):
     """covert number(str) to number(float)
 
@@ -131,6 +136,7 @@ def numberCovert(num):
         return float(num[:-1]) * 1000
     else:
         return float(''.join(num.split(',')))
+
 
 def progressBar(page, total):
     bar_len = 30

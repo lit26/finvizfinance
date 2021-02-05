@@ -6,6 +6,7 @@ from finvizfinance.util import scrapFunction, imageScrapFunction
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+
 class Forex:
     """Forex
     Getting information from the finviz forex page.

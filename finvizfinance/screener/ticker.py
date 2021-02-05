@@ -7,6 +7,7 @@ from finvizfinance.util import webScrap, progressBar
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+
 class Ticker(Overview):
     """Financial inherit from overview module.
     Getting information from the finviz screener ticker page.
@@ -15,7 +16,7 @@ class Ticker(Overview):
         """initiate module
         """
         self.BASE_URL = 'https://finviz.com/screener.ashx?v=411{signal}{filter}&ft=4{ticker}'
-        self.url = self.BASE_URL.format(signal='', filter='',ticker='')
+        self.url = self.BASE_URL.format(signal='', filter='', ticker='')
         Overview._loadSetting(self)
 
     def _screener_helper(self, i, page, soup, tickers, limit):

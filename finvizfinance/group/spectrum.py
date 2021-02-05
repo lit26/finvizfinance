@@ -8,6 +8,7 @@ from finvizfinance.util import webScrap, imageScrap
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+
 class Spectrum(Overview):
     """Spectrum inherit from overview module.
     Getting information from the finviz group spectrum page.

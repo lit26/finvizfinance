@@ -9,6 +9,7 @@ import pandas as pd
 
 """
 
+
 class Overview:
     """Overview
     Getting information from the finviz screener overview page.
@@ -17,7 +18,7 @@ class Overview:
         """initiate module"""
         self.BASE_URL = 'https://finviz.com/screener.ashx?v=111{signal}{filter}&ft=4{ticker}'
         self.NUMBER_COL = ['Market Cap', 'P/E', 'Price', 'Change', 'Volume']
-        self.url = self.BASE_URL.format(signal='', filter='',ticker='')
+        self.url = self.BASE_URL.format(signal='', filter='', ticker='')
         self._loadSetting()
 
     def _loadSetting(self):
@@ -64,7 +65,7 @@ class Overview:
         value = [i['value'].split('&')[2] for i in options]
         self.order_dict = dict(zip(key, value))
 
-    def _set_signal(self,signal):
+    def _set_signal(self, signal):
         """set signal.
 
         Args:
@@ -144,7 +145,7 @@ class Overview:
             url_filter = '&f=' + ','.join(filters)
         return url_filter
 
-    def _set_ticker(self,ticker):
+    def _set_ticker(self, ticker):
         """Set ticker.
 
         Args:
@@ -164,15 +165,15 @@ class Overview:
             filters_dict(dict): dictionary of filters
             ticker(str): ticker string
         """
-        if signal == '' and filters_dict == {} and ticker =='':
-            self.url = self.BASE_URL.format(signal='',filter='', ticker='')
+        if signal == '' and filters_dict == {} and ticker == '':
+            self.url = self.BASE_URL.format(signal='', filter='', ticker='')
         else:
             url_signal = self._set_signal(signal)
             url_filter = self._set_filters(filters_dict)
             url_ticker = self._set_ticker(ticker)
-            self.url = self.BASE_URL.format(signal=url_signal,filter=url_filter,ticker=url_ticker)
+            self.url = self.BASE_URL.format(signal=url_signal, filter=url_filter, ticker=url_ticker)
 
-    def _get_page(self,soup):
+    def _get_page(self, soup):
         """Check the page number
         """
         options = soup.findAll('table')[17].findAll('option')
@@ -212,13 +213,14 @@ class Overview:
             df = self._get_table(rows, df, num_col_index, table_header)
         return df
 
-    def ScreenerView(self, order='ticker', limit=-1, verbose=1):
+    def ScreenerView(self, order='ticker', limit=-1, verbose=1, ascend=True):
         """Get screener table.
 
         Args:
-            order(str): sort the table by the choice of order
-            limit(int): set the top k rows of the screener
-            verbose(int): choice of visual the progress. 1 for visualize progress
+            order(str): sort the table by the choice of order.
+            limit(int): set the top k rows of the screener.
+            verbose(int): choice of visual the progress. 1 for visualize progress.
+            ascend(bool): if True, the order is ascending.
         Returns:
             df(pandas.DataFrame): screener information table
         """
@@ -227,6 +229,8 @@ class Overview:
             if order not in self.order_dict:
                 raise ValueError()
             url = self.url+'&'+self.order_dict[order]
+        if not ascend:
+            url = url.replace('o=', 'o=-')
         soup = webScrap(url)
 
         page = self._get_page(soup)
@@ -285,6 +289,5 @@ class Overview:
         self.set_filter(filters_dict=filters_dict)
         df = self.ScreenerView(order=order, verbose=verbose)
         return df
-
 
 
