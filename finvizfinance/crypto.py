@@ -6,6 +6,7 @@ from finvizfinance.util import scrapFunction, imageScrapFunction
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+
 class Crypto:
     """Crypto
     Getting information from the finviz crypto page.

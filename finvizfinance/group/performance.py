@@ -6,6 +6,7 @@ from finvizfinance.group.overview import Overview
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+
 class Performance(Overview):
     """Performance inherit from overview module.
     Getting information from the finviz group performance page.

@@ -9,6 +9,7 @@ from datetime import datetime
 """
 QUOTE_URL = 'https://finviz.com/quote.ashx?t={ticker}'
 
+
 class Quote:
     """quote
     Getting current price of the ticker
@@ -22,6 +23,7 @@ class Quote:
         """
         soup = webScrap("https://finviz.com/request_quote.ashx?t={}".format(ticker))
         return soup.text
+
 
 class finvizfinance:
     """finvizfinance
@@ -64,9 +66,9 @@ class finvizfinance:
         Returns:
             charturl(str): url for the chart
         """
-        if timeframe not in ['daily','weekly','monthly']:
+        if timeframe not in ['daily', 'weekly', 'monthly']:
             raise ValueError()
-        if charttype not in ['candle', 'line','advanced']:
+        if charttype not in ['candle', 'line', 'advanced']:
             raise ValueError()
         url_type = 'c'
         url_ta = '0'
@@ -121,7 +123,7 @@ class finvizfinance:
         Returns:
             description(str): ticker description.
         """
-        return self.soup.find('td',class_='fullview-profile').text
+        return self.soup.find('td', class_='fullview-profile').text
 
     def TickerOuterRatings(self):
         """Get outer ratings table.
@@ -185,7 +187,7 @@ class finvizfinance:
         table_header += ['Insider_id']
         df = pd.DataFrame([], columns=table_header)
         rows = rows[1:]
-        num_col = ['Cost','#Shares','Value ($)','#Shares Total']
+        num_col = ['Cost', '#Shares', 'Value ($)', '#Shares Total']
         num_col_index = [table_header.index(i) for i in table_header if i in num_col]
         for row in rows:
             cols = row.findAll('td')

@@ -1,4 +1,4 @@
-from finvizfinance.util import webScrap, imageScrapFunction
+from finvizfinance.util import webScrap
 import pandas as pd
 import json
 
@@ -8,6 +8,7 @@ import json
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+
 
 class Future:
     """Future

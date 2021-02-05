@@ -6,6 +6,7 @@ from finvizfinance.screener.overview import Overview
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+
 class Valuation(Overview):
     """Valuation inherit from overview module.
         Getting information from the finviz screener valuation page.
