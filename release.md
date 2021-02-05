@@ -1,5 +1,6 @@
 | Date | Version | Comment |
 | ------------- | ------------- | ------------- |
+| 2021/02/05 | 0.8 | Adding ascend and descend to screener and fixing code style |
 | 2021/01/11 | 0.7.5 | Add current price function |
 | 2021/01/04 | 0.7.4 | Update progress bar |
 | 2020/12/29 | 0.7.3 | Adding stock trading signals in quote, fixing bug in stock fundamental |
