@@ -119,4 +119,4 @@ class Earnings:
             os.mkdir(output_dir)
         for name, df in self.df_days.items():
             file_name = '_'.join(name.split('/'))
-            df.to_csv(output_dir+'/'+file_name+'.csv',index=False)
+            df.to_csv(output_dir+'/'+file_name+'.csv', index=False)
