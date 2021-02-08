@@ -254,10 +254,15 @@ class Overview:
         for i in range(1, page):
             if verbose == 1:
                 progressBar(i+1, page)
+
+            url = self.url
             if order == 'ticker':
-                soup = webScrap(self.url+'&r={}'.format(i*20+1))
+                url += '&r={}'.format(i*20+1)
             else:
-                soup = webScrap(self.url + '&r={}'.format(i * 20 + 1)+'&'+self.order_dict[order])
+                url += '&r={}'.format(i * 20 + 1)+'&'+self.order_dict[order]
+            if not ascend:
+                url = url.replace('o=', 'o=-')
+            soup = webScrap(url)
             table = soup.findAll('table')[18]
             rows = table.findAll('tr')
             df = self._screener_helper(i, page, rows, df, num_col_index, table_header, limit)
