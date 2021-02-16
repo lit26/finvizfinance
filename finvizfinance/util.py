@@ -27,7 +27,7 @@ def webScrap(url):
         website.raise_for_status()
         soup = BeautifulSoup(website.text, 'lxml')
     except requests.exceptions.HTTPError as err:
-        raise SystemExit(err)
+        raise Exception(err)
     return soup
 
 
@@ -49,7 +49,7 @@ def imageScrap(url, ticker, out_dir):
         f.write(r.content)
         f.close()
     except requests.exceptions.HTTPError as err:
-        raise SystemExit(err)
+        raise Exception(err)
 
 
 def scrapFunction(url):
