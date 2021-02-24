@@ -41,6 +41,5 @@ setup(name=PACKAGE_NAME,
       classifiers=CLASSIFIERS,
       install_requires=INSTALL_REQUIRES,
       packages=find_packages(),
-      data_files=[('finvizfinance', ['finvizfinance/util.json'])],
       python_requires=PYTHON_REQUIRES
       )
