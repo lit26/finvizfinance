@@ -1,6 +1,7 @@
 | Date | Version | Comment |
 | ------------- | ------------- | ------------- |
-| 2021/02/15 | 0.8.2 | Fix error type |
+| 2021/02/23 | 0.9 | Changing screener structure. Adding Custom screener. https://github.com/lit26/finvizfinance/issues/12|
+| 2021/02/15 | 0.8.2 | Fix error type https://github.com/lit26/finvizfinance/issues/10|
 | 2021/02/07 | 0.8.1 | Fix bug in screener order |
 | 2021/02/05 | 0.8 | Adding ascend and descend to screener and fixing code style |
 | 2021/01/11 | 0.7.5 | Add current price function |
