@@ -1,7 +1,6 @@
-from finvizfinance.util import webScrap, numberCovert, progressBar, NUMBER_COL
+from finvizfinance.util import webScrap, numberCovert, progressBar, NUMBER_COL, util_dict
 from finvizfinance.quote import finvizfinance
 import pandas as pd
-import json
 """
 .. module:: screen.overview
    :synopsis: screen overview table.
@@ -23,11 +22,10 @@ class Overview:
 
     def _loadSetting(self):
         """load all the signals and filters."""
-        with open('finvizfinance/util.json') as json_file:
-            data = json.load(json_file)
-            self.signal_dict = data['signal']
-            self.filter_dict = data['filter']
-            self.order_dict = data['order']
+        data = util_dict
+        self.signal_dict = data['signal']
+        self.filter_dict = data['filter']
+        self.order_dict = data['order']
 
     def _set_signal(self, signal):
         """set signal.
