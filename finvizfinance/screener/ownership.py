@@ -15,8 +15,5 @@ class Ownership(Overview):
         """initiate module
         """
         self.BASE_URL = 'https://finviz.com/screener.ashx?v=131{signal}{filter}&ft=4{ticker}'
-        self.NUMBER_COL = ['Market Cap', 'Outstanding', 'Float', 'Insider Own',
-                           'Insider Trans', 'Inst Own', 'Inst Trans', 'Float Short',
-                           'Short Ratio', 'Avg Volume', 'Price', 'Change', 'Volume']
         self.url = self.BASE_URL.format(signal='', filter='', ticker='')
         Overview._loadSetting(self)

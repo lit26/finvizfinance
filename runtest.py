@@ -1,9 +1,11 @@
 from finvizfinance.quote import finvizfinance
 
+
 def test_finvizfinance_quote():
     stock = finvizfinance('tsla')
     stock_info = stock.TickerFullInfo()
     assert(stock_info is not None)
+
 
 def test_finvizfinance_news():
     from finvizfinance.news import News
@@ -14,11 +16,13 @@ def test_finvizfinance_news():
     assert(news is not None)
     assert(blogs is not None)
 
+
 def test_finvizfinance_insider():
     from finvizfinance.insider import Insider
     finsider = Insider(option='top owner trade')
     insider = finsider.getInsider()
     assert(insider is not None)
+
 
 def test_screener_overview():
     from finvizfinance.screener.overview import Overview
@@ -32,11 +36,13 @@ def test_screener_overview():
     df = foverview.ScreenerView()
     assert(df is not None)
 
+
 def test_finvizfinance_forex():
     from finvizfinance.forex import Forex
     fforex = Forex()
     df = fforex.performance()
     assert (df is not None)
+
 
 def test_finvizfinance_crypto():
     from finvizfinance.crypto import Crypto
@@ -50,11 +56,13 @@ def test_finvizfinance_crypto():
 #     df = ffuture.performance()
 #     assert (df is not None)
 
+
 def test_group_overview():
     from finvizfinance.group.overview import Overview
     fgoverview = Overview()
     df = fgoverview.ScreenerView(group='Industry')
     assert (df is not None)
+
 
 if __name__ == "__main__":
     test_finvizfinance_quote()

@@ -1,6 +1,7 @@
-from finvizfinance.util import webScrap, numberCovert, progressBar
+from finvizfinance.util import webScrap, numberCovert, progressBar, NUMBER_COL
 from finvizfinance.quote import finvizfinance
 import pandas as pd
+import json
 """
 .. module:: screen.overview
    :synopsis: screen overview table.
@@ -17,53 +18,16 @@ class Overview:
     def __init__(self):
         """initiate module"""
         self.BASE_URL = 'https://finviz.com/screener.ashx?v=111{signal}{filter}&ft=4{ticker}'
-        self.NUMBER_COL = ['Market Cap', 'P/E', 'Price', 'Change', 'Volume']
         self.url = self.BASE_URL.format(signal='', filter='', ticker='')
         self._loadSetting()
 
     def _loadSetting(self):
         """load all the signals and filters."""
-        soup = webScrap(self.url)
-
-        # signal
-        select = soup.find(id='signalSelect')
-        options = select.findAll('option')[1:]
-        key = [i.text for i in options]
-        value = [i['value'].split('&')[1].split('=')[1] for i in options]
-        self.signal_dict = dict(zip(key, value))
-
-        # filter
-        table = soup.find('td', class_='filters-border')
-        rows = table.find('table').children
-        filter_dict = {}
-        for row in rows:
-            if len(row) > 1:
-                cols = row.findAll('td')
-                for i, col in enumerate(cols):
-                    span = col.findAll('span')
-                    if len(span) > 0:
-                        header = span[0].text
-                        continue
-                    if header != 'After-Hours Close' and header != 'After-Hours Change':
-                        select = col.find('select')
-                        if select is not None:
-                            option_dict = {}
-                            prefix = select['data-filter']
-                            option_dict['prefix'] = prefix
-                            option_dict['option'] = {}
-                            options = col.findAll('option')
-                            for option in options:
-                                if '(Elite only)' not in option.text:
-                                    option_dict['option'][option.text] = option['value']
-                            filter_dict[header] = option_dict
-        self.filter_dict = filter_dict
-
-        # order
-        select = soup.find(id='orderSelect')
-        options = select.findAll('option')
-        key = [i.text for i in options]
-        value = [i['value'].split('&')[2] for i in options]
-        self.order_dict = dict(zip(key, value))
+        with open('finvizfinance/util.json') as json_file:
+            data = json.load(json_file)
+            self.signal_dict = data['signal']
+            self.filter_dict = data['filter']
+            self.order_dict = data['order']
 
     def _set_signal(self, signal):
         """set signal.
@@ -247,7 +211,7 @@ class Overview:
         table = soup.findAll('table')[18]
         rows = table.findAll('tr')
         table_header = [i.text for i in rows[0].findAll('td')][1:]
-        num_col_index = [table_header.index(i) for i in table_header if i in self.NUMBER_COL]
+        num_col_index = [table_header.index(i) for i in table_header if i in NUMBER_COL]
         df = pd.DataFrame([], columns=table_header)
         df = self._screener_helper(0, page, rows, df, num_col_index, table_header, limit)
 
@@ -257,9 +221,9 @@ class Overview:
 
             url = self.url
             if order == 'ticker':
-                url += '&r={}'.format(i*20+1)
+                url += '&r={}'.format(i * 20 + 1)
             else:
-                url += '&r={}'.format(i * 20 + 1)+'&'+self.order_dict[order]
+                url += '&r={}'.format(i * 20 + 1) + '&' + self.order_dict[order]
             if not ascend:
                 url = url.replace('o=', 'o=-')
             soup = webScrap(url)
@@ -294,5 +258,3 @@ class Overview:
         self.set_filter(filters_dict=filters_dict)
         df = self.ScreenerView(order=order, verbose=verbose)
         return df
-
-

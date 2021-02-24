@@ -15,8 +15,5 @@ class Financial(Overview):
         """initiate module
         """
         self.BASE_URL = 'https://finviz.com/screener.ashx?v=161{signal}{filter}&ft=4{ticker}'
-        self.NUMBER_COL = ['Market Cap', 'Dividend', 'ROA', 'ROE', 'ROI',
-                           'Curr R', 'Quick R', 'LTDebt/Eq', 'Debt/Eq', 'Gross M',
-                           'Oper M', 'Profit M', 'Price', 'Change', 'Volume']
         self.url = self.BASE_URL.format(signal='', filter='', ticker='')
         Overview._loadSetting(self)

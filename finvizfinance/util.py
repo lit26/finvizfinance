@@ -13,6 +13,17 @@ import sys
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) \
             AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36'}
 
+NUMBER_COL = ['Market Cap', 'P/E', 'Fwd P/E', 'PEG', 'P/S', 'P/B', 'P/C',
+              'P/FCF', 'Dividend', 'Payout Ratio', 'EPS', 'EPS this Y', 'EPS next Y',
+              'EPS past 5Y', 'EPS next 5Y', 'Sales past 5Y', 'EPS Q/Q', 'Sales Q/Q',
+              'Outstanding', 'Float', 'Insider Own', 'Insider Trans', 'Inst Own', 'Inst Trans',
+              'Float Short', 'Short Ratio', 'ROA', 'ROE', 'ROI', 'Curr R', 'Quick R', 'LTDebt/Eq',
+              'Debt/Eq', 'Gross M', 'Oper M', 'Profit M', 'Perf Week', 'Perf Month', 'Perf Quart',
+              'Perf Half', 'Perf Year', 'Perf YTD', 'Beta', 'ATR', 'Volatility W', 'Volatility M',
+              'SMA20', 'SMA50', 'SMA200', '50D High', '50D Low', '52W High', '52W Low', 'RSI',
+              'from Open', 'Gap', 'Recom', 'Avg Volume', 'Rel Volume', 'Price', 'Change', 'Volume',
+              'Target Price']
+
 
 def webScrap(url):
     """Scrap website.
