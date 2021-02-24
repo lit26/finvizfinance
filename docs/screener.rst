@@ -33,6 +33,12 @@ Technical
 .. automodule:: finvizfinance.screener.technical
    :members:
 
+Custom
+=============
+
+.. automodule:: finvizfinance.screener.custom
+   :members:
+
 Tickers
 =============
 
