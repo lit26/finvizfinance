@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = '0.9'
+VERSION = '0.9.1'
 PACKAGE_NAME = 'finvizfinance'
 AUTHOR = 'Tianning Li'
 AUTHOR_EMAIL = 'ltianningli@gmail.com'
@@ -41,5 +41,6 @@ setup(name=PACKAGE_NAME,
       classifiers=CLASSIFIERS,
       install_requires=INSTALL_REQUIRES,
       packages=find_packages(),
+      data_files=[('finvizfinance', ['finvizfinance/util.json'])],
       python_requires=PYTHON_REQUIRES
       )

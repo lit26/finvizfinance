@@ -1,5 +1,6 @@
 | Date | Version | Comment |
 | ------------- | ------------- | ------------- |
+| 2021/02/23 | 0.9.1 | Fix bug for PyPi packages|
 | 2021/02/23 | 0.9 | Changing screener structure. Adding Custom screener. https://github.com/lit26/finvizfinance/issues/12|
 | 2021/02/15 | 0.8.2 | Fix error type https://github.com/lit26/finvizfinance/issues/10|
 | 2021/02/07 | 0.8.1 | Fix bug in screener order |
