@@ -6,6 +6,7 @@ import pandas as pd
 
 .. moduleauthor:: Andres Gonzalez <atowersc@gmail.com> In inspiration with Tianning Li <ltianningli@gmail.com>
 """
+
 CALENDAR_URL = 'https://finviz.com/calendar.ashx'
 
 class Calendar:
@@ -45,6 +46,7 @@ class Calendar:
             df(pandas.DataFrame): calendar information table
 
         """
+
         df = pd.DataFrame([], columns=['Date', 'Next', 'Release', 'Impact', 'For', 'Val', 'Actual', 'Expected', 'Prior'])
         tables = tables.findAll('tr')[3:]
 
@@ -57,7 +59,7 @@ class Calendar:
                     nexxt = ">>>>"
                 else:
                     nexxt = "    "
-            except:
+            except Exception:
                 pass
             if cols[2].text == "Release":
                 release = "----------"
@@ -85,7 +87,6 @@ class Calendar:
                     val = " < "
             except:
                 val = "---"
-                pass
             if cols[5].text == "Actual":
                 actual = "----------"
             else:
