@@ -3,10 +3,9 @@ import pandas as pd
 
 """
 .. module:: Calendar
-   :synopsis: Calendar table.
+   :synopsis: Calendar Table.
 
-.. moduleauthor:: Andres Gonzalez <atowersc@gmail.com> 
-In inspiration with Tianning Li <ltianningli@gmail.com> 
+.. moduleauthor:: Tianning Li <ltianningli@gmail.com> In inspiration with Tianning Li <ltianningli@gmail.com>
 """
 
 CALENDAR_URL = 'https://finviz.com/calendar.ashx'
@@ -15,7 +14,7 @@ class Calendar:
     """Calendar
     Getting information from the complete week Calendar page.
     """
-    
+
     def __init__(self):
         """initiate module
 
@@ -49,8 +48,7 @@ class Calendar:
         """
 
         df = pd.DataFrame([], columns=['Date', 'Next', 'Release', 'Impact', 'For', 'Val', 'Actual', 'Expected', 'Prior'])
-        tables = tables.findAll('tr')[3:]
-
+        tables = tables.findAll('tr')[3:]       
         for row in tables:
             cols = row.find_all('td')
             date = cols[0].text
@@ -60,7 +58,6 @@ class Calendar:
                 nexxt = ">>>>"
             else:
                 nexxt = "    "
-
             if cols[2].text == "Release":
                 release = "----------"
             else:
@@ -80,12 +77,13 @@ class Calendar:
                 forr = "----------"
             else:
                 forr = cols[4].text
-            try:
+            
+            if cols[5].find("span"):
                 if cols[5].find("span").get("style") == "color:#008800;":
                     val = " > "
                 else:
                     val = " < "
-            except:
+            else:
                 val = "---"
             if cols[5].text == "Actual":
                 actual = "----------"
