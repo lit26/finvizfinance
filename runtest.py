@@ -22,8 +22,7 @@ def test_finvizfinance_calendar():
     fcalendar = Calendar()
     all_Calendar = fcalendar.getCalendar()
     calendar = all_Calendar['calendar']
-    print(calendar)
-    #assert(calendar is not None)
+    assert(calendar is not None)
 
 
 def test_finvizfinance_insider():

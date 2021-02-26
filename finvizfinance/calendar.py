@@ -1,10 +1,12 @@
 from finvizfinance.util import webScrap
 import pandas as pd
+
 """
 .. module:: Calendar
    :synopsis: Calendar table.
 
-.. moduleauthor:: Andres Gonzalez <atowersc@gmail.com> In inspiration with Tianning Li <ltianningli@gmail.com>
+.. moduleauthor:: Andres Gonzalez <atowersc@gmail.com> 
+In inspiration with Tianning Li <ltianningli@gmail.com> 
 """
 
 CALENDAR_URL = 'https://finviz.com/calendar.ashx'
@@ -53,14 +55,13 @@ class Calendar:
         for row in tables:
             cols = row.find_all('td')
             date = cols[0].text
-            try:
-                attr = row.get("class")
-                if attr[0] == "calendar-now":
-                    nexxt = ">>>>"
-                else:
-                    nexxt = "    "
-            except Exception:
-                pass
+            
+            attr = row.get("class")
+            if str(attr) == "['calendar-now']":
+                nexxt = ">>>>"
+            else:
+                nexxt = "    "
+
             if cols[2].text == "Release":
                 release = "----------"
             else:
