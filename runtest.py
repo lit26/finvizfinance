@@ -63,6 +63,11 @@ def test_group_overview():
     df = fgoverview.ScreenerView(group='Industry')
     assert (df is not None)
 
+def test_finvizfinance_calendar():
+    from finvizfinance.calendar import Calendar
+    fcalen = Calendar()
+    calendar = fcalen.getCalendar()
+    assert(calendar is not None)
 
 if __name__ == "__main__":
     test_finvizfinance_quote()
@@ -81,3 +86,5 @@ if __name__ == "__main__":
     # print('Future module test pass.')
     test_group_overview()
     print('Group module test pass')
+    test_finvizfinance_calendar()
+    print('Calendar module test pass')
