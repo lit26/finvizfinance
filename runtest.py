@@ -17,6 +17,14 @@ def test_finvizfinance_news():
     assert(blogs is not None)
 
 
+def test_finvizfinance_calendar():
+    from finvizfinance.calendar import Calendar
+    fcalendar = Calendar()
+    all_Calendar = fcalendar.getCalendar()
+    calendar = all_Calendar['calendar']
+    assert(calendar is not None)
+
+
 def test_finvizfinance_insider():
     from finvizfinance.insider import Insider
     finsider = Insider(option='top owner trade')
@@ -69,6 +77,8 @@ if __name__ == "__main__":
     print('Quote module test pass.')
     test_finvizfinance_news()
     print('News module test pass.')
+    test_finvizfinance_calendar()
+    print('Calendar module test pass.')
     test_finvizfinance_insider()
     print('Insider module test pass.')
     test_screener_overview()
