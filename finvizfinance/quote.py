@@ -1,6 +1,8 @@
-from finvizfinance.util import webScrap, imageScrap, numberCovert
-import pandas as pd
 from datetime import datetime
+import requests
+import json
+import pandas as pd
+from finvizfinance.util import webScrap, imageScrap, numberCovert, headers
 """
 .. module:: finvizfinance
    :synopsis: individual ticker.
@@ -238,3 +240,29 @@ class finvizfinance:
         self.TickerNews()
         self.TickerInsideTrader()
         return self.info
+
+
+class Statements:
+    """
+    Getting statements of ticker
+
+    """
+    def getStatements(self, ticker, statement="IA"):
+        """Getting statements of ticker.
+
+        Args:
+            ticker(str): ticker string
+            statement(str): IA(Income Statement), BA(Balace Sheet), CA(Cash Flow)
+        Returns:
+            df(pandas.DataFrame): statements table
+        """
+        url = 'https://finviz.com/api/statement.ashx?t={ticker}&s={statement}'.format(ticker=ticker,
+                                                                                      statement=statement)
+        try:
+            website = requests.get(url, headers=headers)
+            website.raise_for_status()
+            response = json.loads(website.content)
+            df = pd.DataFrame.from_dict(response['data'], orient='index')
+            return df
+        except requests.exceptions.HTTPError as err:
+            raise Exception(err)
