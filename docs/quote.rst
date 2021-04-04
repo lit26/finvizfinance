@@ -3,7 +3,17 @@ Quote
 
 Getting individual ticker information.
 
-.. automodule:: finvizfinance.quote
+Quote
+=============
+
+.. automodule:: finvizfinance.quote.Quote
+   :members:
+
+
+Ticker information
+====================
+
+.. automodule:: finvizfinance.quote.finvizfinance
    :members:
 
 
