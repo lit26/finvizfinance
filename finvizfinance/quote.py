@@ -247,17 +247,19 @@ class Statements:
     Getting statements of ticker
 
     """
-    def getStatements(self, ticker, statement="IA"):
+    def getStatements(self, ticker, statement="I", timeframe="A"):
         """Getting statements of ticker.
 
         Args:
             ticker(str): ticker string
-            statement(str): IA(Income Statement), BA(Balace Sheet), CA(Cash Flow)
+            statement(str): I(Income Statement), B(Balace Sheet), C(Cash Flow)
+            timeframe(str): A(Annual), Q(Quarter)
         Returns:
             df(pandas.DataFrame): statements table
         """
-        url = 'https://finviz.com/api/statement.ashx?t={ticker}&s={statement}'.format(ticker=ticker,
-                                                                                      statement=statement)
+        url = 'https://finviz.com/api/statement.ashx?t={ticker}&s={statement}{timeframe}'.format(ticker=ticker,
+                                                                                                statement=statement,
+                                                                                                timeframe=timeframe)
         try:
             website = requests.get(url, headers=headers)
             website.raise_for_status()

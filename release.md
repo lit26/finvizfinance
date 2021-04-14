@@ -1,5 +1,6 @@
 | Date | Version | Comment |
 | ------------- | ------------- | ------------- |
+| 2021/04/14 | 0.9.5 | Add quarterly statements. https://github.com/lit26/finvizfinance/issues/19|
 | 2021/04/13 | 0.9.4 | Fix bug for weekly chart. https://github.com/lit26/finvizfinance/issues/18|
 | 2021/03/06 | 0.9.3 | Add ticker statements |
 | 2021/02/23 | 0.9.2 | Fix bug for PyPi packages |
