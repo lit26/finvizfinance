@@ -80,7 +80,7 @@ class finvizfinance:
             url_ta = '1'
 
         url_timeframe = 'd'
-        if timeframe == 'week':
+        if timeframe == 'weekly':
             url_timeframe = 'w'
         elif timeframe == 'monthly':
             url_timeframe = 'm'
