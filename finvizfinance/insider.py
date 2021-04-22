@@ -22,10 +22,22 @@ class Insider:
         """
         if option == 'latest':
             self.soup = webScrap(INSIDER_URL)
+        elif option == 'latest buys':
+            self.soup = webScrap(INSIDER_URL+'?tc=1')
+        elif option == 'latest sales':
+            self.soup = webScrap(INSIDER_URL+'?tc=2')
         elif option == 'top week':
             self.soup = webScrap(INSIDER_URL+'?or=-10&tv=100000&tc=7&o=-transactionValue')
+        elif option == 'top week buys':
+            self.soup = webScrap(INSIDER_URL+'?or=-10&tv=100000&tc=1&o=-transactionValue')
+        elif option == 'top week sales':
+            self.soup = webScrap(INSIDER_URL+'?or=-10&tv=100000&tc=2&o=-transactionValue')
         elif option == 'top owner trade':
             self.soup = webScrap(INSIDER_URL+'?or=10&tv=1000000&tc=7&o=-transactionValue')
+        elif option == 'top owner buys':
+            self.soup = webScrap(INSIDER_URL+'?or=10&tv=1000000&tc=1&o=-transactionValue')
+        elif option == 'top owner sales':
+            self.soup = webScrap(INSIDER_URL+'?or=10&tv=1000000&tc=2&o=-transactionValue')
         elif option.isdigit():
             self.soup = webScrap(INSIDER_URL+'?oc='+option+'&tc=7')
         self.df = None
