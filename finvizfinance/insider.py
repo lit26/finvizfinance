@@ -15,7 +15,9 @@ class Insider:
     Getting information from the finviz insider page.
 
     Args:
-        option (str): choose a option (latest, latest buys, latest sales, top week, top week buys, top week sales, top owner trade, top owner buys, top owner sales, insider_id)
+        option (str): choose a option (latest, latest buys, latest sales, top week,
+                      top week buys, top week sales, top owner trade, top owner buys,
+                      top owner sales, insider_id)
     """
     def __init__(self, option='latest'):
         """initiate module
