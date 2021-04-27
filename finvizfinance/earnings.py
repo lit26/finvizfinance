@@ -41,8 +41,7 @@ class Earnings:
         """
         check_list = ['This Week', 'Next Week', 'Previous Week', 'This Month']
         if period not in check_list:
-            print('Available period: {}'.format(check_list))
-            raise ValueError()
+            raise ValueError("Invalid period '{}'. Available period: {}".format(period, check_list))
         self.period = period
         ffinancial = Financial()
         filters_dict = {'Earnings Date': period}
@@ -60,8 +59,7 @@ class Earnings:
         """
         check_list = ['financial', 'overview', 'valuation', 'ownership', 'performance', 'technical']
         if mode not in check_list:
-            print('Available mode: {}'.format(check_list))
-            raise ValueError()
+            raise ValueError("Invalid mode '{}'. Available mode: {}".format(mode, check_list))
 
         for earning_day in self.earning_days:
             if mode == 'financial':

@@ -69,9 +69,9 @@ class finvizfinance:
             charturl(str): url for the chart
         """
         if timeframe not in ['daily', 'weekly', 'monthly']:
-            raise ValueError()
+            raise ValueError("Invalid timeframe '{}'".format(timeframe))
         if charttype not in ['candle', 'line', 'advanced']:
-            raise ValueError()
+            raise ValueError("Invalid chart type '{}'".format(charttype))
         url_type = 'c'
         url_ta = '0'
         if charttype == 'line':

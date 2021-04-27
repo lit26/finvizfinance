@@ -42,7 +42,7 @@ class Future:
         elif timeframe == 'Y':
             params = '?v=16'
         else:
-            raise ValueError()
+            raise ValueError("Invalid timeframe '{}'".format(timeframe))
 
         soup = webScrap('https://finviz.com/futures_performance.ashx'+params)
         data = soup.text[soup.text.find('var rows = ')+11:soup.text.find('FinvizInitFuturesPerformance(rows);')]

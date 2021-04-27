@@ -134,7 +134,8 @@ class Custom(Overview):
         url = self.url
         if order != 'ticker':
             if order not in self.order_dict:
-                raise ValueError()
+                order_keys = list(self.order_dict.keys())
+                raise ValueError("Invalid order '{}'. Possible order: {}".format(order, order_keys))
             url = self.url+'&'+self.order_dict[order]
         if not ascend:
             url = url.replace('o=', 'o=-')

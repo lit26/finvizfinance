@@ -37,8 +37,8 @@ class Overview:
         """
         url_signal = ''
         if signal not in self.signal_dict and signal != '':
-            print('No "{}" signal. Please try again.'.format(signal))
-            raise ValueError()
+            signal_keys = list(self.signal_dict.keys())
+            raise ValueError("Invalid signal '{}'. Possible signal: {}".format(signal, signal_keys))
         elif signal != '':
             url_signal = '&s=' + self.signal_dict[signal]
         return url_signal
@@ -69,8 +69,8 @@ class Overview:
             filter_options(list): all the available filters
         """
         if screen_filter not in self.filter_dict:
-            print('Invalid filter.')
-            raise ValueError()
+            filter_keys = list(self.filter_dict.keys())
+            raise ValueError("Invalid filter '{}'. Possible filter: {}".format(screen_filter, filter_keys))
         return list(self.filter_dict[screen_filter]['option'])
 
     def getOrders(self):
@@ -93,11 +93,12 @@ class Overview:
         filters = []
         for key, value in filters_dict.items():
             if key not in self.filter_dict:
-                print('No "{}" filter. Please try again.'.format(key))
-                raise ValueError()
+                filter_keys = list(self.filter_dict.keys())
+                raise ValueError("Invalid filter '{}'. Possible filter: {}".format(key, filter_keys))
             if value not in self.filter_dict[key]['option']:
-                print('No "{}" filter options. Please check "{}" filter option.'.format(value, key))
-                raise ValueError()
+                filter_options = list(self.filter_dict[key]['option'].keys())
+                raise ValueError("Invalid filter option '{}'. Possible filter options: {}".format(value,
+                                                                                                  filter_options))
             prefix = self.filter_dict[key]['prefix']
             urlcode = self.filter_dict[key]['option'][value]
             if urlcode != '':
@@ -189,7 +190,8 @@ class Overview:
         url = self.url
         if order != 'ticker':
             if order not in self.order_dict:
-                raise ValueError()
+                order_keys = list(self.order_dict.keys())
+                raise ValueError("Invalid order '{}'. Possible order: {}".format(order, order_keys))
             url = self.url+'&'+self.order_dict[order]
         if not ascend:
             url = url.replace('o=', 'o=-')
@@ -244,8 +246,7 @@ class Overview:
         check_list = ['Sector', 'Industry', 'Country']
         error_list = [i for i in compare_list if i not in check_list]
         if len(error_list) != 0:
-            print('Please check: {}'.format(error_list))
-            raise ValueError()
+            raise ValueError('Please check: {}'.format(error_list))
 
         stock = finvizfinance(ticker)
         stock_fundament = stock.TickerFundament()

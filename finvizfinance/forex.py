@@ -31,8 +31,7 @@ class Forex:
         elif change == 'PIPS':
             url = 'https://finviz.com/forex_performance.ashx?v=1&tv=2&o=-perfdaypct'
         else:
-            print('Options of change: percent(default), PIPS')
-            raise ValueError()
+            raise ValueError('Options of change: percent(default), PIPS')
         df = scrapFunction(url)
         return df
 
