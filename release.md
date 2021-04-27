@@ -1,11 +1,12 @@
 | Date | Version | Comment |
 | ------------- | ------------- | ------------- |
-| 2021/04/18 | 0.9.6 | Increase performance and add timeout. https://github.com/lit26/finvizfinance/issues/21|
-| 2021/04/14 | 0.9.5 | Add quarterly statements. https://github.com/lit26/finvizfinance/issues/19|
-| 2021/04/13 | 0.9.4 | Fix bug for weekly chart. https://github.com/lit26/finvizfinance/issues/18|
+| 2021/04/27 | 0.9.7 | Update Value Error message https://github.com/lit26/finvizfinance/issues/23. Adding insider options https://github.com/lit26/finvizfinance/pull/22 |
+| 2021/04/18 | 0.9.6 | Increase performance and add timeout https://github.com/lit26/finvizfinance/issues/21.|
+| 2021/04/14 | 0.9.5 | Add quarterly statements https://github.com/lit26/finvizfinance/issues/19.|
+| 2021/04/13 | 0.9.4 | Fix bug for weekly chart https://github.com/lit26/finvizfinance/issues/18.|
 | 2021/03/06 | 0.9.3 | Add ticker statements |
 | 2021/02/23 | 0.9.2 | Fix bug for PyPi packages |
-| 2021/02/23 | 0.9 | Changing screener structure. Adding Custom screener. https://github.com/lit26/finvizfinance/issues/12|
+| 2021/02/23 | 0.9 | Changing screener structure. Adding Custom screener https://github.com/lit26/finvizfinance/issues/12.|
 | 2021/02/15 | 0.8.2 | Fix error type https://github.com/lit26/finvizfinance/issues/10|
 | 2021/02/07 | 0.8.1 | Fix bug in screener order |
 | 2021/02/05 | 0.8 | Adding ascend and descend to screener and fixing code style |
