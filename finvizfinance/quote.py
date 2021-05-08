@@ -10,7 +10,8 @@ from finvizfinance.util import webScrap, imageScrap, numberCovert, headers
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 QUOTE_URL = 'https://finviz.com/quote.ashx?t={ticker}'
-
+NUM_COL = ['P/E', 'EPS (ttm)', 'Insider Own', 'Shs Outstand', 'Market Cap', 'Forward P/E',
+           'EPS nest Y', 'Insider ']
 
 class Quote:
     """quote
@@ -90,8 +91,11 @@ class finvizfinance:
             imageScrap(chart_url, self.ticker, out_dir)
         return chart_url
 
-    def TickerFundament(self):
+    def TickerFundament(self, raw=True):
         """Get ticker fundament.
+
+        Args:
+            raw(boolean): if True, the data is raw.
 
         Returns:
             fundament(dict): ticker fundament.
@@ -115,8 +119,51 @@ class finvizfinance:
                 if i % 2 == 0:
                     header = value
                 else:
-                    fundament_info[header] = value
+                    if header == 'Volatility':
+                        fundament_info = self._parse_volatility(header, fundament_info, value, raw)
+                    elif header == '52W Range':
+                        fundament_info = self._parse_52w_range(header, fundament_info, value, raw)
+                    elif header == 'Optionable' or header == 'Shortable':
+                        if raw:
+                            fundament_info[header] = value
+                        elif value == 'Yes':
+                            fundament_info[header] = True
+                        else:
+                            fundament_info[header] = False
+                    else:
+                        if raw:
+                            fundament_info[header] = value
+                        else:
+                            try:
+                                fundament_info[header] = numberCovert(value)
+                            except ValueError:
+                                fundament_info[header] = value
         self.info['fundament'] = fundament_info
+        return fundament_info
+
+    def _parse_52w_range(self, header, fundament_info, value, raw):
+        info_header = ['52W Range From', '52W Range To']
+        info_value = [0, 2]
+        self._parse_value(header, fundament_info, value, raw, info_header, info_value)
+        return fundament_info
+
+    def _parse_volatility(self, header, fundament_info, value, raw):
+        info_header = ['Volatility W', 'Volatility M']
+        info_value = [0, 1]
+        self._parse_value(header, fundament_info, value, raw, info_header, info_value)
+        return fundament_info
+
+    def _parse_value(self, header, fundament_info, value, raw, info_header, info_value):
+        try:
+            value = value.split()
+            if raw:
+                for i, value_index in enumerate(info_value):
+                    fundament_info[info_header[i]] = value[value_index]
+            else:
+                for i, value_index in enumerate(info_value):
+                    fundament_info[info_header[i]] = numberCovert(value[value_index])
+        except:
+            fundament_info[header] = value
         return fundament_info
 
     def TickerDescription(self):
