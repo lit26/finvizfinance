@@ -1,15 +1,16 @@
+os: linux
+dist: xenial
 language: python
 
-sudo: true
 fast_finish: true
 
-matrix:
+jobs:
+  fast_finish: true
   include:
     - python: 3.5
     - python: 3.6
     - python: 3.7
       dist: xenial
-      sudo: true
 
 install:
   - pip install -r requirements.txt
