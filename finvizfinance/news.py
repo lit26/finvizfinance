@@ -1,5 +1,5 @@
-from finvizfinance.util import webScrap
 import pandas as pd
+from finvizfinance.util import webScrap
 """
 .. module:: news
    :synopsis: news table.

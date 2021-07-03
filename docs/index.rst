@@ -87,6 +87,7 @@ Contents
    Crypto <crypto>
    Future <future>
    Earnings <earnings>
+   Calendar <calendar>
 
 
 Indices and tables

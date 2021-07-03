@@ -1,5 +1,5 @@
-from finvizfinance.util import webScrap, numberCovert
 import pandas as pd
+from finvizfinance.util import webScrap, numberCovert
 """
 .. module:: insider
    :synopsis: insider table.

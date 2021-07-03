@@ -1,6 +1,6 @@
-from finvizfinance.util import webScrap, numberCovert, progressBar, NUMBER_COL, util_dict
-from finvizfinance.quote import finvizfinance
 import pandas as pd
+from finvizfinance.quote import finvizfinance
+from finvizfinance.util import webScrap, numberCovert, progressBar, NUMBER_COL, util_dict
 """
 .. module:: screen.overview
    :synopsis: screen overview table.

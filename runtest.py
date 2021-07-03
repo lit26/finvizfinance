@@ -50,6 +50,13 @@ def test_finvizfinance_crypto():
     df = fcrypto.performance()
     assert (df is not None)
 
+
+def test_finvizfinance_calendar():
+    from finvizfinance.calendar import Calendar
+    fcalendar = Calendar()
+    df = fcalendar.calendar()
+    assert (df is not None)
+
 # def test_finvizfinance_future():
 #     from finvizfinance.future import Future
 #     ffuture = Future()
@@ -77,6 +84,8 @@ if __name__ == "__main__":
     print('Forex module test pass.')
     test_finvizfinance_crypto()
     print('Crypto module test pass.')
+    test_finvizfinance_calendar()
+    print('Calendar module test pass.')
     # test_finvizfinance_future()
     # print('Future module test pass.')
     test_group_overview()

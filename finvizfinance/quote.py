@@ -1,7 +1,7 @@
 from datetime import datetime
-import requests
 import json
 import pandas as pd
+import requests
 from finvizfinance.util import webScrap, imageScrap, numberCovert, headers
 """
 .. module:: finvizfinance
@@ -12,6 +12,7 @@ from finvizfinance.util import webScrap, imageScrap, numberCovert, headers
 QUOTE_URL = 'https://finviz.com/quote.ashx?t={ticker}'
 NUM_COL = ['P/E', 'EPS (ttm)', 'Insider Own', 'Shs Outstand', 'Market Cap', 'Forward P/E',
            'EPS nest Y', 'Insider ']
+
 
 class Quote:
     """quote

@@ -1,6 +1,6 @@
+import pandas as pd
 from finvizfinance.screener.overview import Overview
 from finvizfinance.util import webScrap, progressBar, NUMBER_COL
-import pandas as pd
 """
 .. module:: screen.custom
    :synopsis: screen custom table.

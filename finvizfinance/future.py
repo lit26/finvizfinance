@@ -1,6 +1,6 @@
-from finvizfinance.util import webScrap
-import pandas as pd
 import json
+import pandas as pd
+from finvizfinance.util import webScrap
 
 """
 .. module:: future
