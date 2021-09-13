@@ -1,5 +1,6 @@
 | Date | Version | Comment |
 | ------------- | ------------- | ------------- |
+| 2021/07/03 | 0.9.10 | Add sec doc link https://github.com/lit26/finvizfinance/issues/26 |
 | 2021/07/03 | 0.9.9 | Add calendar module. Fixing import package order. Add package version https://github.com/lit26/finvizfinance/issues/25.|
 | 2021/05/08 | 0.9.8 | Adding data type in Quote file.|
 | 2021/04/27 | 0.9.7 | Update Value Error message https://github.com/lit26/finvizfinance/issues/23. Adding insider options https://github.com/lit26/finvizfinance/pull/22 |
