@@ -52,7 +52,7 @@ class Insider:
         """
         insider_trader = self.soup.findAll('table')[5]
         rows = insider_trader.findAll('tr')
-        table_header = [i.text.strip() for i in rows[0].findAll('td')]
+        table_header = [i.text.strip() for i in rows[0].findAll('td')] + ['SEC Form 4 Link']
         df = pd.DataFrame([], columns=table_header)
         rows = rows[1:]
         num_col = ['Cost', '#Shares', 'Value ($)', '#Shares Total']
@@ -63,8 +63,11 @@ class Insider:
             for i, col in enumerate(cols):
                 if i not in num_col_index:
                     info_dict[table_header[i]] = col.text
+                    if i == len(cols) - 1:
+                        info_dict['SEC Form 4 Link'] = col.find('a').attrs['href']
                 else:
                     info_dict[table_header[i]] = numberCovert(col.text)
+                info_dict['SEC Form 4 Link'] = cols[-1].find('a').attrs['href']
             df = df.append(info_dict, ignore_index=True)
         self.df = df
         return df
