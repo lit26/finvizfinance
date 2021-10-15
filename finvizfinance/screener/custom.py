@@ -8,7 +8,7 @@ from finvizfinance.util import webScrap, progressBar, NUMBER_COL
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
-columns = {
+COLUMNS = {
     0: 'No.',
     1: 'Ticker',
     2: 'Company',
@@ -100,7 +100,7 @@ class Custom(Overview):
         Returns:
             columns(dict): return the index and column name.
         """
-        return columns
+        return COLUMNS
 
     def _screener_helper(self, i, page, rows, df, num_col_index, table_header, limit):
         """Get screener table helper function.
