@@ -1,6 +1,6 @@
 | Date | Version | Comment |
 | ------------- | ------------- | ------------- |
-| 2021/10/14 | 0.10 | Add group group |
+| 2021/10/14 | 0.10 | Add group custom |
 | 2021/07/03 | 0.9.10 | Add sec doc link https://github.com/lit26/finvizfinance/issues/26 |
 | 2021/07/03 | 0.9.9 | Add calendar module. Fixing import package order. Add package version https://github.com/lit26/finvizfinance/issues/25.|
 | 2021/05/08 | 0.9.8 | Adding data type in Quote file.|
