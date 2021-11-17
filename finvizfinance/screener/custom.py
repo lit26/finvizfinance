@@ -1,3 +1,4 @@
+import warnings
 import pandas as pd
 from finvizfinance.screener.overview import Overview
 from finvizfinance.util import webScrap, progressBar, NUMBER_COL
@@ -117,6 +118,7 @@ class Custom(Overview):
     def ScreenerView(self,
                      order='ticker',
                      limit=-1,
+                     select_page=None,
                      verbose=1,
                      ascend=True,
                      columns=[0, 1, 2, 3, 4, 5, 6, 7, 65, 66, 67]):
@@ -125,6 +127,7 @@ class Custom(Overview):
         Args:
             order(str): sort the table by the choice of order.
             limit(int): set the top k rows of the screener.
+            select_page(int): set the page of the screener.
             verbose(int): choice of visual the progress. 1 for visualize progress.
             ascend(bool): if True, the order is ascending.
             columns(list): columns of your choice. Default index: 0,1,2,3,4,5,6,7,65,66,67.
@@ -148,33 +151,54 @@ class Custom(Overview):
             print('No ticker found.')
             return None
 
+        start_page = 1
+        end_page = page
+
+        if select_page:
+            if select_page > page:
+                raise ValueError("Invalid page {}".format(select_page))
+            if limit != -1:
+                limit = -1
+                warnings.warn("Limit parameter is ignored when page is selected.")
+            start_page = select_page - 1
+            end_page = select_page
+
         if limit != -1:
-            if page > (limit-1)//20+1:
-                page = (limit-1)//20+1
+            if page > (limit - 1) // 20 + 1:
+                page = (limit - 1) // 20 + 1
 
         if verbose == 1:
-            progressBar(1, page)
+            if not select_page:
+                progressBar(start_page, end_page)
+            else:
+                progressBar(1, 1)
+
         table = soup.findAll('table')[18]
         rows = table.findAll('tr')
         table_header = [i.text for i in rows[0].findAll('td')][1:]
         num_col_index = [table_header.index(i) for i in table_header if i in NUMBER_COL]
         df = pd.DataFrame([], columns=table_header)
-        df = self._screener_helper(0, page, rows, df, num_col_index, table_header, limit)
+        if not select_page or select_page == 1:
+            df = self._screener_helper(0, page, rows, df, num_col_index, table_header, limit)
 
-        for i in range(1, page):
-            if verbose == 1:
-                progressBar(i+1, page)
+        if select_page != 1:
+            for i in range(start_page, end_page):
+                if verbose == 1:
+                    if not select_page:
+                        progressBar(i + 1, page)
+                    else:
+                        progressBar(1, 1)
 
-            url = self.url
-            if order == 'ticker':
-                url += '&r={}'.format(i * 20 + 1)
-            else:
-                url += '&r={}'.format(i * 20 + 1)+'&'+self.order_dict[order]
-            if not ascend:
-                url = url.replace('o=', 'o=-')
-            url += '&c=' + ','.join(columns)
-            soup = webScrap(url)
-            table = soup.findAll('table')[18]
-            rows = table.findAll('tr')
-            df = self._screener_helper(i, page, rows, df, num_col_index, table_header, limit)
+                url = self.url
+                if order == 'ticker':
+                    url += '&r={}'.format(i * 20 + 1)
+                else:
+                    url += '&r={}'.format(i * 20 + 1) + '&' + self.order_dict[order]
+                if not ascend:
+                    url = url.replace('o=', 'o=-')
+                url += '&c=' + ','.join(columns)
+                soup = webScrap(url)
+                table = soup.findAll('table')[18]
+                rows = table.findAll('tr')
+                df = self._screener_helper(i, page, rows, df, num_col_index, table_header, limit)
         return df
