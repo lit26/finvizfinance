@@ -20,14 +20,71 @@ jobs:
             . venv/bin/activate
             python runtest.py
 
+  test_py37:
+    docker:
+      - image: circleci/python:3.7
+    working_directory: ~/finvizfinance
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            pip install --upgrade pip
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -r requirements.txt
+      - run:
+          name: Run test
+          command: |
+            . venv/bin/activate
+            python runtest.py
+
+  test_py38:
+    docker:
+      - image: circleci/python:3.8
+    working_directory: ~/finvizfinance
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            pip install --upgrade pip
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -r requirements.txt
+      - run:
+          name: Run test
+          command: |
+            . venv/bin/activate
+            python runtest.py
+
+  test_py39:
+    docker:
+      - image: circleci/python:3.9
+    working_directory: ~/finvizfinance
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            pip install --upgrade pip
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -r requirements.txt
+      - run:
+          name: Run test
+          command: |
+            . venv/bin/activate
+            python runtest.py
+
 workflows:
   version: 2
   build:
     jobs:
       - test_py36
-      # - test_py38  # not working yet
-      # - test_py37
-      # - test_py35
+      - test_py37
+      - test_py38
+      - test_py39
       # - coverage
       # - doc
 
@@ -35,9 +92,6 @@ workflows:
 ###########################################
 # Testing CircleCI in local
 ###########################################
-# circleci local execute --job test_py36
 # circleci local execute --job test_py37
-# circleci local execute --job test_py38
-# circleci local execute --job test_py35
 # circleci local execute --job coverage
 # circleci local execute --job doc
