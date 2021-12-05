@@ -91,9 +91,9 @@ inside_trader_df = stock.TickerInsideTrader()
 Getting recent financial news from finviz.
 
 ```python
-from finvizfinance.news import finviznews
+from finvizfinance.news import News
 
-fnews = finviznews()
+fnews = News()
 all_news = fnews.getNews()
 ```
 Finviz News include 'news' and 'blogs'.
