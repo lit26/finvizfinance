@@ -62,10 +62,11 @@ workflows:
   build:
     jobs:
       - test_py36:
-        filters:
-          branches:
-            only:
-              - master
+          filters:
+            branches:
+              only:
+                - master
+      - test_py37
       - test_py38:
           filters:
             branches:
@@ -81,7 +82,6 @@ workflows:
             branches:
               only:
                 - master
-      - test_py37
       # - doc
 
 
