@@ -50,7 +50,7 @@ jobs:
       - run:
           name: Run coverage
           command: |
-            coverage run -m unittest discover
+            coverage run pytest
             coverage report -m
       - run:
           name: Publish coverage
