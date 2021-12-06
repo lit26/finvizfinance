@@ -1,5 +1,6 @@
 -r requirements.txt
 
 # coverage test code
+pytest
 coverage==4.5.4
 coveralls==1.8.2
