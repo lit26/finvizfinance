@@ -50,7 +50,7 @@ jobs:
       - run:
           name: Run coverage
           command: |
-            coverage run pytest
+            coverage run -m pytest -v runtest.py
             coverage report -m
       - run:
           name: Publish coverage
