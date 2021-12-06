@@ -5,9 +5,10 @@ jobs:
     docker:
       - image: circleci/python:3.6
     working_directory: ~/finvizfinance
-    branches:
-      only:
-        - master
+    filters:
+      branches:
+        only:
+          - master
     steps:
       - checkout
       - run:
