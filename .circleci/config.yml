@@ -18,7 +18,7 @@ jobs:
           name: Run test
           command: |
             . venv/bin/activate
-            python runtest.py
+            pytest test
 
   test_py37:
     <<: *test-template
@@ -50,7 +50,7 @@ jobs:
       - run:
           name: Run coverage
           command: |
-            coverage run -m pytest -v runtest.py
+            coverage run -m pytest -v test
             coverage report -m
       - run:
           name: Publish coverage
