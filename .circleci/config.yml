@@ -62,10 +62,10 @@ workflows:
   build:
     jobs:
       - test_py36
-#      - test_py37
-#      - test_py38
-#      - test_py39
-#      - coverage
+      - test_py37
+      - test_py38
+      - test_py39
+      - coverage
       # - doc
 
 
