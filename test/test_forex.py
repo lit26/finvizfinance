@@ -20,7 +20,3 @@ def test_forex_performance_error():
         fforex.performance(change='Dummy')
 
 
-def test_forex_chart_none():
-    fforex = Forex()
-    fforex.chart()
-
