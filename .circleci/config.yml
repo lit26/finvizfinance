@@ -64,7 +64,8 @@ workflows:
       - test_py36:
         filters:
           branches:
-            only: master
+            only:
+            - master
       - test_py37
       - test_py38
       - test_py39
