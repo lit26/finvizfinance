@@ -62,14 +62,26 @@ workflows:
   build:
     jobs:
       - test_py36:
+        filters:
+          branches:
+            only:
+              - master
+      - test_py37
+      - test_py38:
           filters:
             branches:
               only:
                 - master
-      - test_py37
-#      - test_py38
-#      - test_py39
-#      - coverage
+      - test_py39:
+          filters:
+            branches:
+              only:
+                - master
+      - coverage:
+          filters:
+            branches:
+              only:
+                - master
       # - doc
 
 
