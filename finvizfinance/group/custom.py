@@ -1,5 +1,5 @@
 import pandas as pd
-from finvizfinance.util import webScrap, numberCovert
+from finvizfinance.util import web_scrap, number_covert
 from finvizfinance.group.overview import Overview
 
 """
@@ -60,7 +60,7 @@ class Custom(Overview):
         """
         return COLUMNS
 
-    def ScreenerView(
+    def screener_view(
         self, group="Sector", order="Name", columns=[0, 1, 2, 3, 10, 22, 24, 25, 26]
     ):
         """Get screener table.
@@ -84,7 +84,7 @@ class Custom(Overview):
         columns = [str(i) for i in columns]
         self.url += "&c=" + ",".join(columns)
 
-        soup = webScrap(self.url)
+        soup = web_scrap(self.url)
         table = soup.findAll("table")[6]
         rows = table.findAll("tr")
         table_header = [i.text for i in rows[0].findAll("td")][1:]
@@ -99,7 +99,7 @@ class Custom(Overview):
                 if i not in num_col_index:
                     info_dict[table_header[i]] = col.text
                 else:
-                    info_dict[table_header[i]] = numberCovert(col.text)
+                    info_dict[table_header[i]] = number_covert(col.text)
 
             df = df.append(info_dict, ignore_index=True)
         return df

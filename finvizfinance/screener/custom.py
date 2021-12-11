@@ -1,7 +1,7 @@
 import warnings
 import pandas as pd
 from finvizfinance.screener.overview import Overview
-from finvizfinance.util import webScrap, progressBar, NUMBER_COL
+from finvizfinance.util import web_scrap, progress_bar, NUMBER_COL
 
 """
 .. module:: screen.custom
@@ -98,7 +98,7 @@ class Custom(Overview):
         self.url = self.BASE_URL.format(signal="", filter="", ticker="")
         Overview._loadSetting(self)
 
-    def getColumns(self):
+    def get_columns(self):
         """Get information about the columns
 
         Returns:
@@ -120,7 +120,7 @@ class Custom(Overview):
             df = self._get_table(rows, df, num_col_index, table_header)
         return df
 
-    def ScreenerView(
+    def screener_view(
         self,
         order="ticker",
         limit=-1,
@@ -153,7 +153,7 @@ class Custom(Overview):
             url = url.replace("o=", "o=-")
         columns = [str(i) for i in columns]
         url += "&c=" + ",".join(columns)
-        soup = webScrap(url)
+        soup = web_scrap(url)
 
         page = self._get_page(soup)
         if page == 0:
@@ -178,9 +178,9 @@ class Custom(Overview):
 
         if verbose == 1:
             if not select_page:
-                progressBar(start_page, end_page)
+                progress_bar(start_page, end_page)
             else:
-                progressBar(1, 1)
+                progress_bar(1, 1)
 
         table = soup.findAll("table")[18]
         rows = table.findAll("tr")
@@ -196,9 +196,9 @@ class Custom(Overview):
             for i in range(start_page, end_page):
                 if verbose == 1:
                     if not select_page:
-                        progressBar(i + 1, page)
+                        progress_bar(i + 1, page)
                     else:
-                        progressBar(1, 1)
+                        progress_bar(1, 1)
 
                 url = self.url
                 if order == "ticker":
@@ -208,7 +208,7 @@ class Custom(Overview):
                 if not ascend:
                     url = url.replace("o=", "o=-")
                 url += "&c=" + ",".join(columns)
-                soup = webScrap(url)
+                soup = web_scrap(url)
                 table = soup.findAll("table")[18]
                 rows = table.findAll("tr")
                 df = self._screener_helper(

@@ -1,4 +1,4 @@
-from finvizfinance.util import scrapFunction, imageScrapFunction
+from finvizfinance.util import scrap_function, image_scrap_function
 
 """
 .. module:: forex
@@ -33,7 +33,7 @@ class Forex:
             url = "https://finviz.com/forex_performance.ashx?v=1&tv=2&o=-perfdaypct"
         else:
             raise ValueError("Options of change: percent(default), PIPS")
-        df = scrapFunction(url)
+        df = scrap_function(url)
         return df
 
     def chart(self, forex, timeframe="D", urlonly=False):
@@ -50,5 +50,5 @@ class Forex:
             return None
 
         url = "https://finviz.com/forex_charts.ashx?t=ALL&tf="
-        charturl = imageScrapFunction(url, forex, timeframe, urlonly)
+        charturl = image_scrap_function(url, forex, timeframe, urlonly)
         return charturl

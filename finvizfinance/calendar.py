@@ -1,6 +1,6 @@
 import re
 import pandas as pd
-from finvizfinance.util import webScrap
+from finvizfinance.util import web_scrap
 
 """
 .. module:: calendar
@@ -25,7 +25,7 @@ class Calendar:
         Returns:
             df(pandas.DataFrame): economic calendar table
         """
-        soup = webScrap("https://finviz.com/calendar.ashx")
+        soup = web_scrap("https://finviz.com/calendar.ashx")
         tables = soup.findAll("table", class_="calendar")
         columns = [
             "Datetime",

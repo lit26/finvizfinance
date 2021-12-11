@@ -2,9 +2,9 @@ import warnings
 import pandas as pd
 from finvizfinance.quote import finvizfinance
 from finvizfinance.util import (
-    webScrap,
-    numberCovert,
-    progressBar,
+    web_scrap,
+    number_covert,
+    progress_bar,
     NUMBER_COL,
     util_dict,
 )
@@ -29,9 +29,9 @@ class Overview:
             "https://finviz.com/screener.ashx?v=111{signal}{filter}&ft=4{ticker}"
         )
         self.url = self.BASE_URL.format(signal="", filter="", ticker="")
-        self._loadSetting()
+        self._load_setting()
 
-    def _loadSetting(self):
+    def _load_setting(self):
         """load all the signals and filters."""
         data = util_dict
         self.signal_dict = data["signal"]
@@ -56,7 +56,7 @@ class Overview:
             url_signal = "&s=" + self.signal_dict[signal]
         return url_signal
 
-    def getSignal(self):
+    def get_signal(self):
         """Get signals.
 
         Returns:
@@ -64,7 +64,7 @@ class Overview:
         """
         return list(self.signal_dict.keys())
 
-    def getFilters(self):
+    def get_filters(self):
         """Get filters.
 
         Returns:
@@ -72,7 +72,7 @@ class Overview:
         """
         return list(self.filter_dict.keys())
 
-    def getFilterOptions(self, screen_filter):
+    def get_filter_options(self, screen_filter):
         """Get filters options.
 
         Args:
@@ -90,7 +90,7 @@ class Overview:
             )
         return list(self.filter_dict[screen_filter]["option"])
 
-    def getOrders(self):
+    def get_orders(self):
         """Get orders.
 
         Returns:
@@ -183,7 +183,7 @@ class Overview:
                 if i not in num_col_index:
                     info_dict[table_header[i]] = col.text
                 else:
-                    info_dict[table_header[i]] = numberCovert(col.text)
+                    info_dict[table_header[i]] = number_covert(col.text)
             df = df.append(info_dict, ignore_index=True)
         return df
 
@@ -201,7 +201,7 @@ class Overview:
             df = self._get_table(rows, df, num_col_index, table_header)
         return df
 
-    def ScreenerView(
+    def screener_view(
         self, order="ticker", limit=-1, select_page=None, verbose=1, ascend=True
     ):
         """Get screener table.
@@ -225,7 +225,7 @@ class Overview:
             url = self.url + "&" + self.order_dict[order]
         if not ascend:
             url = url.replace("o=", "o=-")
-        soup = webScrap(url)
+        soup = web_scrap(url)
 
         page = self._get_page(soup)
         if page == 0:
@@ -250,9 +250,9 @@ class Overview:
 
         if verbose == 1:
             if not select_page:
-                progressBar(start_page, end_page)
+                progress_bar(start_page, end_page)
             else:
-                progressBar(1, 1)
+                progress_bar(1, 1)
 
         table = soup.findAll("table")[18]
         rows = table.findAll("tr")
@@ -268,9 +268,9 @@ class Overview:
             for i in range(start_page, end_page):
                 if verbose == 1:
                     if not select_page:
-                        progressBar(i + 1, page)
+                        progress_bar(i + 1, page)
                     else:
-                        progressBar(1, 1)
+                        progress_bar(1, 1)
 
                 url = self.url
                 if order == "ticker":
@@ -279,7 +279,7 @@ class Overview:
                     url += "&r={}".format(i * 20 + 1) + "&" + self.order_dict[order]
                 if not ascend:
                     url = url.replace("o=", "o=-")
-                soup = webScrap(url)
+                soup = web_scrap(url)
                 table = soup.findAll("table")[18]
                 rows = table.findAll("tr")
                 df = self._screener_helper(
@@ -304,11 +304,11 @@ class Overview:
             raise ValueError("Please check: {}".format(error_list))
 
         stock = finvizfinance(ticker)
-        stock_fundament = stock.TickerFundament()
+        stock_fundament = stock.ticker_fundament()
         filters_dict = {}
         for compare in compare_list:
             filters_dict[compare] = stock_fundament[compare]
 
         self.set_filter(filters_dict=filters_dict)
-        df = self.ScreenerView(order=order, verbose=verbose)
+        df = self.screener_view(order=order, verbose=verbose)
         return df

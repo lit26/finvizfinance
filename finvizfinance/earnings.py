@@ -31,9 +31,9 @@ class Earnings:
         self.df_days = {}
         self.df = None
         self.period = period
-        self._setPeriod(period)
+        self._set_period(period)
 
-    def _setPeriod(self, period):
+    def _set_period(self, period):
         """Set the period.
 
         Args:
@@ -49,11 +49,11 @@ class Earnings:
         ffinancial = Financial()
         filters_dict = {"Earnings Date": period}
         ffinancial.set_filter(filters_dict=filters_dict)
-        self.df = ffinancial.ScreenerView(order="Earnings Date", verbose=0)
+        self.df = ffinancial.screener_view(order="Earnings Date", verbose=0)
         self.earning_days = list(set(self.df["Earnings"].to_list()))
         self.earning_days.sort()
 
-    def partitionDays(self, mode="financial"):
+    def partition_days(self, mode="financial"):
         """Partition dataframe to separate dataframes according to the dates.
 
         Args:
@@ -99,7 +99,7 @@ class Earnings:
 
         filters_dict = {"Earnings Date": self.period}
         fearnings.set_filter(filters_dict=filters_dict)
-        df2 = fearnings.ScreenerView(order="Earnings Date", verbose=0)
+        df2 = fearnings.screener_view(order="Earnings Date", verbose=0)
         df2_days = {}
         for earning_day in self.earning_days:
             tickers = self.df_days[earning_day]
@@ -109,7 +109,7 @@ class Earnings:
         self.df_days = df2_days
         return self.df_days
 
-    def outputExcel(self, output_file="earning_days.xlsx"):
+    def output_excel(self, output_file="earning_days.xlsx"):
         """Output dataframes to single Excel file.
 
         Args:
@@ -123,7 +123,7 @@ class Earnings:
                 sheet_name = "_".join(name.split("/"))
                 df.to_excel(writer, sheet_name=sheet_name, index=False)
 
-    def outputCSV(self, output_dir="earning_days"):
+    def output_csv(self, output_dir="earning_days"):
         """Output dataframes to csv files.
 
         Args:

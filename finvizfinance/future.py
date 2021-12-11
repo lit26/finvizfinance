@@ -1,6 +1,6 @@
 import json
 import pandas as pd
-from finvizfinance.util import webScrap
+from finvizfinance.util import web_scrap
 
 """
 .. module:: future
@@ -44,7 +44,7 @@ class Future:
         else:
             raise ValueError("Invalid timeframe '{}'".format(timeframe))
 
-        soup = webScrap("https://finviz.com/futures_performance.ashx" + params)
+        soup = web_scrap("https://finviz.com/futures_performance.ashx" + params)
         data = soup.text[
             soup.text.find("var rows = ")
             + 11 : soup.text.find("FinvizInitFuturesPerformance(rows);")

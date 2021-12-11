@@ -1,4 +1,4 @@
-from finvizfinance.util import scrapFunction, imageScrapFunction
+from finvizfinance.util import scrap_function, image_scrap_function
 
 """
 .. module:: crypto
@@ -25,7 +25,7 @@ class Crypto:
             df(pandas.DataFrame): crypto performance table
         """
         url = "https://finviz.com/crypto_performance.ashx"
-        df = scrapFunction(url)
+        df = scrap_function(url)
         return df
 
     def chart(self, crypto, timeframe="D", urlonly=False):
@@ -40,5 +40,5 @@ class Crypto:
         """
 
         url = "https://finviz.com/crypto_charts.ashx?t=ALL&tf="
-        charturl = imageScrapFunction(url, crypto, timeframe, urlonly)
+        charturl = image_scrap_function(url, crypto, timeframe, urlonly)
         return charturl

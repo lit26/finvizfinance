@@ -1,5 +1,5 @@
 from finvizfinance.group.overview import Overview
-from finvizfinance.util import webScrap, imageScrap
+from finvizfinance.util import web_scrap, image_scrap
 
 """
 .. module:: group.spectrum
@@ -20,7 +20,7 @@ class Spectrum(Overview):
         self.url = self.BASE_URL.format(group="g=sector")
         Overview._loadSetting(self)
 
-    def ScreenerView(self, group="Sector", order="Name", out_dir=""):
+    def screener_view(self, group="Sector", order="Name", out_dir=""):
         """Get screener table.
 
         Args:
@@ -37,6 +37,6 @@ class Spectrum(Overview):
             + self.order_dict[order]
         )
 
-        soup = webScrap(self.url)
+        soup = web_scrap(self.url)
         url = "https://finviz.com/" + soup.findAll("img")[5]["src"]
-        imageScrap(url, group, "")
+        image_scrap(url, group, "")

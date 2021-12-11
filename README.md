@@ -46,12 +46,12 @@ stock = finvizfinance('tsla')
 
 #### Chart
 ```python
-stock.TickerCharts()
+stock.ticker_charts()
 ```
 
 #### Fundament
 ```python
-stock_fundament = stock.TickerFundament()
+stock_fundament = stock.ticker_fundament()
 
 # result
 # stock_fundament = {'Company': 'Tesla, Inc.', 'Sector': 'Consumer Cyclical', 
@@ -63,7 +63,7 @@ stock_fundament = stock.TickerFundament()
 
 #### Description
 ```python
-stock_description = stock.TickerDescription()
+stock_description = stock.ticker_description()
 
 # stock_description
 # stock_description = 'Tesla, Inc. designs, develops, manufactures, ...'
@@ -71,18 +71,18 @@ stock_description = stock.TickerDescription()
 
 #### Outer Ratings
 ```python
-outer_ratings_df = stock.TickerOuterRatings()
+outer_ratings_df = stock.ticker_outer_ratings()
 ``` 
 ![Outer Ratings example](asset/outer_rating.png)
 #### Stock News
 ```python
-news_df = stock.TickerNews()
+news_df = stock.ticker_news()
 ```
 ![stock news example](asset/stock_news.png)
 
 #### Inside Trader
 ```python
-inside_trader_df = stock.TickerInsideTrader()
+inside_trader_df = stock.ticker_inside_trader()
 ```
 ![insider trader example](asset/insider_trader.png)
 
@@ -94,7 +94,7 @@ Getting recent financial news from finviz.
 from finvizfinance.news import News
 
 fnews = News()
-all_news = fnews.getNews()
+all_news = fnews.get_news()
 ```
 Finviz News include 'news' and 'blogs'.
 ```python
@@ -117,7 +117,7 @@ finsider = Insider(option='top owner trade')
 # option: latest, top week, top owner trade
 # default: latest
 
-insider_trader = finsider.getInsider()
+insider_trader = finsider.get_insider()
 ```
 ![insider example](asset/insider.png)
 
@@ -133,7 +133,7 @@ from finvizfinance.screener.overview import Overview
 foverview = Overview()
 filters_dict = {'Index':'S&P 500','Sector':'Basic Materials'}
 foverview.set_filter(filters_dict=filters_dict)
-df = foverview.ScreenerView()
+df = foverview.screener_view()
 df.head()
 ```
 ![insider example](asset/screen_overview.png)

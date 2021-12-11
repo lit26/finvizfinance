@@ -1,5 +1,5 @@
 import pandas as pd
-from finvizfinance.util import webScrap
+from finvizfinance.util import web_scrap
 
 """
 .. module:: news
@@ -20,10 +20,10 @@ class News:
     def __init__(self):
         """initiate module"""
         self.all_news = {}
-        self.soup = webScrap(NEWS_URL)
+        self.soup = web_scrap(NEWS_URL)
         self.news = {}
 
-    def getNews(self):
+    def get_news(self):
         """Get insider information table.
 
         Retrieves table information from finviz finance news.
@@ -34,13 +34,13 @@ class News:
         """
         tables = self.soup.findAll("table")
         news = tables[6]
-        news_df = self._getNewsHelper(news)
+        news_df = self._get_news_helper(news)
         blog = tables[7]
-        blog_df = self._getNewsHelper(blog)
+        blog_df = self._get_news_helper(blog)
         self.news = {"news": news_df, "blogs": blog_df}
         return self.news
 
-    def _getNewsHelper(self, rows):
+    def _get_news_helper(self, rows):
         """Get insider information table helper function.
 
         Args:

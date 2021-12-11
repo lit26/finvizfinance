@@ -84,7 +84,7 @@ NUMBER_COL = [
 session = requests.Session()
 
 
-def webScrap(url):
+def web_scrap(url):
     """Scrap website.
 
     Args:
@@ -103,7 +103,7 @@ def webScrap(url):
     return soup
 
 
-def imageScrap(url, ticker, out_dir):
+def image_scrap(url, ticker, out_dir):
     """scrap website and download image
 
     Args:
@@ -126,7 +126,7 @@ def imageScrap(url, ticker, out_dir):
         raise Exception(err)
 
 
-def scrapFunction(url):
+def scrap_function(url):
     """Scrap forex, crypto information.
 
     Args:
@@ -134,7 +134,7 @@ def scrapFunction(url):
     Returns:
         df(pandas.DataFrame): performance table
     """
-    soup = webScrap(url)
+    soup = web_scrap(url)
     table = soup.findAll("table")[3]
     rows = table.findAll("tr")
     table_header = [i.text.strip() for i in rows[0].findAll("td")][1:]
@@ -148,12 +148,12 @@ def scrapFunction(url):
             if i not in num_col_index:
                 info_dict[table_header[i]] = col.text
             else:
-                info_dict[table_header[i]] = numberCovert(col.text)
+                info_dict[table_header[i]] = number_covert(col.text)
         df = df.append(info_dict, ignore_index=True)
     return df
 
 
-def imageScrapFunction(url, chart, timeframe, urlonly):
+def image_scrap_function(url, chart, timeframe, urlonly):
     """Scrap forex, crypto information.
 
     Args:
@@ -175,7 +175,7 @@ def imageScrapFunction(url, chart, timeframe, urlonly):
     else:
         raise ValueError("Invalid timeframe.")
 
-    soup = webScrap(url)
+    soup = web_scrap(url)
     content = soup.find("div", class_="container")
     imgs = content.findAll("img")
     for img in imgs:
@@ -185,13 +185,13 @@ def imageScrapFunction(url, chart, timeframe, urlonly):
         if chart.lower() == chart_name:
             charturl = "https://finviz.com/" + website
             if not urlonly:
-                imageScrap(charturl, name, "")
+                image_scrap(charturl, name, "")
             return charturl
         else:
             continue
 
 
-def numberCovert(num):
+def number_covert(num):
     """covert number(str) to number(float)
 
     Args:
@@ -213,7 +213,7 @@ def numberCovert(num):
         return float("".join(num.split(",")))
 
 
-def progressBar(page, total):
+def progress_bar(page, total):
     bar_len = 30
     filled_len = int(round(bar_len * page / float(total)))
     bar = "#" * filled_len + "-" * (bar_len - filled_len)

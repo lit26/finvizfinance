@@ -3,12 +3,12 @@ from finvizfinance.insider import Insider
 
 def test_finvizfinance_insider():
     finsider = Insider()
-    insider = finsider.getInsider()
+    insider = finsider.get_insider()
     assert(insider is not None)
 
 
 def test_finvizfinance_insider_option(mocker):
-    web_scrap_mock = mocker.patch('finvizfinance.insider.webScrap', return_value="dummy web scrap")
+    web_scrap_mock = mocker.patch('finvizfinance.insider.web_scrap', return_value="dummy web scrap")
     Insider()
     web_scrap_mock.assert_called_with('https://finviz.com/insidertrading.ashx')
     Insider('latest buys')

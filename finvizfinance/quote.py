@@ -2,7 +2,7 @@ from datetime import datetime
 import json
 import pandas as pd
 import requests
-from finvizfinance.util import webScrap, imageScrap, numberCovert, headers
+from finvizfinance.util import web_scrap, image_scrap, number_covert, headers
 
 """
 .. module:: finvizfinance
@@ -29,13 +29,13 @@ class Quote:
 
     """
 
-    def getCurrent(self, ticker):
+    def get_current(self, ticker):
         """Getting current price of the ticker.
 
         Returns:
             price(float): price of the ticker
         """
-        soup = webScrap("https://finviz.com/request_quote.ashx?t={}".format(ticker))
+        soup = web_scrap("https://finviz.com/request_quote.ashx?t={}".format(ticker))
         return soup.text
 
 
@@ -53,7 +53,7 @@ class finvizfinance:
         self.ticker = ticker
         self.flag = False
         self.quote_url = QUOTE_URL.format(ticker=ticker)
-        self.soup = webScrap(self.quote_url)
+        self.soup = web_scrap(self.quote_url)
         if self._checkexist(verbose):
             self.flag = True
         self.info = {}
@@ -68,7 +68,7 @@ class finvizfinance:
                 print("Ticker exists.")
             return True
 
-    def TickerCharts(
+    def ticker_charts(
         self, timeframe="daily", charttype="advanced", out_dir="", urlonly=False
     ):
         """Download ticker charts.
@@ -104,10 +104,10 @@ class finvizfinance:
             ticker=self.ticker, type=url_type, ta=url_ta, timeframe=url_timeframe
         )
         if not urlonly:
-            imageScrap(chart_url, self.ticker, out_dir)
+            image_scrap(chart_url, self.ticker, out_dir)
         return chart_url
 
-    def TickerFundament(self, raw=True):
+    def ticker_fundament(self, raw=True):
         """Get ticker fundament.
 
         Args:
@@ -159,7 +159,7 @@ class finvizfinance:
                             fundament_info[header] = value
                         else:
                             try:
-                                fundament_info[header] = numberCovert(value)
+                                fundament_info[header] = number_covert(value)
                             except ValueError:
                                 fundament_info[header] = value
         self.info["fundament"] = fundament_info
@@ -185,12 +185,12 @@ class finvizfinance:
                     fundament_info[info_header[i]] = value[value_index]
             else:
                 for i, value_index in enumerate(info_value):
-                    fundament_info[info_header[i]] = numberCovert(value[value_index])
+                    fundament_info[info_header[i]] = number_covert(value[value_index])
         except:
             fundament_info[header] = value
         return fundament_info
 
-    def TickerDescription(self):
+    def ticker_description(self):
         """Get ticker description.
 
         Returns:
@@ -198,7 +198,7 @@ class finvizfinance:
         """
         return self.soup.find("td", class_="fullview-profile").text
 
-    def TickerOuterRatings(self):
+    def ticker_outer_ratings(self):
         """Get outer ratings table.
 
         Returns:
@@ -231,7 +231,7 @@ class finvizfinance:
         self.info["ratings_outer"] = df
         return df
 
-    def TickerNews(self):
+    def ticker_news(self):
         """Get news information table.
 
         Returns:
@@ -247,20 +247,20 @@ class finvizfinance:
             date = cols[0].text
             title = cols[1].a.text
             link = cols[1].a["href"]
-            newsTime = date.split()
-            if len(newsTime) == 2:
-                last_date = newsTime[0]
-                newsTime = " ".join(newsTime)
+            news_time = date.split()
+            if len(news_time) == 2:
+                last_date = news_time[0]
+                news_time = " ".join(news_time)
             else:
-                newsTime = last_date + " " + newsTime[0]
-            newsTime = datetime.strptime(newsTime, "%b-%d-%y %I:%M%p")
+                news_time = last_date + " " + news_time[0]
+            news_time = datetime.strptime(news_time, "%b-%d-%y %I:%M%p")
             df = df.append(
-                {"Date": newsTime, "Title": title, "Link": link}, ignore_index=True
+                {"Date": news_time, "Title": title, "Link": link}, ignore_index=True
             )
         self.info["news"] = df
         return df
 
-    def TickerInsideTrader(self):
+    def ticker_inside_trader(self):
         """Get insider information table.
 
         Returns:
@@ -281,14 +281,14 @@ class finvizfinance:
                 if i not in num_col_index:
                     info_dict[table_header[i]] = col.text
                 else:
-                    info_dict[table_header[i]] = numberCovert(col.text)
+                    info_dict[table_header[i]] = number_covert(col.text)
             info_dict["SEC Form 4 Link"] = cols[-1].find("a").attrs["href"]
             info_dict["Insider_id"] = cols[0].a["href"].split("oc=")[1].split("&tc=")[0]
             df = df.append(info_dict, ignore_index=True)
         self.info["inside trader"] = df
         return df
 
-    def TickerSignal(self):
+    def ticker_signal(self):
         """Get all the trading signals from finviz.
 
         Returns:
@@ -335,20 +335,20 @@ class finvizfinance:
         ticker_signal = []
         for signal in signals:
             fticker.set_filter(signal=signal, ticker=self.ticker.upper())
-            if fticker.ScreenerView(verbose=0) == [self.ticker.upper()]:
+            if fticker.screener_view(verbose=0) == [self.ticker.upper()]:
                 ticker_signal.append(signal)
         return ticker_signal
 
-    def TickerFullInfo(self):
+    def ticker_full_info(self):
         """Get all the ticker information.
 
         Returns:
             df(pandas.DataFrame): insider information table
         """
-        self.TickerFundament()
-        self.TickerOuterRatings()
-        self.TickerNews()
-        self.TickerInsideTrader()
+        self.ticker_fundament()
+        self.ticker_outer_ratings()
+        self.ticker_news()
+        self.ticker_inside_trader()
         return self.info
 
 
@@ -358,7 +358,7 @@ class Statements:
 
     """
 
-    def getStatements(self, ticker, statement="I", timeframe="A"):
+    def get_statements(self, ticker, statement="I", timeframe="A"):
         """Getting statements of ticker.
 
         Args:

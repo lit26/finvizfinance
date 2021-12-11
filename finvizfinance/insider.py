@@ -1,5 +1,5 @@
 import pandas as pd
-from finvizfinance.util import webScrap, numberCovert
+from finvizfinance.util import web_scrap, number_covert
 
 """
 .. module:: insider
@@ -24,40 +24,40 @@ class Insider:
     def __init__(self, option="latest"):
         """initiate module"""
         if option == "latest":
-            self.soup = webScrap(INSIDER_URL)
+            self.soup = web_scrap(INSIDER_URL)
         elif option == "latest buys":
-            self.soup = webScrap(INSIDER_URL + "?tc=1")
+            self.soup = web_scrap(INSIDER_URL + "?tc=1")
         elif option == "latest sales":
-            self.soup = webScrap(INSIDER_URL + "?tc=2")
+            self.soup = web_scrap(INSIDER_URL + "?tc=2")
         elif option == "top week":
-            self.soup = webScrap(
+            self.soup = web_scrap(
                 INSIDER_URL + "?or=-10&tv=100000&tc=7&o=-transactionValue"
             )
         elif option == "top week buys":
-            self.soup = webScrap(
+            self.soup = web_scrap(
                 INSIDER_URL + "?or=-10&tv=100000&tc=1&o=-transactionValue"
             )
         elif option == "top week sales":
-            self.soup = webScrap(
+            self.soup = web_scrap(
                 INSIDER_URL + "?or=-10&tv=100000&tc=2&o=-transactionValue"
             )
         elif option == "top owner trade":
-            self.soup = webScrap(
+            self.soup = web_scrap(
                 INSIDER_URL + "?or=10&tv=1000000&tc=7&o=-transactionValue"
             )
         elif option == "top owner buys":
-            self.soup = webScrap(
+            self.soup = web_scrap(
                 INSIDER_URL + "?or=10&tv=1000000&tc=1&o=-transactionValue"
             )
         elif option == "top owner sales":
-            self.soup = webScrap(
+            self.soup = web_scrap(
                 INSIDER_URL + "?or=10&tv=1000000&tc=2&o=-transactionValue"
             )
         elif option.isdigit():
-            self.soup = webScrap(INSIDER_URL + "?oc=" + option + "&tc=7")
+            self.soup = web_scrap(INSIDER_URL + "?oc=" + option + "&tc=7")
         self.df = None
 
-    def getInsider(self):
+    def get_insider(self):
         """Get insider information table.
 
         Returns:
@@ -81,7 +81,7 @@ class Insider:
                     if i == len(cols) - 1:
                         info_dict["SEC Form 4 Link"] = col.find("a").attrs["href"]
                 else:
-                    info_dict[table_header[i]] = numberCovert(col.text)
+                    info_dict[table_header[i]] = number_covert(col.text)
                 info_dict["SEC Form 4 Link"] = cols[-1].find("a").attrs["href"]
             df = df.append(info_dict, ignore_index=True)
         self.df = df
