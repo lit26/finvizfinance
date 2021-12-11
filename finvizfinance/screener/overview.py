@@ -1,7 +1,14 @@
 import warnings
 import pandas as pd
 from finvizfinance.quote import finvizfinance
-from finvizfinance.util import webScrap, numberCovert, progressBar, NUMBER_COL, util_dict
+from finvizfinance.util import (
+    webScrap,
+    numberCovert,
+    progressBar,
+    NUMBER_COL,
+    util_dict,
+)
+
 """
 .. module:: screen.overview
    :synopsis: screen overview table.
@@ -15,18 +22,21 @@ class Overview:
     """Overview
     Getting information from the finviz screener overview page.
     """
+
     def __init__(self):
         """initiate module"""
-        self.BASE_URL = 'https://finviz.com/screener.ashx?v=111{signal}{filter}&ft=4{ticker}'
-        self.url = self.BASE_URL.format(signal='', filter='', ticker='')
+        self.BASE_URL = (
+            "https://finviz.com/screener.ashx?v=111{signal}{filter}&ft=4{ticker}"
+        )
+        self.url = self.BASE_URL.format(signal="", filter="", ticker="")
         self._loadSetting()
 
     def _loadSetting(self):
         """load all the signals and filters."""
         data = util_dict
-        self.signal_dict = data['signal']
-        self.filter_dict = data['filter']
-        self.order_dict = data['order']
+        self.signal_dict = data["signal"]
+        self.filter_dict = data["filter"]
+        self.order_dict = data["order"]
 
     def _set_signal(self, signal):
         """set signal.
@@ -36,12 +46,14 @@ class Overview:
         Returns:
             url_signal(str): signal string for url
         """
-        url_signal = ''
-        if signal not in self.signal_dict and signal != '':
+        url_signal = ""
+        if signal not in self.signal_dict and signal != "":
             signal_keys = list(self.signal_dict.keys())
-            raise ValueError("Invalid signal '{}'. Possible signal: {}".format(signal, signal_keys))
-        elif signal != '':
-            url_signal = '&s=' + self.signal_dict[signal]
+            raise ValueError(
+                "Invalid signal '{}'. Possible signal: {}".format(signal, signal_keys)
+            )
+        elif signal != "":
+            url_signal = "&s=" + self.signal_dict[signal]
         return url_signal
 
     def getSignal(self):
@@ -71,8 +83,12 @@ class Overview:
         """
         if screen_filter not in self.filter_dict:
             filter_keys = list(self.filter_dict.keys())
-            raise ValueError("Invalid filter '{}'. Possible filter: {}".format(screen_filter, filter_keys))
-        return list(self.filter_dict[screen_filter]['option'])
+            raise ValueError(
+                "Invalid filter '{}'. Possible filter: {}".format(
+                    screen_filter, filter_keys
+                )
+            )
+        return list(self.filter_dict[screen_filter]["option"])
 
     def getOrders(self):
         """Get orders.
@@ -95,18 +111,23 @@ class Overview:
         for key, value in filters_dict.items():
             if key not in self.filter_dict:
                 filter_keys = list(self.filter_dict.keys())
-                raise ValueError("Invalid filter '{}'. Possible filter: {}".format(key, filter_keys))
-            if value not in self.filter_dict[key]['option']:
-                filter_options = list(self.filter_dict[key]['option'].keys())
-                raise ValueError("Invalid filter option '{}'. Possible filter options: {}".format(value,
-                                                                                                  filter_options))
-            prefix = self.filter_dict[key]['prefix']
-            urlcode = self.filter_dict[key]['option'][value]
-            if urlcode != '':
-                filters.append('{}_{}'.format(prefix, urlcode))
-        url_filter = ''
+                raise ValueError(
+                    "Invalid filter '{}'. Possible filter: {}".format(key, filter_keys)
+                )
+            if value not in self.filter_dict[key]["option"]:
+                filter_options = list(self.filter_dict[key]["option"].keys())
+                raise ValueError(
+                    "Invalid filter option '{}'. Possible filter options: {}".format(
+                        value, filter_options
+                    )
+                )
+            prefix = self.filter_dict[key]["prefix"]
+            urlcode = self.filter_dict[key]["option"][value]
+            if urlcode != "":
+                filters.append("{}_{}".format(prefix, urlcode))
+        url_filter = ""
         if len(filters) != 0:
-            url_filter = '&f=' + ','.join(filters)
+            url_filter = "&f=" + ",".join(filters)
         return url_filter
 
     def _set_ticker(self, ticker):
@@ -117,11 +138,11 @@ class Overview:
         Returns:
             url_ticker(str): ticker string for url
         """
-        if ticker == '':
-            return ''
-        return '&t='+ticker
+        if ticker == "":
+            return ""
+        return "&t=" + ticker
 
-    def set_filter(self, signal='', filters_dict={}, ticker=''):
+    def set_filter(self, signal="", filters_dict={}, ticker=""):
         """Update the settings.
 
         Args:
@@ -129,18 +150,19 @@ class Overview:
             filters_dict(dict): dictionary of filters
             ticker(str): ticker string
         """
-        if signal == '' and filters_dict == {} and ticker == '':
-            self.url = self.BASE_URL.format(signal='', filter='', ticker='')
+        if signal == "" and filters_dict == {} and ticker == "":
+            self.url = self.BASE_URL.format(signal="", filter="", ticker="")
         else:
             url_signal = self._set_signal(signal)
             url_filter = self._set_filters(filters_dict)
             url_ticker = self._set_ticker(ticker)
-            self.url = self.BASE_URL.format(signal=url_signal, filter=url_filter, ticker=url_ticker)
+            self.url = self.BASE_URL.format(
+                signal=url_signal, filter=url_filter, ticker=url_ticker
+            )
 
     def _get_page(self, soup):
-        """Check the page number
-        """
-        options = soup.findAll('table')[17].findAll('option')
+        """Check the page number"""
+        options = soup.findAll("table")[17].findAll("option")
         return len(options)
 
     def _get_table(self, rows, df, num_col_index, table_header, limit=-1):
@@ -154,7 +176,7 @@ class Overview:
             rows = rows[0:limit]
 
         for index, row in enumerate(rows):
-            cols = row.findAll('td')[1:]
+            cols = row.findAll("td")[1:]
             info_dict = {}
             for i, col in enumerate(cols):
                 # check if the col is number
@@ -172,12 +194,16 @@ class Overview:
             df(pandas.DataFrame): screener information table
         """
         if i == page - 1:
-            df = self._get_table(rows, df, num_col_index, table_header, limit=((limit - 1) % 20 + 1))
+            df = self._get_table(
+                rows, df, num_col_index, table_header, limit=((limit - 1) % 20 + 1)
+            )
         else:
             df = self._get_table(rows, df, num_col_index, table_header)
         return df
 
-    def ScreenerView(self, order='ticker', limit=-1, select_page=None, verbose=1, ascend=True):
+    def ScreenerView(
+        self, order="ticker", limit=-1, select_page=None, verbose=1, ascend=True
+    ):
         """Get screener table.
 
         Args:
@@ -190,18 +216,20 @@ class Overview:
             df(pandas.DataFrame): screener information table
         """
         url = self.url
-        if order != 'ticker':
+        if order != "ticker":
             if order not in self.order_dict:
                 order_keys = list(self.order_dict.keys())
-                raise ValueError("Invalid order '{}'. Possible order: {}".format(order, order_keys))
-            url = self.url+'&'+self.order_dict[order]
+                raise ValueError(
+                    "Invalid order '{}'. Possible order: {}".format(order, order_keys)
+                )
+            url = self.url + "&" + self.order_dict[order]
         if not ascend:
-            url = url.replace('o=', 'o=-')
+            url = url.replace("o=", "o=-")
         soup = webScrap(url)
 
         page = self._get_page(soup)
         if page == 0:
-            print('No ticker found.')
+            print("No ticker found.")
             return None
 
         start_page = 1
@@ -226,36 +254,40 @@ class Overview:
             else:
                 progressBar(1, 1)
 
-        table = soup.findAll('table')[18]
-        rows = table.findAll('tr')
-        table_header = [i.text for i in rows[0].findAll('td')][1:]
+        table = soup.findAll("table")[18]
+        rows = table.findAll("tr")
+        table_header = [i.text for i in rows[0].findAll("td")][1:]
         num_col_index = [table_header.index(i) for i in table_header if i in NUMBER_COL]
         df = pd.DataFrame([], columns=table_header)
         if not select_page or select_page == 1:
-            df = self._screener_helper(0, page, rows, df, num_col_index, table_header, limit)
+            df = self._screener_helper(
+                0, page, rows, df, num_col_index, table_header, limit
+            )
 
         if select_page != 1:
             for i in range(start_page, end_page):
                 if verbose == 1:
                     if not select_page:
-                        progressBar(i+1, page)
+                        progressBar(i + 1, page)
                     else:
                         progressBar(1, 1)
 
                 url = self.url
-                if order == 'ticker':
-                    url += '&r={}'.format(i * 20 + 1)
+                if order == "ticker":
+                    url += "&r={}".format(i * 20 + 1)
                 else:
-                    url += '&r={}'.format(i * 20 + 1) + '&' + self.order_dict[order]
+                    url += "&r={}".format(i * 20 + 1) + "&" + self.order_dict[order]
                 if not ascend:
-                    url = url.replace('o=', 'o=-')
+                    url = url.replace("o=", "o=-")
                 soup = webScrap(url)
-                table = soup.findAll('table')[18]
-                rows = table.findAll('tr')
-                df = self._screener_helper(i, page, rows, df, num_col_index, table_header, limit)
+                table = soup.findAll("table")[18]
+                rows = table.findAll("tr")
+                df = self._screener_helper(
+                    i, page, rows, df, num_col_index, table_header, limit
+                )
         return df
 
-    def compare(self, ticker, compare_list, order='ticker', verbose=1):
+    def compare(self, ticker, compare_list, order="ticker", verbose=1):
         """Get screener table of similar property (Sector, Industry, Country)
 
         Args:
@@ -266,10 +298,10 @@ class Overview:
         Returns:
             df(pandas.DataFrame): screener information table
         """
-        check_list = ['Sector', 'Industry', 'Country']
+        check_list = ["Sector", "Industry", "Country"]
         error_list = [i for i in compare_list if i not in check_list]
         if len(error_list) != 0:
-            raise ValueError('Please check: {}'.format(error_list))
+            raise ValueError("Please check: {}".format(error_list))
 
         stock = finvizfinance(ticker)
         stock_fundament = stock.TickerFundament()
