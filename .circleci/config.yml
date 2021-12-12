@@ -65,7 +65,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - [ master, before-release]
       - test_py37
       - test_py38:
           filters:
