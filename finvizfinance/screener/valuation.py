@@ -19,4 +19,4 @@ class Valuation(Overview):
             "https://finviz.com/screener.ashx?v=121{signal}{filter}&ft=4{ticker}"
         )
         self.url = self.BASE_URL.format(signal="", filter="", ticker="")
-        Overview._loadSetting(self)
+        Overview._load_setting(self)

@@ -20,7 +20,7 @@ class Ticker(Overview):
             "https://finviz.com/screener.ashx?v=411{signal}{filter}&ft=4{ticker}"
         )
         self.url = self.BASE_URL.format(signal="", filter="", ticker="")
-        Overview._loadSetting(self)
+        Overview._load_setting(self)
 
     def _screener_helper(self, i, page, soup, tickers, limit):
         table = soup.findAll("table")[18]

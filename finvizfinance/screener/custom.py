@@ -96,7 +96,7 @@ class Custom(Overview):
             "https://finviz.com/screener.ashx?v=151{signal}{filter}&ft=4{ticker}"
         )
         self.url = self.BASE_URL.format(signal="", filter="", ticker="")
-        Overview._loadSetting(self)
+        Overview._load_setting(self)
 
     def get_columns(self):
         """Get information about the columns

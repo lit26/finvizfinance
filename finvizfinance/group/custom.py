@@ -50,9 +50,9 @@ class Custom(Overview):
         """initiate module"""
         self.BASE_URL = "https://finviz.com/groups.ashx?{group}&v=152"
         self.url = self.BASE_URL.format(group="g=sector")
-        Overview._loadSetting(self)
+        Overview._load_setting(self)
 
-    def getColumns(self):
+    def get_columns(self):
         """Get information about the columns
 
         Returns:
@@ -90,7 +90,7 @@ class Custom(Overview):
         table_header = [i.text for i in rows[0].findAll("td")][1:]
         df = pd.DataFrame([], columns=table_header)
         rows = rows[1:]
-        num_col_index = [i for i in range(2, len(table_header))]
+        num_col_index = list(range(2, len(table_header)))
         for row in rows:
             cols = row.findAll("td")[1:]
             info_dict = {}

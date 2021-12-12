@@ -1,5 +1,5 @@
-from finvizfinance.util import web_scrap, number_covert
 import pandas as pd
+from finvizfinance.util import web_scrap, number_covert
 
 """
 .. module:: group.overview
@@ -19,9 +19,9 @@ class Overview:
         """initiate module"""
         self.BASE_URL = "https://finviz.com/groups.ashx?{group}&v=110"
         self.url = self.BASE_URL.format(group="g=sector")
-        self._loadSetting()
+        self._load_setting()
 
-    def _loadSetting(self):
+    def _load_setting(self):
         """load all the groups."""
         soup = web_scrap(self.url)
         selects = soup.findAll("select")
@@ -45,7 +45,7 @@ class Overview:
         value = [i["value"].split("&")[-1] for i in options]
         self.order_dict = dict(zip(key, value))
 
-    def getGroup(self):
+    def get_group(self):
         """Get groups.
 
         Returns:
@@ -53,7 +53,7 @@ class Overview:
         """
         return list(self.group_dict.keys())
 
-    def getOrders(self):
+    def get_orders(self):
         """Get orders.
 
         Returns:
@@ -87,7 +87,7 @@ class Overview:
         table_header = [i.text for i in rows[0].findAll("td")][1:]
         df = pd.DataFrame([], columns=table_header)
         rows = rows[1:]
-        num_col_index = [i for i in range(2, len(table_header))]
+        num_col_index = list(range(2, len(table_header)))
         for row in rows:
             cols = row.findAll("td")[1:]
             info_dict = {}

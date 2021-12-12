@@ -175,7 +175,7 @@ class Overview:
         if limit != -1:
             rows = rows[0:limit]
 
-        for index, row in enumerate(rows):
+        for row in rows:
             cols = row.findAll("td")[1:]
             info_dict = {}
             for i, col in enumerate(cols):

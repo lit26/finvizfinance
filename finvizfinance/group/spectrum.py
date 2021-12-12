@@ -18,7 +18,7 @@ class Spectrum(Overview):
         """initiate module"""
         self.BASE_URL = "https://finviz.com/groups.ashx?{group}&v=310"
         self.url = self.BASE_URL.format(group="g=sector")
-        Overview._loadSetting(self)
+        Overview._load_setting(self)
 
     def screener_view(self, group="Sector", order="Name", out_dir=""):
         """Get screener table.
