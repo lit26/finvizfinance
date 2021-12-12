@@ -37,11 +37,11 @@ Example getting individual ticker information
 
 .. code-block:: python
 
-   stock_fundament = stock.TickerFundament()
-   stock_description = stock.TickerDescription()
-   outer_ratings_df = stock.TickerOuterRatings()
-   news_df = stock.TickerNews()
-   inside_trader_df = stock.TickerInsideTrader()
+   stock_fundament = stock.ticker_fundament()
+   stock_description = stock.ticker_description()
+   outer_ratings_df = stock.ticker_outer_ratings()
+   news_df = stock.ticker_news()
+   inside_trader_df = stock.ticker_inside_trader()
 
 Screener Example
 ================
@@ -52,7 +52,7 @@ Screener Example
    foverview = Overview()
    filters_dict = {'Exchange':'AMEX','Sector':'Basic Materials'}
    foverview.set_filter(filters_dict=filters_dict)
-   df = foverview.ScreenerView()
+   df = foverview.screener_view()
    df.head()
 
 News Example
@@ -62,7 +62,7 @@ News Example
 
    from finvizfinance.news import News
    fnews = News()
-   all_news = fnews.getNews()
+   all_news = fnews.get_news()
    # all_news['news'].head()
    # all_news['blogs'].head()
 
@@ -73,7 +73,7 @@ Insider Example
 
    from finvizfinance.insider import Insider
    finsider = Insider(option='top owner trade')
-   finsider.getInsider().head()
+   finsider.get_insider().head()
 
 Contents
 ==================

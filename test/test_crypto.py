@@ -7,8 +7,8 @@ def test_finvizfinance_crypto():
 
 
 def test_finvizfinance_crypto_mock(mocker):
-    mocker.patch('finvizfinance.crypto.imageScrapFunction', return_value="imagescrapfunctionurl")
+    mocker.patch('finvizfinance.crypto.image_scrap_function', return_value="image_scrap_functionurl")
     fcrypto = Crypto()
     url = fcrypto.chart(crypto='test')
 
-    assert url == "imagescrapfunctionurl"
+    assert url == "image_scrap_functionurl"

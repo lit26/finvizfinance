@@ -66,23 +66,26 @@ workflows:
             branches:
               only:
                 - master
+                - before-release
       - test_py37
       - test_py38:
           filters:
             branches:
               only:
                 - master
+                - before-release
       - test_py39:
           filters:
             branches:
               only:
                 - master
+                - before-release
       - coverage:
           filters:
             branches:
               only:
                 - master
-      # - doc
+                - before-release
 
 
 ###########################################
@@ -90,4 +93,3 @@ workflows:
 ###########################################
 # circleci local execute --job test_py37
 # circleci local execute --job coverage
-# circleci local execute --job doc
