@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = '0.10.1'
+VERSION = '0.11'
 PACKAGE_NAME = 'finvizfinance'
 AUTHOR = 'Tianning Li'
 AUTHOR_EMAIL = 'ltianningli@gmail.com'
@@ -22,9 +22,10 @@ INSTALL_REQUIRES = [
       'lxml'
 ]
 CLASSIFIERS = [
-      'Programming Language :: Python :: 3.5',
       'Programming Language :: Python :: 3.6',
       'Programming Language :: Python :: 3.7',
+      'Programming Language :: Python :: 3.8',
+      'Programming Language :: Python :: 3.9',
       'License :: OSI Approved :: MIT License'
 ]
 PYTHON_REQUIRES='>=3.5'
