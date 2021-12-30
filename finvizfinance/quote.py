@@ -118,7 +118,7 @@ class finvizfinance:
         """
         fundament_info = {}
 
-        table = self.soup.findAll("table")[5]
+        table = self.soup.findAll("table")[4]
         rows = table.findAll("tr")
 
         fundament_info["Company"] = rows[1].text
