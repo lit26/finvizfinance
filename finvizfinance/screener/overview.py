@@ -280,7 +280,7 @@ class Overview:
                 if not ascend:
                     url = url.replace("o=", "o=-")
                 soup = web_scrap(url)
-                table = soup.findAll("table")[18]
+                table = soup.findAll("table")[19]
                 rows = table.findAll("tr")
                 df = self._screener_helper(
                     i, page, rows, df, num_col_index, table_header, limit
