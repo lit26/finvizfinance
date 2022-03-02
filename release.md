@@ -1,5 +1,6 @@
 | Date | Version | Comment |
 | ------------- | ------------- | ------------- |
+| 2022/05/02 | 0.12.1 | Update changes in stock insider due to finviz's change. |
 | 2022/05/02 | 0.12.0 | Update changes in stock screener. Issue: https://github.com/lit26/finvizfinance/issues/41|
 | 2021/12/30 | 0.11.1 | Update changes in stock fundamental. Issue: https://github.com/lit26/finvizfinance/issues/38. PR: https://github.com/lit26/finvizfinance/pull/37 |
 | 2021/12/11 | 0.11 | Reformat the code to follow PEP 8 style guide. |
