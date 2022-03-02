@@ -84,6 +84,8 @@ COLUMNS = {
     70: "IPO Date",
 }
 
+SCREENER_TABLE_INDEX = 19
+
 
 class Custom(Overview):
     """Custom inherit from overview module.
@@ -182,7 +184,7 @@ class Custom(Overview):
             else:
                 progress_bar(1, 1)
 
-        table = soup.findAll("table")[19]
+        table = soup.findAll("table")[SCREENER_TABLE_INDEX]
         rows = table.findAll("tr")
         table_header = [i.text for i in rows[0].findAll("td")][1:]
         num_col_index = [table_header.index(i) for i in table_header if i in NUMBER_COL]
@@ -209,7 +211,7 @@ class Custom(Overview):
                     url = url.replace("o=", "o=-")
                 url += "&c=" + ",".join(columns)
                 soup = web_scrap(url)
-                table = soup.findAll("table")[19]
+                table = soup.findAll("table")[SCREENER_TABLE_INDEX]
                 rows = table.findAll("tr")
                 df = self._screener_helper(
                     i, page, rows, df, num_col_index, table_header, limit

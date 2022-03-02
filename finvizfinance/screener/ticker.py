@@ -8,6 +8,7 @@ from finvizfinance.util import web_scrap, progress_bar
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+SCREENER_TABLE_INDEX = 19
 
 class Ticker(Overview):
     """Financial inherit from overview module.
@@ -23,7 +24,7 @@ class Ticker(Overview):
         Overview._load_setting(self)
 
     def _screener_helper(self, i, page, soup, tickers, limit):
-        table = soup.findAll("table")[19]
+        table = soup.findAll("table")[SCREENER_TABLE_INDEX]
         page_tickers = table.findAll("span")
         if i == page - 1:
             page_tickers = page_tickers[: ((limit - 1) % 1000 + 1)]
