@@ -182,7 +182,7 @@ class Custom(Overview):
             else:
                 progress_bar(1, 1)
 
-        table = soup.findAll("table")[18]
+        table = soup.findAll("table")[19]
         rows = table.findAll("tr")
         table_header = [i.text for i in rows[0].findAll("td")][1:]
         num_col_index = [table_header.index(i) for i in table_header if i in NUMBER_COL]

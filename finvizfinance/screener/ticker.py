@@ -23,7 +23,7 @@ class Ticker(Overview):
         Overview._load_setting(self)
 
     def _screener_helper(self, i, page, soup, tickers, limit):
-        table = soup.findAll("table")[18]
+        table = soup.findAll("table")[19]
         page_tickers = table.findAll("span")
         if i == page - 1:
             page_tickers = page_tickers[: ((limit - 1) % 1000 + 1)]
