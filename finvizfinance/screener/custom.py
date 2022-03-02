@@ -209,7 +209,7 @@ class Custom(Overview):
                     url = url.replace("o=", "o=-")
                 url += "&c=" + ",".join(columns)
                 soup = web_scrap(url)
-                table = soup.findAll("table")[18]
+                table = soup.findAll("table")[19]
                 rows = table.findAll("tr")
                 df = self._screener_helper(
                     i, page, rows, df, num_col_index, table_header, limit
