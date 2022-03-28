@@ -21,8 +21,6 @@ NUM_COL = [
     "EPS nest Y",
     "Insider ",
 ]
-TICKER_FUNDAMENT_TABLE_INDEX = 6
-
 
 class Quote:
     """quote
@@ -47,17 +45,14 @@ class finvizfinance:
     Args:
         ticker(str): ticker string
         verbose(int): choice of visual the progress. 1 for visualize progress.
-        ticker_fundament_table_index(int): table index of the stock fundamental. change only if change on finviz side.
     """
 
     def __init__(
         self,
         ticker,
         verbose=0,
-        ticker_fundament_table_index=TICKER_FUNDAMENT_TABLE_INDEX,
     ):
         """initiate module"""
-        self._ticker_fundament_table_index = ticker_fundament_table_index
 
         self.ticker = ticker
         self.flag = False
