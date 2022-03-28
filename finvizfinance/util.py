@@ -126,7 +126,7 @@ def image_scrap(url, ticker, out_dir):
         raise Exception(err)
 
 
-def scrap_function(url):
+def scrap_function(url, table_index):
     """Scrap forex, crypto information.
 
     Args:
@@ -135,7 +135,7 @@ def scrap_function(url):
         df(pandas.DataFrame): performance table
     """
     soup = web_scrap(url)
-    table = soup.findAll("table")[3]
+    table = soup.findAll("table")[table_index]
     rows = table.findAll("tr")
     table_header = [i.text.strip() for i in rows[0].findAll("td")][1:]
     df = pd.DataFrame([], columns=table_header)
