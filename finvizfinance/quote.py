@@ -21,6 +21,7 @@ NUM_COL = [
     "EPS nest Y",
     "Insider ",
 ]
+TICKER_FUNDAMENT_TABLE_INDEX = 6
 
 
 class Quote:
@@ -46,10 +47,18 @@ class finvizfinance:
     Args:
         ticker(str): ticker string
         verbose(int): choice of visual the progress. 1 for visualize progress.
+        ticker_fundament_table_index(int): table index of the stock fundamental. change only if change on finviz side.
     """
 
-    def __init__(self, ticker, verbose=0):
+    def __init__(
+        self,
+        ticker,
+        verbose=0,
+        ticker_fundament_table_index=TICKER_FUNDAMENT_TABLE_INDEX,
+    ):
         """initiate module"""
+        self._ticker_fundament_table_index = ticker_fundament_table_index
+
         self.ticker = ticker
         self.flag = False
         self.quote_url = QUOTE_URL.format(ticker=ticker)
@@ -118,7 +127,7 @@ class finvizfinance:
         """
         fundament_info = {}
 
-        table = self.soup.findAll("table")[4]
+        table = self.soup.findAll("table")[self._ticker_fundament_table_index]
         rows = table.findAll("tr")
 
         fundament_info["Company"] = rows[1].text
@@ -334,9 +343,12 @@ class finvizfinance:
         ]
         ticker_signal = []
         for signal in signals:
-            fticker.set_filter(signal=signal, ticker=self.ticker.upper())
-            if fticker.screener_view(verbose=0) == [self.ticker.upper()]:
-                ticker_signal.append(signal)
+            try:
+                fticker.set_filter(signal=signal, ticker=self.ticker.upper())
+                if fticker.screener_view(verbose=0) == [self.ticker.upper()]:
+                    ticker_signal.append(signal)
+            except:
+                pass
         return ticker_signal
 
     def ticker_full_info(self):

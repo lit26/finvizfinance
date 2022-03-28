@@ -7,14 +7,21 @@ from finvizfinance.screener.overview import Overview
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+SCREENER_TABLE_INDEX = 21
+
 
 class Financial(Overview):
     """Financial inherit from overview module.
     Getting information from the finviz screener financial page.
+
+    Args:
+        screener_table_index(int): table index of the stock screener. change only if change on finviz side.
+
     """
 
-    def __init__(self):
+    def __init__(self, screener_table_index=SCREENER_TABLE_INDEX):
         """initiate module"""
+        self._screener_table_index = screener_table_index
         self.BASE_URL = (
             "https://finviz.com/screener.ashx?v=161{signal}{filter}&ft=4{ticker}"
         )

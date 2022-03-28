@@ -9,14 +9,20 @@ from finvizfinance.util import web_scrap, number_covert
 
 """
 
+SCREENER_TABLE_INDEX = 7
+
 
 class Overview:
     """Overview
     Getting information from the finviz group overview page.
+    Args:
+        screener_table_index(int): table index of the stock screener. change only if change on finviz side.
+
     """
 
-    def __init__(self):
+    def __init__(self, screener_table_index=SCREENER_TABLE_INDEX):
         """initiate module"""
+        self._screener_table_index = screener_table_index
         self.BASE_URL = "https://finviz.com/groups.ashx?{group}&v=110"
         self.url = self.BASE_URL.format(group="g=sector")
         self._load_setting()
@@ -82,7 +88,7 @@ class Overview:
         )
 
         soup = web_scrap(self.url)
-        table = soup.findAll("table")[5]
+        table = soup.findAll("table")[self._screener_table_index]
         rows = table.findAll("tr")
         table_header = [i.text for i in rows[0].findAll("td")][1:]
         df = pd.DataFrame([], columns=table_header)
