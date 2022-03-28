@@ -127,7 +127,7 @@ class finvizfinance:
         """
         fundament_info = {}
 
-        table = self.soup.findAll("table")[self._ticker_fundament_table_index]
+        table = self.soup.find("table", class_="fullview-title")
         rows = table.findAll("tr")
 
         fundament_info["Company"] = rows[1].text
