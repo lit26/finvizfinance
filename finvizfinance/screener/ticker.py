@@ -8,20 +8,14 @@ from finvizfinance.util import web_scrap, progress_bar
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
-SCREENER_TABLE_INDEX = 21
-
 
 class Ticker(Overview):
     """Financial inherit from overview module.
     Getting information from the finviz screener ticker page.
-
-    Args:
-        screener_table_index(int): table index of the stock screener. change only if change on finviz side.
     """
 
-    def __init__(self, screener_table_index=SCREENER_TABLE_INDEX):
+    def __init__(self):
         """initiate module"""
-        self._screener_table_index = screener_table_index
         self.BASE_URL = (
             "https://finviz.com/screener.ashx?v=411{signal}{filter}&ft=4{ticker}"
         )
@@ -29,8 +23,8 @@ class Ticker(Overview):
         Overview._load_setting(self)
 
     def _screener_helper(self, i, page, soup, tickers, limit):
-        table = soup.findAll("table")[self._screener_table_index]
-        page_tickers = table.findAll("span")
+        td = soup.find("td", class_="screener-tickers")
+        page_tickers = td.findAll("span")
         if i == page - 1:
             page_tickers = page_tickers[: ((limit - 1) % 1000 + 1)]
         tickers = tickers + [i.text.split("\xa0")[1] for i in page_tickers]
