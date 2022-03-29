@@ -1,30 +1,24 @@
-import pandas as pd
-from finvizfinance.util import web_scrap, number_covert
-
 """
 .. module:: group.overview
    :synopsis: group overview table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
-
 """
-
-SCREENER_TABLE_INDEX = 7
+import pandas as pd
+from finvizfinance.util import web_scrap, number_covert
 
 
 class Overview:
     """Overview
     Getting information from the finviz group overview page.
-    Args:
-        screener_table_index(int): table index of the stock screener. change only if change on finviz side.
-
     """
 
-    def __init__(self, screener_table_index=SCREENER_TABLE_INDEX):
+    v_page = 110
+
+    def __init__(self):
         """initiate module"""
-        self._screener_table_index = screener_table_index
-        self.BASE_URL = "https://finviz.com/groups.ashx?{group}&v=110"
-        self.url = self.BASE_URL.format(group="g=sector")
+        self.BASE_URL = "https://finviz.com/groups.ashx?{group}&v={v_page}"
+        self.url = self.BASE_URL.format(group="g=sector", v_page=self.v_page)
         self._load_setting()
 
     def _load_setting(self):
@@ -82,13 +76,13 @@ class Overview:
         if order not in self.order_dict:
             raise ValueError()
         self.url = (
-            self.BASE_URL.format(group=self.group_dict[group])
+            self.BASE_URL.format(group=self.group_dict[group], v_page=self.v_page)
             + "&"
             + self.order_dict[order]
         )
 
         soup = web_scrap(self.url)
-        table = soup.findAll("table")[self._screener_table_index]
+        table = soup.find("table", class_="table-light")
         rows = table.findAll("tr")
         table_header = [i.text for i in rows[0].findAll("td")][1:]
         df = pd.DataFrame([], columns=table_header)

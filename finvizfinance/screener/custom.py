@@ -1,14 +1,13 @@
-import warnings
-import pandas as pd
-from finvizfinance.screener.overview import Overview
-from finvizfinance.util import web_scrap, progress_bar, NUMBER_COL
-
 """
 .. module:: screen.custom
    :synopsis: screen custom table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+import warnings
+import pandas as pd
+from finvizfinance.screener.overview import Overview
+from finvizfinance.util import web_scrap, progress_bar, NUMBER_COL
 
 COLUMNS = {
     0: "No.",
@@ -84,26 +83,13 @@ COLUMNS = {
     70: "IPO Date",
 }
 
-SCREENER_TABLE_INDEX = 21
-
 
 class Custom(Overview):
     """Custom inherit from overview module.
     Getting information from the finviz screener custom page.
-
-    Args:
-        screener_table_index(int): table index of the stock screener. change only if change on finviz side.
-
     """
 
-    def __init__(self, screener_table_index=SCREENER_TABLE_INDEX):
-        """initiate module"""
-        self._screener_table_index = screener_table_index
-        self.BASE_URL = (
-            "https://finviz.com/screener.ashx?v=151{signal}{filter}&ft=4{ticker}"
-        )
-        self.url = self.BASE_URL.format(signal="", filter="", ticker="")
-        Overview._load_setting(self)
+    v_page = 151
 
     def get_columns(self):
         """Get information about the columns
@@ -189,7 +175,7 @@ class Custom(Overview):
             else:
                 progress_bar(1, 1)
 
-        table = soup.findAll("table")[self._screener_table_index]
+        table = soup.find("table", class_="table-light")
         rows = table.findAll("tr")
         table_header = [i.text for i in rows[0].findAll("td")][1:]
         num_col_index = [table_header.index(i) for i in table_header if i in NUMBER_COL]
@@ -216,7 +202,7 @@ class Custom(Overview):
                     url = url.replace("o=", "o=-")
                 url += "&c=" + ",".join(columns)
                 soup = web_scrap(url)
-                table = soup.findAll("table")[self._screener_table_index]
+                table = soup.find("table", class_="table-light")
                 rows = table.findAll("tr")
                 df = self._screener_helper(
                     i, page, rows, df, num_col_index, table_header, limit

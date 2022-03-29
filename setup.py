@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = '0.13.0'
+VERSION = '0.14.0'
 PACKAGE_NAME = 'finvizfinance'
 AUTHOR = 'Tianning Li'
 AUTHOR_EMAIL = 'ltianningli@gmail.com'

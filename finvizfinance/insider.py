@@ -1,15 +1,13 @@
-import pandas as pd
-from finvizfinance.util import web_scrap, number_covert
-
 """
 .. module:: insider
    :synopsis: insider table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+import pandas as pd
+from finvizfinance.util import web_scrap, number_covert
 
 INSIDER_URL = "https://finviz.com/insidertrading.ashx"
-INSIDER_TABLE_INDEX = 6
 
 
 class Insider:
@@ -20,12 +18,10 @@ class Insider:
         option (str): choose a option (latest, latest buys, latest sales, top week,
                       top week buys, top week sales, top owner trade, top owner buys,
                       top owner sales, insider_id)
-        ticker_fundament_table_index(int): table index of the insider. change only if change on finviz side.
     """
 
-    def __init__(self, option="latest", insider_table_index=INSIDER_TABLE_INDEX):
+    def __init__(self, option="latest"):
         """initiate module"""
-        self._insider_table_index = insider_table_index
         if option == "latest":
             self.soup = web_scrap(INSIDER_URL)
         elif option == "latest buys":
@@ -66,7 +62,7 @@ class Insider:
         Returns:
             df(pandas.DataFrame): insider information table
         """
-        insider_trader = self.soup.findAll("table")[self._insider_table_index]
+        insider_trader = self.soup.find("table", class_="body-table w-full")
         rows = insider_trader.findAll("tr")
         table_header = [i.text.strip() for i in rows[0].findAll("td")] + [
             "SEC Form 4 Link"

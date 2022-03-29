@@ -1,31 +1,25 @@
-import pandas as pd
-from finvizfinance.util import web_scrap
-
 """
 .. module:: news
    :synopsis: news table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+import pandas as pd
+from finvizfinance.util import web_scrap
 
 NEWS_URL = "https://finviz.com/news.ashx"
-NEWS_TABLE_INDEX = 8
 
 
 class News:
     """News
     Getting information from the finviz news page.
-    Args:
-        news_table_index(int): table index of the news page. change only if change on finviz side.
-
     """
 
-    def __init__(self, news_table_index=NEWS_TABLE_INDEX):
+    def __init__(self):
         """initiate module"""
         self.all_news = {}
         self.soup = web_scrap(NEWS_URL)
         self.news = {}
-        self._news_table_index = news_table_index
 
     def get_news(self):
         """Get insider information table.
@@ -36,10 +30,13 @@ class News:
             news(dict): news table
 
         """
-        tables = self.soup.findAll("table")
-        news = tables[self._news_table_index]
+        news_content = self.soup.find(id="news").find("table")
+        news_collection = news_content.findAll("tr", recursive=False)[1]
+        tables = news_collection.findAll("table")
+
+        news = tables[0]
         news_df = self._get_news_helper(news)
-        blog = tables[self._news_table_index + 1]
+        blog = tables[1]
         blog_df = self._get_news_helper(blog)
         self.news = {"news": news_df, "blogs": blog_df}
         return self.news

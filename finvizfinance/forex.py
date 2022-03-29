@@ -1,26 +1,20 @@
-from finvizfinance.util import scrap_function, image_scrap_function
-
 """
 .. module:: forex
    :synopsis: forex.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
-
-SCREENER_TABLE_INDEX = 5
+from finvizfinance.util import scrap_function, image_scrap_function
 
 
 class Forex:
     """Forex
     Getting information from the finviz forex page.
-    Args:
-        screener_table_index(int): table index of the stock screener. change only if change on finviz side.
-
     """
 
-    def __init__(self, screener_table_index=SCREENER_TABLE_INDEX):
+    def __init__(self):
         """initiate module"""
-        self._screener_table_index = screener_table_index
+        pass
 
     def performance(self, change="percent"):
         """Get forex performance table.
@@ -38,7 +32,7 @@ class Forex:
             url = "https://finviz.com/forex_performance.ashx?v=1&tv=2&o=-perfdaypct"
         else:
             raise ValueError("Options of change: percent(default), PIPS")
-        df = scrap_function(url, self._screener_table_index)
+        df = scrap_function(url)
         return df
 
     def chart(self, forex, timeframe="D", urlonly=False):
@@ -51,8 +45,6 @@ class Forex:
         Returns:
             charturl(str): url for the chart
         """
-        if forex == "":
-            return None
 
         url = "https://finviz.com/forex_charts.ashx?t=ALL&tf="
         charturl = image_scrap_function(url, forex, timeframe, urlonly)

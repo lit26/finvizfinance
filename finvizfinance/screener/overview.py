@@ -1,3 +1,10 @@
+"""
+.. module:: screen.overview
+   :synopsis: screen overview table.
+
+.. moduleauthor:: Tianning Li <ltianningli@gmail.com>
+
+"""
 import warnings
 import pandas as pd
 from finvizfinance.quote import finvizfinance
@@ -9,32 +16,22 @@ from finvizfinance.util import (
     util_dict,
 )
 
-"""
-.. module:: screen.overview
-   :synopsis: screen overview table.
-
-.. moduleauthor:: Tianning Li <ltianningli@gmail.com>
-
-"""
-
-SCREENER_TABLE_INDEX = 21
-
 
 class Overview:
     """Overview
     Getting information from the finviz screener overview page.
-    Args:
-        screener_table_index(int): table index of the stock screener. change only if change on finviz side.
-
     """
 
-    def __init__(self, screener_table_index=SCREENER_TABLE_INDEX):
+    v_page = 111
+
+    def __init__(self):
         """initiate module"""
-        self._screener_table_index = screener_table_index
         self.BASE_URL = (
-            "https://finviz.com/screener.ashx?v=111{signal}{filter}&ft=4{ticker}"
+            "https://finviz.com/screener.ashx?v={v_page}{signal}{filter}&ft=4{ticker}"
         )
-        self.url = self.BASE_URL.format(signal="", filter="", ticker="")
+        self.url = self.BASE_URL.format(
+            v_page=self.v_page, signal="", filter="", ticker=""
+        )
         self._load_setting()
 
     def _load_setting(self):
@@ -157,19 +154,27 @@ class Overview:
             ticker(str): ticker string
         """
         if signal == "" and filters_dict == {} and ticker == "":
-            self.url = self.BASE_URL.format(signal="", filter="", ticker="")
+            self.url = self.BASE_URL.format(
+                v_page=self.v_page, signal="", filter="", ticker=""
+            )
         else:
             url_signal = self._set_signal(signal)
             url_filter = self._set_filters(filters_dict)
             url_ticker = self._set_ticker(ticker)
             self.url = self.BASE_URL.format(
-                signal=url_signal, filter=url_filter, ticker=url_ticker
+                v_page=self.v_page,
+                signal=url_signal,
+                filter=url_filter,
+                ticker=url_ticker,
             )
 
     def _get_page(self, soup):
         """Check the page number"""
-        options = soup.find(id="pageSelect").findAll("option")
-        return len(options)
+        try:
+            options = soup.find(id="pageSelect").findAll("option")
+            return len(options)
+        except:
+            return 0
 
     def _get_table(self, rows, df, num_col_index, table_header, limit=-1):
         """Get screener table helper function.
@@ -260,7 +265,7 @@ class Overview:
             else:
                 progress_bar(1, 1)
 
-        table = soup.findAll("table")[self._screener_table_index]
+        table = soup.find("table", class_="table-light")
         rows = table.findAll("tr")
         table_header = [i.text for i in rows[0].findAll("td")][1:]
         num_col_index = [table_header.index(i) for i in table_header if i in NUMBER_COL]
@@ -286,7 +291,7 @@ class Overview:
                 if not ascend:
                     url = url.replace("o=", "o=-")
                 soup = web_scrap(url)
-                table = soup.findAll("table")[self._screener_table_index]
+                table = soup.find("table", class_="table-light")
                 rows = table.findAll("tr")
                 df = self._screener_helper(
                     i, page, rows, df, num_col_index, table_header, limit

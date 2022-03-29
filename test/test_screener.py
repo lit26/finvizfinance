@@ -5,7 +5,7 @@ def test_screener_overview():
     foverview = Overview()
     filters_dict = {'Exchange': 'AMEX', 'Sector': 'Basic Materials'}
     foverview.set_filter(filters_dict=filters_dict)
-    df = foverview.screener_view()
+    df = foverview.screener_view(order="Company", ascend=False)
     assert(df is not None)
     ticker = 'TSLA'
     foverview.set_filter(signal='', filters_dict={}, ticker=ticker)

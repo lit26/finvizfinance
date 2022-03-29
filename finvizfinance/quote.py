@@ -1,15 +1,15 @@
-from datetime import datetime
-import json
-import pandas as pd
-import requests
-from finvizfinance.util import web_scrap, image_scrap, number_covert, headers
-
 """
 .. module:: finvizfinance
    :synopsis: individual ticker.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+from datetime import datetime
+import json
+import pandas as pd
+import requests
+from finvizfinance.util import web_scrap, image_scrap, number_covert, headers
+
 QUOTE_URL = "https://finviz.com/quote.ashx?t={ticker}"
 NUM_COL = [
     "P/E",
@@ -21,7 +21,6 @@ NUM_COL = [
     "EPS nest Y",
     "Insider ",
 ]
-TICKER_FUNDAMENT_TABLE_INDEX = 6
 
 
 class Quote:
@@ -47,17 +46,14 @@ class finvizfinance:
     Args:
         ticker(str): ticker string
         verbose(int): choice of visual the progress. 1 for visualize progress.
-        ticker_fundament_table_index(int): table index of the stock fundamental. change only if change on finviz side.
     """
 
     def __init__(
         self,
         ticker,
         verbose=0,
-        ticker_fundament_table_index=TICKER_FUNDAMENT_TABLE_INDEX,
     ):
         """initiate module"""
-        self._ticker_fundament_table_index = ticker_fundament_table_index
 
         self.ticker = ticker
         self.flag = False
@@ -127,7 +123,7 @@ class finvizfinance:
         """
         fundament_info = {}
 
-        table = self.soup.findAll("table")[self._ticker_fundament_table_index]
+        table = self.soup.find("table", class_="fullview-title")
         rows = table.findAll("tr")
 
         fundament_info["Company"] = rows[1].text

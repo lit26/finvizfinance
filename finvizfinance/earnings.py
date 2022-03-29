@@ -1,3 +1,9 @@
+"""
+.. module:: earnings
+   :synopsis: earnings.
+
+.. moduleauthor:: Tianning Li <ltianningli@gmail.com>
+"""
 import os
 import pandas as pd
 from finvizfinance.screener.financial import Financial
@@ -6,13 +12,6 @@ from finvizfinance.screener.valuation import Valuation
 from finvizfinance.screener.ownership import Ownership
 from finvizfinance.screener.performance import Performance
 from finvizfinance.screener.technical import Technical
-
-"""
-.. module:: earnings
-   :synopsis: earnings.
-
-.. moduleauthor:: Tianning Li <ltianningli@gmail.com>
-"""
 
 
 class Earnings:
@@ -116,7 +115,7 @@ class Earnings:
             output_file(str): name of the output excel file.
         """
         print("Print to Excel...")
-        with pd.ExcelWriter(
+        with pd.ExcelWriter(  # pylint: disable=abstract-class-instantiated
             output_file, datetime_format="YYYY-MM-DD", engine="xlsxwriter"
         ) as writer:
             for name, df in self.df_days.items():

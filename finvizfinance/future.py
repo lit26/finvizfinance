@@ -1,13 +1,12 @@
-import json
-import pandas as pd
-from finvizfinance.util import web_scrap
-
 """
 .. module:: future
    :synopsis: future.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+import json
+import pandas as pd
+from finvizfinance.util import web_scrap
 
 
 class Future:
