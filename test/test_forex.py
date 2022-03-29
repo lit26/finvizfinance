@@ -15,7 +15,7 @@ def test_forex_performance_pips(mocker):
     assert (df is not None)
 
 
-def test_finvizfinance_crypto_mock(mocker):
+def test_forex_chart_url_mock(mocker):
     mocker.patch('finvizfinance.forex.image_scrap_function', return_value="image_scrap_functionurl")
     fforex = Forex()
     url = fforex.chart(forex='test')

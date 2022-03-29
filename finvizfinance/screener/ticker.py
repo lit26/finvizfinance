@@ -23,15 +23,28 @@ class Ticker(Overview):
         tickers = tickers + [i.text.split("\xa0")[1] for i in page_tickers]
         return tickers
 
-    def screener_view(self, limit=-1, verbose=1):
-        """Get screener table.
+    def screener_view(self, order="ticker", limit=-1, verbose=1, ascend=True):
+        """Get screener stocks.
 
         Args:
+            order(str): sort the list by the choice of order.
+            limit(int): set the top k stocks of the screener.
             verbose(int): choice of visual the progress. 1 for visualize progress.
+            ascend(bool): if True, the order is ascending.
         Returns:
             tickers(list): get all the tickers as list.
         """
-        soup = web_scrap(self.url)
+        url = self.url
+        if order != "ticker":
+            if order not in self.order_dict:
+                order_keys = list(self.order_dict.keys())
+                raise ValueError(
+                    "Invalid order '{}'. Possible order: {}".format(order, order_keys)
+                )
+            url = self.url + "&" + self.order_dict[order]
+        if not ascend:
+            url = url.replace("o=", "o=-")
+        soup = web_scrap(url)
         page = self._get_page(soup)
         if page == 0:
             if verbose == 1:

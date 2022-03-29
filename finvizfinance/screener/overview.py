@@ -170,8 +170,11 @@ class Overview:
 
     def _get_page(self, soup):
         """Check the page number"""
-        options = soup.find(id="pageSelect").findAll("option")
-        return len(options)
+        try:
+            options = soup.find(id="pageSelect").findAll("option")
+            return len(options)
+        except:
+            return 0
 
     def _get_table(self, rows, df, num_col_index, table_header, limit=-1):
         """Get screener table helper function.

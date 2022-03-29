@@ -45,8 +45,6 @@ class Forex:
         Returns:
             charturl(str): url for the chart
         """
-        if forex == "":
-            return None
 
         url = "https://finviz.com/forex_charts.ashx?t=ALL&tf="
         charturl = image_scrap_function(url, forex, timeframe, urlonly)
