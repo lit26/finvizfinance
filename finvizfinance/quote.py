@@ -1,15 +1,15 @@
-from datetime import datetime
-import json
-import pandas as pd
-import requests
-from finvizfinance.util import web_scrap, image_scrap, number_covert, headers
-
 """
 .. module:: finvizfinance
    :synopsis: individual ticker.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+from datetime import datetime
+import json
+import pandas as pd
+import requests
+from finvizfinance.util import web_scrap, image_scrap, number_covert, headers
+
 QUOTE_URL = "https://finviz.com/quote.ashx?t={ticker}"
 NUM_COL = [
     "P/E",
@@ -21,6 +21,7 @@ NUM_COL = [
     "EPS nest Y",
     "Insider ",
 ]
+
 
 class Quote:
     """quote

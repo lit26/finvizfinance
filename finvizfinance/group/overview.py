@@ -1,13 +1,11 @@
-import pandas as pd
-from finvizfinance.util import web_scrap, number_covert
-
 """
 .. module:: group.overview
    :synopsis: group overview table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
-
 """
+import pandas as pd
+from finvizfinance.util import web_scrap, number_covert
 
 
 class Overview:
@@ -15,10 +13,12 @@ class Overview:
     Getting information from the finviz group overview page.
     """
 
+    v_page = 110
+
     def __init__(self):
         """initiate module"""
-        self.BASE_URL = "https://finviz.com/groups.ashx?{group}&v=110"
-        self.url = self.BASE_URL.format(group="g=sector")
+        self.BASE_URL = "https://finviz.com/groups.ashx?{group}&v={v_page}"
+        self.url = self.BASE_URL.format(group="g=sector", v_page=self.v_page)
         self._load_setting()
 
     def _load_setting(self):
@@ -76,7 +76,7 @@ class Overview:
         if order not in self.order_dict:
             raise ValueError()
         self.url = (
-            self.BASE_URL.format(group=self.group_dict[group])
+            self.BASE_URL.format(group=self.group_dict[group], v_page=self.v_page)
             + "&"
             + self.order_dict[order]
         )

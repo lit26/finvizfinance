@@ -1,12 +1,11 @@
-from finvizfinance.screener.overview import Overview
-from finvizfinance.util import web_scrap, progress_bar
-
 """
 .. module:: screen.ticker
    :synopsis: screen ticker table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+from finvizfinance.screener.overview import Overview
+from finvizfinance.util import web_scrap, progress_bar
 
 
 class Ticker(Overview):
@@ -14,13 +13,7 @@ class Ticker(Overview):
     Getting information from the finviz screener ticker page.
     """
 
-    def __init__(self):
-        """initiate module"""
-        self.BASE_URL = (
-            "https://finviz.com/screener.ashx?v=411{signal}{filter}&ft=4{ticker}"
-        )
-        self.url = self.BASE_URL.format(signal="", filter="", ticker="")
-        Overview._load_setting(self)
+    v_page = 411
 
     def _screener_helper(self, i, page, soup, tickers, limit):
         td = soup.find("td", class_="screener-tickers")

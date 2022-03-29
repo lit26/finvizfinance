@@ -1,14 +1,13 @@
-import warnings
-import pandas as pd
-from finvizfinance.screener.overview import Overview
-from finvizfinance.util import web_scrap, progress_bar, NUMBER_COL
-
 """
 .. module:: screen.custom
    :synopsis: screen custom table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+import warnings
+import pandas as pd
+from finvizfinance.screener.overview import Overview
+from finvizfinance.util import web_scrap, progress_bar, NUMBER_COL
 
 COLUMNS = {
     0: "No.",
@@ -90,13 +89,7 @@ class Custom(Overview):
     Getting information from the finviz screener custom page.
     """
 
-    def __init__(self):
-        """initiate module"""
-        self.BASE_URL = (
-            "https://finviz.com/screener.ashx?v=151{signal}{filter}&ft=4{ticker}"
-        )
-        self.url = self.BASE_URL.format(signal="", filter="", ticker="")
-        Overview._load_setting(self)
+    v_page = 151
 
     def get_columns(self):
         """Get information about the columns

@@ -1,12 +1,11 @@
-import pandas as pd
-from finvizfinance.util import web_scrap, number_covert
-
 """
 .. module:: insider
    :synopsis: insider table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+import pandas as pd
+from finvizfinance.util import web_scrap, number_covert
 
 INSIDER_URL = "https://finviz.com/insidertrading.ashx"
 

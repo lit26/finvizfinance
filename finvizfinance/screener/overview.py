@@ -1,3 +1,10 @@
+"""
+.. module:: screen.overview
+   :synopsis: screen overview table.
+
+.. moduleauthor:: Tianning Li <ltianningli@gmail.com>
+
+"""
 import warnings
 import pandas as pd
 from finvizfinance.quote import finvizfinance
@@ -9,26 +16,22 @@ from finvizfinance.util import (
     util_dict,
 )
 
-"""
-.. module:: screen.overview
-   :synopsis: screen overview table.
-
-.. moduleauthor:: Tianning Li <ltianningli@gmail.com>
-
-"""
-
 
 class Overview:
     """Overview
     Getting information from the finviz screener overview page.
     """
 
+    v_page = 111
+
     def __init__(self):
         """initiate module"""
         self.BASE_URL = (
-            "https://finviz.com/screener.ashx?v=111{signal}{filter}&ft=4{ticker}"
+            "https://finviz.com/screener.ashx?v={v_page}{signal}{filter}&ft=4{ticker}"
         )
-        self.url = self.BASE_URL.format(signal="", filter="", ticker="")
+        self.url = self.BASE_URL.format(
+            v_page=self.v_page, signal="", filter="", ticker=""
+        )
         self._load_setting()
 
     def _load_setting(self):
@@ -151,13 +154,18 @@ class Overview:
             ticker(str): ticker string
         """
         if signal == "" and filters_dict == {} and ticker == "":
-            self.url = self.BASE_URL.format(signal="", filter="", ticker="")
+            self.url = self.BASE_URL.format(
+                v_page=self.v_page, signal="", filter="", ticker=""
+            )
         else:
             url_signal = self._set_signal(signal)
             url_filter = self._set_filters(filters_dict)
             url_ticker = self._set_ticker(ticker)
             self.url = self.BASE_URL.format(
-                signal=url_signal, filter=url_filter, ticker=url_ticker
+                v_page=self.v_page,
+                signal=url_signal,
+                filter=url_filter,
+                ticker=url_ticker,
             )
 
     def _get_page(self, soup):

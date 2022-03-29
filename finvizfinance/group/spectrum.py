@@ -1,12 +1,11 @@
-from finvizfinance.group.overview import Overview
-from finvizfinance.util import web_scrap, image_scrap
-
 """
 .. module:: group.spectrum
    :synopsis: group spectrum image.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+from finvizfinance.group.overview import Overview
+from finvizfinance.util import web_scrap, image_scrap
 
 
 class Spectrum(Overview):
@@ -14,11 +13,7 @@ class Spectrum(Overview):
     Getting information from the finviz group spectrum page.
     """
 
-    def __init__(self):
-        """initiate module"""
-        self.BASE_URL = "https://finviz.com/groups.ashx?{group}&v=310"
-        self.url = self.BASE_URL.format(group="g=sector")
-        Overview._load_setting(self)
+    v_page = 310
 
     def screener_view(self, group="Sector", order="Name", out_dir=""):
         """Get screener table.
@@ -32,7 +27,7 @@ class Spectrum(Overview):
         if order not in self.order_dict:
             raise ValueError()
         self.url = (
-            self.BASE_URL.format(group=self.group_dict[group])
+            self.BASE_URL.format(group=self.group_dict[group], v_page=self.v_page)
             + "&"
             + self.order_dict[order]
         )

@@ -1,13 +1,12 @@
-import pandas as pd
-from finvizfinance.util import web_scrap, number_covert
-from finvizfinance.group.overview import Overview
-
 """
 .. module:: group.custom
    :synopsis: group custom table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+import pandas as pd
+from finvizfinance.util import web_scrap, number_covert
+from finvizfinance.group.overview import Overview
 
 
 COLUMNS = {
@@ -46,11 +45,7 @@ class Custom(Overview):
     Getting information from the finviz group custom page.
     """
 
-    def __init__(self):
-        """initiate module"""
-        self.BASE_URL = "https://finviz.com/groups.ashx?{group}&v=152"
-        self.url = self.BASE_URL.format(group="g=sector")
-        Overview._load_setting(self)
+    v_page = 152
 
     def get_columns(self):
         """Get information about the columns
@@ -77,7 +72,7 @@ class Custom(Overview):
         if order not in self.order_dict:
             raise ValueError()
         self.url = (
-            self.BASE_URL.format(group=self.group_dict[group])
+            self.BASE_URL.format(group=self.group_dict[group], v_page=self.v_page)
             + "&"
             + self.order_dict[order]
         )

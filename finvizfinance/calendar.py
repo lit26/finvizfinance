@@ -1,13 +1,12 @@
-import re
-import pandas as pd
-from finvizfinance.util import web_scrap
-
 """
 .. module:: calendar
    :synopsis: calendar.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+import re
+import pandas as pd
+from finvizfinance.util import web_scrap
 
 
 class Calendar:

@@ -1,12 +1,11 @@
-import pandas as pd
-from finvizfinance.util import web_scrap
-
 """
 .. module:: news
    :synopsis: news table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+import pandas as pd
+from finvizfinance.util import web_scrap
 
 NEWS_URL = "https://finviz.com/news.ashx"
 
@@ -31,9 +30,9 @@ class News:
             news(dict): news table
 
         """
-        news_content = self.soup.find(id="news").find('table') 
-        news_collection = news_content.findAll('tr', recursive=False)[1]
-        tables = news_collection.findAll('table')
+        news_content = self.soup.find(id="news").find("table")
+        news_collection = news_content.findAll("tr", recursive=False)[1]
+        tables = news_collection.findAll("table")
 
         news = tables[0]
         news_df = self._get_news_helper(news)

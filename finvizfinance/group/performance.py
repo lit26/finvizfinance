@@ -1,11 +1,10 @@
-from finvizfinance.group.overview import Overview
-
 """
 .. module:: group.performance
    :synopsis: group performance table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+from finvizfinance.group.overview import Overview
 
 
 class Performance(Overview):
@@ -13,8 +12,4 @@ class Performance(Overview):
     Getting information from the finviz group performance page.
     """
 
-    def __init__(self):
-        """initiate module"""
-        self.BASE_URL = "https://finviz.com/groups.ashx?{group}&v=140"
-        self.url = self.BASE_URL.format(group="g=sector")
-        Overview._load_setting(self)
+    v_page = 140
