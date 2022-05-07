@@ -176,8 +176,7 @@ class finvizfinance:
 
         if output_format == 'dict':
             return fundament_info
-        else:
-            return pd.DataFrame.from_dict(fundament_info, orient="index", columns=['Stat'])
+        return pd.DataFrame.from_dict(fundament_info, orient="index", columns=['Stat'])
 
     def _parse_52w_range(self, header, fundament_info, value, raw):
         info_header = ["52W Range From", "52W Range To"]
