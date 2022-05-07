@@ -112,15 +112,20 @@ class finvizfinance:
             image_scrap(chart_url, self.ticker, out_dir)
         return chart_url
 
-    def ticker_fundament(self, raw=True):
+    def ticker_fundament(self, raw=True, output_format="dict"):
         """Get ticker fundament.
 
         Args:
             raw(boolean): if True, the data is raw.
+            output_format(str): choice of output format (dict, series).
 
         Returns:
             fundament(dict): ticker fundament.
         """
+        if output_format not in ['dict', 'series']:
+            raise ValueError(
+                "Invalid output format '{}'. Possible choice: {}".format(output_format, ['dict', 'series'])
+            )
         fundament_info = {}
 
         table = self.soup.find("table", class_="fullview-title")
@@ -168,7 +173,10 @@ class finvizfinance:
                             except ValueError:
                                 fundament_info[header] = value
         self.info["fundament"] = fundament_info
-        return fundament_info
+
+        if output_format == 'dict':
+            return fundament_info
+        return pd.DataFrame.from_dict(fundament_info, orient="index", columns=['Stat'])
 
     def _parse_52w_range(self, header, fundament_info, value, raw):
         info_header = ["52W Range From", "52W Range To"]

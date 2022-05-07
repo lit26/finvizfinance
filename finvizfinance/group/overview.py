@@ -72,9 +72,19 @@ class Overview:
             df(pandas.DataFrame): group information table.
         """
         if group not in self.group_dict:
-            raise ValueError()
+            group_keys = list(self.group_dict.keys())
+            raise ValueError(
+                "Invalid group parameter '{}'. Possible parameter input: {}".format(
+                    group, group_keys
+                )
+            )
         if order not in self.order_dict:
-            raise ValueError()
+            order_keys = list(self.order_dict.keys())
+            raise ValueError(
+                "Invalid order parameter '{}'. Possible parameter input: {}".format(
+                    order, order_keys
+                )
+            )
         self.url = (
             self.BASE_URL.format(group=self.group_dict[group], v_page=self.v_page)
             + "&"
