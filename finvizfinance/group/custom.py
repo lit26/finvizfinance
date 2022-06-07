@@ -83,7 +83,7 @@ class Custom(Overview):
         table = soup.find("table", class_="table-light")
         rows = table.findAll("tr")
         table_header = [i.text for i in rows[0].findAll("td")][1:]
-        df = pd.DataFrame([], columns=table_header)
+        frame = []
         rows = rows[1:]
         num_col_index = list(range(2, len(table_header)))
         for row in rows:
@@ -96,5 +96,5 @@ class Custom(Overview):
                 else:
                     info_dict[table_header[i]] = number_covert(col.text)
 
-            df = df.append(info_dict, ignore_index=True)
-        return df
+            frame.append(info_dict)
+        return pd.DataFrame(frame)

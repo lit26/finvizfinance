@@ -220,7 +220,7 @@ class finvizfinance:
         fullview_ratings_outer = self.soup.find(
             "table", class_="fullview-ratings-outer"
         )
-        df = pd.DataFrame([], columns=["Date", "Status", "Outer", "Rating", "Price"])
+        frame = []
         rows = fullview_ratings_outer.findAll("td", class_="fullview-ratings-inner")
         for row in rows:
             each_row = row.find("tr")
@@ -231,16 +231,15 @@ class finvizfinance:
             outer = cols[2].text
             rating = cols[3].text
             price = cols[4].text
-            df = df.append(
-                {
-                    "Date": date,
-                    "Status": status,
-                    "Outer": outer,
-                    "Rating": rating,
-                    "Price": price,
-                },
-                ignore_index=True,
-            )
+            info_dict = {
+                "Date": date,
+                "Status": status,
+                "Outer": outer,
+                "Rating": rating,
+                "Price": price,
+            }
+            frame.append(info_dict)
+        df = pd.DataFrame(frame)
         self.info["ratings_outer"] = df
         return df
 
@@ -253,8 +252,8 @@ class finvizfinance:
         fullview_news_outer = self.soup.find("table", class_="fullview-news-outer")
         rows = fullview_news_outer.findAll("tr")
 
+        frame = []
         last_date = ""
-        df = pd.DataFrame([], columns=["Date", "Title", "Link"])
         for row in rows:
             cols = row.findAll("td")
             date = cols[0].text
@@ -267,9 +266,9 @@ class finvizfinance:
             else:
                 news_time = last_date + " " + news_time[0]
             news_time = datetime.strptime(news_time, "%b-%d-%y %I:%M%p")
-            df = df.append(
-                {"Date": news_time, "Title": title, "Link": link}, ignore_index=True
-            )
+            info_dict = {"Date": news_time, "Title": title, "Link": link}
+            frame.append(info_dict)
+        df = pd.DataFrame(frame)
         self.info["news"] = df
         return df
 
@@ -283,7 +282,7 @@ class finvizfinance:
         rows = inside_trader.findAll("tr")
         table_header = [i.text for i in rows[0].findAll("td")]
         table_header += ["SEC Form 4 Link", "Insider_id"]
-        df = pd.DataFrame([], columns=table_header)
+        frame = []
         rows = rows[1:]
         num_col = ["Cost", "#Shares", "Value ($)", "#Shares Total"]
         num_col_index = [table_header.index(i) for i in table_header if i in num_col]
@@ -297,7 +296,8 @@ class finvizfinance:
                     info_dict[table_header[i]] = number_covert(col.text)
             info_dict["SEC Form 4 Link"] = cols[-1].find("a").attrs["href"]
             info_dict["Insider_id"] = cols[0].a["href"].split("oc=")[1].split("&tc=")[0]
-            df = df.append(info_dict, ignore_index=True)
+            frame.append(info_dict)
+        df = pd.DataFrame(frame)
         self.info["inside trader"] = df
         return df
 

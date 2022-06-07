@@ -137,7 +137,7 @@ def scrap_function(url):
     table = soup.find("table", class_="table-light")
     rows = table.findAll("tr")
     table_header = [i.text.strip() for i in rows[0].findAll("td")][1:]
-    df = pd.DataFrame([], columns=table_header)
+    frame = []
     rows = rows[1:]
     num_col_index = [i for i in range(2, len(table_header))]
     for row in rows:
@@ -148,8 +148,8 @@ def scrap_function(url):
                 info_dict[table_header[i]] = col.text
             else:
                 info_dict[table_header[i]] = number_covert(col.text)
-        df = df.append(info_dict, ignore_index=True)
-    return df
+        frame.append(info_dict)
+    return pd.DataFrame(frame)
 
 
 def image_scrap_function(url, chart, timeframe, urlonly):
