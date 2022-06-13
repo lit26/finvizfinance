@@ -26,15 +26,6 @@ class Calendar:
         """
         soup = web_scrap("https://finviz.com/calendar.ashx")
         tables = soup.findAll("table", class_="calendar")
-        columns = [
-            "Datetime",
-            "Release",
-            "Impact",
-            "For",
-            "Actual",
-            "Expected",
-            "Prior",
-        ]
 
         frame = []
         for table in tables:
