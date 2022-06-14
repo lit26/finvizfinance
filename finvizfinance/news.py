@@ -51,7 +51,7 @@ class News:
             df(pandas.DataFrame): news information table
 
         """
-        df = pd.DataFrame([], columns=["Date", "Title", "Source", "Link"])
+        table = []
         rows = rows.findAll("tr")
         for row in rows:
             cols = row.findAll("td")
@@ -61,8 +61,6 @@ class News:
             source = link.split("/")[2]
             if source == "feedproxy.google.com":
                 source = link.split("/")[4]
-            df = df.append(
-                {"Date": date, "Title": title, "Source": source, "Link": link},
-                ignore_index=True,
-            )
-        return df
+            info_dict = {"Date": date, "Title": title, "Source": source, "Link": link}
+            table.append(info_dict)
+        return pd.DataFrame(table)

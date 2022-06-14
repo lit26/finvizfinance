@@ -67,7 +67,7 @@ class Insider:
         table_header = [i.text.strip() for i in rows[0].findAll("td")] + [
             "SEC Form 4 Link"
         ]
-        df = pd.DataFrame([], columns=table_header)
+        frame = []
         rows = rows[1:]
         num_col = ["Cost", "#Shares", "Value ($)", "#Shares Total"]
         num_col_index = [table_header.index(i) for i in table_header if i in num_col]
@@ -82,6 +82,7 @@ class Insider:
                 else:
                     info_dict[table_header[i]] = number_covert(col.text)
                 info_dict["SEC Form 4 Link"] = cols[-1].find("a").attrs["href"]
-            df = df.append(info_dict, ignore_index=True)
+            frame.append(info_dict)
+        df = pd.DataFrame(frame)
         self.df = df
         return df

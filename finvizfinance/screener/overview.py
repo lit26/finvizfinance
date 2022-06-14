@@ -186,6 +186,7 @@ class Overview:
         if limit != -1:
             rows = rows[0:limit]
 
+        frame = []
         for row in rows:
             cols = row.findAll("td")[1:]
             info_dict = {}
@@ -195,8 +196,8 @@ class Overview:
                     info_dict[table_header[i]] = col.text
                 else:
                     info_dict[table_header[i]] = number_covert(col.text)
-            df = df.append(info_dict, ignore_index=True)
-        return df
+            frame.append(info_dict)
+        return pd.concat([df, pd.DataFrame(frame)], ignore_index=True)
 
     def _screener_helper(self, i, page, rows, df, num_col_index, table_header, limit):
         """Get screener table helper function.
