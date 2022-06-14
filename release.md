@@ -1,5 +1,6 @@
 | Date | Version | Comment |
 | ------------- | ------------- | ------------- |
+| 2022/06/13 | 0.14.2 | Fix deprecated pandas append function. Issue: [#55](https://github.com/lit26/finvizfinance/issues/55). PR: [#56](https://github.com/lit26/finvizfinance/pull/56)
 | 2022/05/06 | 0.14.1 | Update error message and fundamental output. [#53](https://github.com/lit26/finvizfinance/pull/53). |
 | 2022/03/29 | 0.14.0 | Update package internal. [#50](https://github.com/lit26/finvizfinance/pull/50). |
 | 2022/03/28 | 0.13.0 | Update changes in multiple module due to finviz's change. Issue: [#45](https://github.com/lit26/finvizfinance/issues/45), [#46](https://github.com/lit26/finvizfinance/issues/46). |
