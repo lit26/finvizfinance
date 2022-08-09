@@ -10,6 +10,8 @@ import pandas as pd
 from time import sleep
 import requests
 from time import sleep
+import requests
+
 from finvizfinance.quote import finvizfinance
 from finvizfinance.util import (
     web_scrap,
