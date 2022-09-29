@@ -18,6 +18,7 @@ from finvizfinance.util import (
     util_dict,
     headers,
 )
+from time import sleep
 
 
 class Overview:
