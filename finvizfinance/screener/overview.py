@@ -15,7 +15,7 @@ from finvizfinance.util import (
     NUMBER_COL,
     util_dict,
 )
-
+from time import sleep
 
 class Overview:
     """Overview
@@ -278,6 +278,7 @@ class Overview:
 
         if select_page != 1:
             for i in range(start_page, end_page):
+                sleep(1) #Adding sleep for one second because now FINVIZ doesn't allow the continuous calls
                 if verbose == 1:
                     if not select_page:
                         progress_bar(i + 1, page)
