@@ -9,6 +9,7 @@ import warnings
 import pandas as pd
 from time import sleep
 import requests
+from time import sleep
 from finvizfinance.quote import finvizfinance
 from finvizfinance.util import (
     web_scrap,
@@ -18,7 +19,6 @@ from finvizfinance.util import (
     util_dict,
     headers,
 )
-from time import sleep
 
 
 class Overview:

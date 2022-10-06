@@ -111,7 +111,7 @@ def web_scrap(url):
         soup(beautiful soup): website html
     """
     try:
-        website = session.get(url, headers=get_header(), timeout=10)
+        website = session.get(url, headers=headers, timeout=10)
         website.raise_for_status()
         soup = BeautifulSoup(website.text, "lxml")
     except requests.exceptions.HTTPError as err:
@@ -130,7 +130,7 @@ def image_scrap(url, ticker, out_dir):
         out_dir(str): output directory
     """
     try:
-        r = session.get(url, stream=True, headers=get_header(), timeout=10)
+        r = session.get(url, stream=True, headers=headers, timeout=10)
         r.raise_for_status()
         r.raw.decode_content = True
         if len(out_dir) != 0:
