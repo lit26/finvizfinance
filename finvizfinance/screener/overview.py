@@ -7,6 +7,7 @@
 """
 import warnings
 import pandas as pd
+from time import sleep
 from finvizfinance.quote import finvizfinance
 from finvizfinance.util import (
     web_scrap,
@@ -15,7 +16,6 @@ from finvizfinance.util import (
     NUMBER_COL,
     util_dict,
 )
-from time import sleep
 
 class Overview:
     """Overview

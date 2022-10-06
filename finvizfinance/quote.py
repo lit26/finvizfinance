@@ -164,17 +164,10 @@ class finvizfinance:
                             fundament_info[header] = True
                         else:
                             fundament_info[header] = False
-                    # Adding this code for the EPS Next Y, because there is same two keys, one is percentage and other one is Dollar Ammount. This code will get both.
-                    elif header == "EPS next Y" and header in fundament_info.keys():
-                        header = "EPS next Y Percentage"
-                        if raw:
-                            fundament_info[header] = value
-                        else:
-                            try:
-                                fundament_info[header] = number_covert(value)
-                            except ValueError:
-                                fundament_info[header] = value
                     else:
+                        # Handle EPS Next Y keys with two different values
+                        if header == "EPS Next Y" and header in fundament_info.keys():
+                            header += " Percentage"
                         if raw:
                             fundament_info[header] = value
                         else:

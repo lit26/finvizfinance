@@ -8,7 +8,6 @@ import sys
 import requests
 import pandas as pd
 from bs4 import BeautifulSoup
-from random import choice
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) \
@@ -83,21 +82,6 @@ NUMBER_COL = [
 
 session = requests.Session()
 
-# Change User Agent on every call so it makes us more anonymous
-def get_header():
-    user_agents = [
-        "Mozilla/5.0 (Windows NT 6.0; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 Edg/103.0.1264.62",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.53 Safari/537.36 Edg/103.0.1264.37",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.134 Safari/537.36 Edg/103.0.1264.77",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.25",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.102 Safari/537.36",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0",
-    ]
-    headers = {"User-Agent": choice(user_agents)}
-    return headers
-
 def web_scrap(url):
     """Scrap website.
 
@@ -108,7 +92,7 @@ def web_scrap(url):
     """
     
     try:
-        website = session.get(url, headers=get_header(), timeout=10)
+        website = session.get(url, headers=headers, timeout=10)
         website.raise_for_status()
         soup = BeautifulSoup(website.text, "lxml")
     except requests.exceptions.HTTPError as err:
@@ -127,7 +111,7 @@ def image_scrap(url, ticker, out_dir):
         out_dir(str): output directory
     """
     try:
-        r = session.get(url, stream=True, headers=get_header(), timeout=10)
+        r = session.get(url, stream=True, headers=headers, timeout=10)
         r.raise_for_status()
         r.raw.decode_content = True
         if len(out_dir) != 0:
