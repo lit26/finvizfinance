@@ -255,19 +255,22 @@ class finvizfinance:
         frame = []
         last_date = ""
         for row in rows:
-            cols = row.findAll("td")
-            date = cols[0].text
-            title = cols[1].a.text
-            link = cols[1].a["href"]
-            news_time = date.split()
-            if len(news_time) == 2:
-                last_date = news_time[0]
-                news_time = " ".join(news_time)
-            else:
-                news_time = last_date + " " + news_time[0]
-            news_time = datetime.strptime(news_time, "%b-%d-%y %I:%M%p")
-            info_dict = {"Date": news_time, "Title": title, "Link": link}
-            frame.append(info_dict)
+            try:
+                cols = row.findAll("td")
+                date = cols[0].text
+                title = cols[1].a.text
+                link = cols[1].a["href"]
+                news_time = date.split()
+                if len(news_time) == 2:
+                    last_date = news_time[0]
+                    news_time = " ".join(news_time)
+                else:
+                    news_time = last_date + " " + news_time[0]
+                news_time = datetime.strptime(news_time, "%b-%d-%y %I:%M%p")
+                info_dict = {"Date": news_time, "Title": title, "Link": link}
+                frame.append(info_dict)
+            except:
+                pass
         df = pd.DataFrame(frame)
         self.info["news"] = df
         return df
