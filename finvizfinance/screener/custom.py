@@ -6,6 +6,7 @@
 """
 import warnings
 import pandas as pd
+from time import sleep
 from finvizfinance.screener.overview import Overview
 from finvizfinance.util import web_scrap, progress_bar, NUMBER_COL
 
@@ -187,6 +188,7 @@ class Custom(Overview):
 
         if select_page != 1:
             for i in range(start_page, end_page):
+                sleep(1)
                 if verbose == 1:
                     if not select_page:
                         progress_bar(i + 1, page)

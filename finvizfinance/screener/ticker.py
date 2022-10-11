@@ -4,6 +4,7 @@
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+from time import sleep
 from finvizfinance.screener.overview import Overview
 from finvizfinance.util import web_scrap, progress_bar
 
@@ -62,6 +63,7 @@ class Ticker(Overview):
         tickers = self._screener_helper(0, page, soup, tickers, limit)
 
         for i in range(1, page):
+            sleep(1)
             if verbose == 1:
                 progress_bar(i + 1, page)
             soup = web_scrap(self.url + "&r={}".format(i * 1000 + 1))
