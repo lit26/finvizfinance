@@ -124,7 +124,8 @@ class Custom(Overview):
         """
         if i == page - 1:
             df = self._get_table(
-                rows, df, num_col_index, table_header, limit=((limit - 1) % 20 + 1)
+                rows, df, num_col_index, table_header, limit=(
+                    (limit - 1) % 20 + 1)
             )
         else:
             df = self._get_table(rows, df, num_col_index, table_header)
@@ -158,7 +159,8 @@ class Custom(Overview):
             if order not in self.order_dict:
                 order_keys = list(self.order_dict.keys())
                 raise ValueError(
-                    "Invalid order '{}'. Possible order: {}".format(order, order_keys)
+                    "Invalid order '{}'. Possible order: {}".format(
+                        order, order_keys)
                 )
             url = self.url + "&" + self.order_dict[order]
         if not ascend:
@@ -184,7 +186,8 @@ class Custom(Overview):
                 raise ValueError("Invalid page {}".format(select_page))
             if limit != -1:
                 limit = -1
-                warnings.warn("Limit parameter is ignored when page is selected.")
+                warnings.warn(
+                    "Limit parameter is ignored when page is selected.")
             start_page = select_page - 1
             end_page = select_page
 
@@ -201,7 +204,8 @@ class Custom(Overview):
         table = soup.find("table", class_="screener_table")
         rows = table.findAll("tr")
         table_header = [i.text.strip() for i in rows[0].findAll("th")][1:]
-        num_col_index = [table_header.index(i) for i in table_header if i in NUMBER_COL]
+        num_col_index = [table_header.index(
+            i) for i in table_header if i in NUMBER_COL]
         df = pd.DataFrame([], columns=table_header)
         if not select_page or select_page == 1:
             df = self._screener_helper(
@@ -221,7 +225,8 @@ class Custom(Overview):
                 if order == "ticker":
                     url += "&r={}".format(i * 20 + 1)
                 else:
-                    url += "&r={}".format(i * 20 + 1) + "&" + self.order_dict[order]
+                    url += "&r={}".format(i * 20 + 1) + \
+                        "&" + self.order_dict[order]
                 if not ascend:
                     url = url.replace("o=", "o=-")
                 url += "&c=" + ",".join(columns)
