@@ -73,6 +73,8 @@ class Insider:
         num_col_index = [table_header.index(i) for i in table_header if i in num_col]
         for row in rows:
             cols = row.findAll("td")
+            if len(cols) < 5:
+                continue
             info_dict = {}
             for i, col in enumerate(cols):
                 if i not in num_col_index:
