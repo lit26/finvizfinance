@@ -64,7 +64,7 @@ class News:
                     source = link.split("/")[4]
                 info_dict = {"Date": date, "Title": title, "Source": source, "Link": link}
                 table.append(info_dict)
-            except:
+            except TypeError:
                 # Empty news line
                 pass
         return pd.DataFrame(table)

@@ -269,7 +269,7 @@ class finvizfinance:
                 news_time = datetime.strptime(news_time, "%b-%d-%y %I:%M%p")
                 info_dict = {"Date": news_time, "Title": title, "Link": link}
                 frame.append(info_dict)
-            except:
+            except AttributeError:
                 pass
         df = pd.DataFrame(frame)
         self.info["news"] = df
