@@ -54,13 +54,17 @@ class News:
         table = []
         rows = rows.findAll("tr")
         for row in rows:
-            cols = row.findAll("td")
-            date = cols[1].text
-            title = cols[2].text
-            link = cols[2].a["href"]
-            source = link.split("/")[2]
-            if source == "feedproxy.google.com":
-                source = link.split("/")[4]
-            info_dict = {"Date": date, "Title": title, "Source": source, "Link": link}
-            table.append(info_dict)
+            try:
+                cols = row.findAll("td")
+                date = cols[1].text
+                title = cols[2].text
+                link = cols[2].a["href"]
+                source = link.split("/")[2]
+                if source == "feedproxy.google.com":
+                    source = link.split("/")[4]
+                info_dict = {"Date": date, "Title": title, "Source": source, "Link": link}
+                table.append(info_dict)
+            except TypeError:
+                # Empty news line
+                pass
         return pd.DataFrame(table)
