@@ -162,3 +162,4 @@ cython_debug/
 local
 test.ipynb
 test.py
+README_pypi.md

@@ -22,7 +22,7 @@ copyright = '2020, Tianning Li'
 author = 'Tianning Li'
 
 # The full version, including alpha/beta/rc tags
-release = '0.14.3'
+release = '0.14.4'
 
 
 # -- General configuration ---------------------------------------------------

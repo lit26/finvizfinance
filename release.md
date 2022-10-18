@@ -1,5 +1,6 @@
 | Date | Version | Comment |
 | ------------- | ------------- | ------------- |
+| 2022/10/18 | 0.14.4 | Fix Insider and news. Add sleep. Issue: [#60](https://github.com/lit26/finvizfinance/issues/60) [#61](https://github.com/lit26/finvizfinance/issues/61). PR: [#59](https://github.com/lit26/finvizfinance/pull/59) [#62](https://github.com/lit26/finvizfinance/pull/62)
 | 2022/06/18 | 0.14.3 | Fix insider. Issue: [#54](https://github.com/lit26/finvizfinance/issues/54) |
 | 2022/06/13 | 0.14.2 | Fix deprecated pandas append function. Issue: [#55](https://github.com/lit26/finvizfinance/issues/55). PR: [#56](https://github.com/lit26/finvizfinance/pull/56)
 | 2022/05/06 | 0.14.1 | Update error message and fundamental output. [#53](https://github.com/lit26/finvizfinance/pull/53). |
