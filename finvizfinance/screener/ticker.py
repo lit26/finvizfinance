@@ -24,7 +24,7 @@ class Ticker(Overview):
         tickers = tickers + [i.text.split("\xa0")[1] for i in page_tickers]
         return tickers
 
-    def screener_view(self, order="ticker", limit=-1, verbose=1, ascend=True):
+    def screener_view(self, order="ticker", limit=-1, verbose=1, ascend=True, sleep_sec=1):
         """Get screener stocks.
 
         Args:
@@ -32,6 +32,7 @@ class Ticker(Overview):
             limit(int): set the top k stocks of the screener.
             verbose(int): choice of visual the progress. 1 for visualize progress.
             ascend(bool): if True, the order is ascending.
+            sleep_sec(int): sleep seconds for fetching each page.
         Returns:
             tickers(list): get all the tickers as list.
         """
@@ -63,7 +64,7 @@ class Ticker(Overview):
         tickers = self._screener_helper(0, page, soup, tickers, limit)
 
         for i in range(1, page):
-            sleep(1)
+            sleep(sleep_sec)  # Adding sleep
             if verbose == 1:
                 progress_bar(i + 1, page)
             soup = web_scrap(self.url + "&r={}".format(i * 1000 + 1))

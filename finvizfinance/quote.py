@@ -122,9 +122,11 @@ class finvizfinance:
         Returns:
             fundament(dict): ticker fundament.
         """
-        if output_format not in ['dict', 'series']:
+        if output_format not in ["dict", "series"]:
             raise ValueError(
-                "Invalid output format '{}'. Possible choice: {}".format(output_format, ['dict', 'series'])
+                "Invalid output format '{}'. Possible choice: {}".format(
+                    output_format, ["dict", "series"]
+                )
             )
         fundament_info = {}
 
@@ -144,42 +146,46 @@ class finvizfinance:
         for row in rows:
             cols = row.findAll("td")
             cols = [i.text for i in cols]
-            header = ""
-            for i, value in enumerate(cols):
-                if i % 2 == 0:
-                    header = value
-                else:
-                    if header == "Volatility":
-                        fundament_info = self._parse_volatility(
-                            header, fundament_info, value, raw
-                        )
-                    elif header == "52W Range":
-                        fundament_info = self._parse_52w_range(
-                            header, fundament_info, value, raw
-                        )
-                    elif header == "Optionable" or header == "Shortable":
-                        if raw:
-                            fundament_info[header] = value
-                        elif value == "Yes":
-                            fundament_info[header] = True
-                        else:
-                            fundament_info[header] = False
-                    else:
-                        # Handle EPS Next Y keys with two different values
-                        if header == "EPS Next Y" and header in fundament_info.keys():
-                            header += " Percentage"
-                        if raw:
-                            fundament_info[header] = value
-                        else:
-                            try:
-                                fundament_info[header] = number_covert(value)
-                            except ValueError:
-                                fundament_info[header] = value
+            fundament_info = self._parse_column(cols, raw, fundament_info)
         self.info["fundament"] = fundament_info
 
-        if output_format == 'dict':
+        if output_format == "dict":
             return fundament_info
-        return pd.DataFrame.from_dict(fundament_info, orient="index", columns=['Stat'])
+        return pd.DataFrame.from_dict(fundament_info, orient="index", columns=["Stat"])
+
+    def _parse_column(self, cols, raw, fundament_info):
+        header = ""
+        for i, value in enumerate(cols):
+            if i % 2 == 0:
+                header = value
+            else:
+                if header == "Volatility":
+                    fundament_info = self._parse_volatility(
+                        header, fundament_info, value, raw
+                    )
+                elif header == "52W Range":
+                    fundament_info = self._parse_52w_range(
+                        header, fundament_info, value, raw
+                    )
+                elif header == "Optionable" or header == "Shortable":
+                    if raw:
+                        fundament_info[header] = value
+                    elif value == "Yes":
+                        fundament_info[header] = True
+                    else:
+                        fundament_info[header] = False
+                else:
+                    # Handle EPS Next Y keys with two different values
+                    if header == "EPS next Y" and header in fundament_info.keys():
+                        header += " Percentage"
+                    if raw:
+                        fundament_info[header] = value
+                    else:
+                        try:
+                            fundament_info[header] = number_covert(value)
+                        except ValueError:
+                            fundament_info[header] = value
+        return fundament_info
 
     def _parse_52w_range(self, header, fundament_info, value, raw):
         info_header = ["52W Range From", "52W Range To"]
