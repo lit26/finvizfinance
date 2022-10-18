@@ -6,6 +6,7 @@
 """
 import warnings
 import pandas as pd
+from time import sleep
 from finvizfinance.screener.overview import Overview
 from finvizfinance.util import web_scrap, progress_bar, NUMBER_COL
 
@@ -121,6 +122,7 @@ class Custom(Overview):
         verbose=1,
         ascend=True,
         columns=[0, 1, 2, 3, 4, 5, 6, 7, 65, 66, 67],
+        sleep_sec=1,
     ):
         """Get screener table.
 
@@ -131,6 +133,7 @@ class Custom(Overview):
             verbose(int): choice of visual the progress. 1 for visualize progress.
             ascend(bool): if True, the order is ascending.
             columns(list): columns of your choice. Default index: 0,1,2,3,4,5,6,7,65,66,67.
+            sleep_sec(int): sleep seconds for fetching each page.
         Returns:
             df(pandas.DataFrame): screener information table
         """
@@ -187,6 +190,7 @@ class Custom(Overview):
 
         if select_page != 1:
             for i in range(start_page, end_page):
+                sleep(sleep_sec)
                 if verbose == 1:
                     if not select_page:
                         progress_bar(i + 1, page)

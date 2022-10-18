@@ -91,6 +91,7 @@ def web_scrap(url):
     Returns:
         soup(beautiful soup): website html
     """
+
     try:
         website = session.get(url, headers=headers, timeout=10)
         website.raise_for_status()

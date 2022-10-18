@@ -7,6 +7,7 @@
 """
 import warnings
 import pandas as pd
+from time import sleep
 from finvizfinance.quote import finvizfinance
 from finvizfinance.util import (
     web_scrap,
@@ -214,7 +215,13 @@ class Overview:
         return df
 
     def screener_view(
-        self, order="ticker", limit=-1, select_page=None, verbose=1, ascend=True
+        self,
+        order="ticker",
+        limit=-1,
+        select_page=None,
+        verbose=1,
+        ascend=True,
+        sleep_sec=1,
     ):
         """Get screener table.
 
@@ -224,6 +231,7 @@ class Overview:
             select_page(int): set the page of the screener.
             verbose(int): choice of visual the progress. 1 for visualize progress.
             ascend(bool): if True, the order is ascending.
+            sleep_sec(int): sleep seconds for fetching each page.
         Returns:
             df(pandas.DataFrame): screener information table
         """
@@ -278,6 +286,7 @@ class Overview:
 
         if select_page != 1:
             for i in range(start_page, end_page):
+                sleep(sleep_sec)  # Adding sleep
                 if verbose == 1:
                     if not select_page:
                         progress_bar(i + 1, page)
