@@ -24,7 +24,9 @@ class Ticker(Overview):
         tickers = tickers + [i.text.split("\xa0")[1] for i in page_tickers]
         return tickers
 
-    def screener_view(self, order="ticker", limit=-1, verbose=1, ascend=True, sleep_sec=1):
+    def screener_view(
+        self, order="ticker", limit=-1, verbose=1, ascend=True, sleep_sec=1
+    ):
         """Get screener stocks.
 
         Args:
