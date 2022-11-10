@@ -1,12 +1,11 @@
-import pandas as pd
-from finvizfinance.util import web_scrap, number_covert
-
 """
 .. module:: insider
    :synopsis: insider table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+import pandas as pd
+from finvizfinance.util import web_scrap, number_covert
 
 INSIDER_URL = "https://finviz.com/insidertrading.ashx"
 
@@ -63,17 +62,19 @@ class Insider:
         Returns:
             df(pandas.DataFrame): insider information table
         """
-        insider_trader = self.soup.findAll("table")[4]
+        insider_trader = self.soup.find("table", class_="body-table")
         rows = insider_trader.findAll("tr")
         table_header = [i.text.strip() for i in rows[0].findAll("td")] + [
             "SEC Form 4 Link"
         ]
-        df = pd.DataFrame([], columns=table_header)
+        frame = []
         rows = rows[1:]
         num_col = ["Cost", "#Shares", "Value ($)", "#Shares Total"]
         num_col_index = [table_header.index(i) for i in table_header if i in num_col]
         for row in rows:
             cols = row.findAll("td")
+            if len(cols) < 5:
+                continue
             info_dict = {}
             for i, col in enumerate(cols):
                 if i not in num_col_index:
@@ -83,6 +84,7 @@ class Insider:
                 else:
                     info_dict[table_header[i]] = number_covert(col.text)
                 info_dict["SEC Form 4 Link"] = cols[-1].find("a").attrs["href"]
-            df = df.append(info_dict, ignore_index=True)
+            frame.append(info_dict)
+        df = pd.DataFrame(frame)
         self.df = df
         return df

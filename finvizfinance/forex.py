@@ -1,11 +1,10 @@
-from finvizfinance.util import scrap_function, image_scrap_function
-
 """
 .. module:: forex
    :synopsis: forex.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+from finvizfinance.util import scrap_function, image_scrap_function
 
 
 class Forex:
@@ -46,8 +45,6 @@ class Forex:
         Returns:
             charturl(str): url for the chart
         """
-        if forex == "":
-            return None
 
         url = "https://finviz.com/forex_charts.ashx?t=ALL&tf="
         charturl = image_scrap_function(url, forex, timeframe, urlonly)

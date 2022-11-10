@@ -1,13 +1,12 @@
-import re
-import pandas as pd
-from finvizfinance.util import web_scrap
-
 """
 .. module:: calendar
    :synopsis: calendar.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+import re
+import pandas as pd
+from finvizfinance.util import web_scrap
 
 
 class Calendar:
@@ -27,17 +26,8 @@ class Calendar:
         """
         soup = web_scrap("https://finviz.com/calendar.ashx")
         tables = soup.findAll("table", class_="calendar")
-        columns = [
-            "Datetime",
-            "Release",
-            "Impact",
-            "For",
-            "Actual",
-            "Expected",
-            "Prior",
-        ]
-        df = pd.DataFrame([], columns=columns)
 
+        frame = []
         for table in tables:
             rows = table.findAll("tr")
             # check row
@@ -57,5 +47,5 @@ class Calendar:
                         "Expected": cols[6].text,
                         "Prior": cols[7].text,
                     }
-                    df = df.append(info_dict, ignore_index=True)
-        return df
+                    frame.append(info_dict)
+        return pd.DataFrame(frame)

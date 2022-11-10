@@ -1,15 +1,15 @@
-from datetime import datetime
-import json
-import pandas as pd
-import requests
-from finvizfinance.util import web_scrap, image_scrap, number_covert, headers
-
 """
 .. module:: finvizfinance
    :synopsis: individual ticker.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+from datetime import datetime
+import json
+import pandas as pd
+import requests
+from finvizfinance.util import web_scrap, image_scrap, number_covert, headers
+
 QUOTE_URL = "https://finviz.com/quote.ashx?t={ticker}"
 NUM_COL = [
     "P/E",
@@ -48,8 +48,13 @@ class finvizfinance:
         verbose(int): choice of visual the progress. 1 for visualize progress.
     """
 
-    def __init__(self, ticker, verbose=0):
+    def __init__(
+        self,
+        ticker,
+        verbose=0,
+    ):
         """initiate module"""
+
         self.ticker = ticker
         self.flag = False
         self.quote_url = QUOTE_URL.format(ticker=ticker)
@@ -107,18 +112,25 @@ class finvizfinance:
             image_scrap(chart_url, self.ticker, out_dir)
         return chart_url
 
-    def ticker_fundament(self, raw=True):
+    def ticker_fundament(self, raw=True, output_format="dict"):
         """Get ticker fundament.
 
         Args:
             raw(boolean): if True, the data is raw.
+            output_format(str): choice of output format (dict, series).
 
         Returns:
             fundament(dict): ticker fundament.
         """
+        if output_format not in ["dict", "series"]:
+            raise ValueError(
+                "Invalid output format '{}'. Possible choice: {}".format(
+                    output_format, ["dict", "series"]
+                )
+            )
         fundament_info = {}
 
-        table = self.soup.findAll("table")[4]
+        table = self.soup.find("table", class_="fullview-title")
         rows = table.findAll("tr")
 
         fundament_info["Company"] = rows[1].text
@@ -134,35 +146,45 @@ class finvizfinance:
         for row in rows:
             cols = row.findAll("td")
             cols = [i.text for i in cols]
-            header = ""
-            for i, value in enumerate(cols):
-                if i % 2 == 0:
-                    header = value
-                else:
-                    if header == "Volatility":
-                        fundament_info = self._parse_volatility(
-                            header, fundament_info, value, raw
-                        )
-                    elif header == "52W Range":
-                        fundament_info = self._parse_52w_range(
-                            header, fundament_info, value, raw
-                        )
-                    elif header == "Optionable" or header == "Shortable":
-                        if raw:
-                            fundament_info[header] = value
-                        elif value == "Yes":
-                            fundament_info[header] = True
-                        else:
-                            fundament_info[header] = False
-                    else:
-                        if raw:
-                            fundament_info[header] = value
-                        else:
-                            try:
-                                fundament_info[header] = number_covert(value)
-                            except ValueError:
-                                fundament_info[header] = value
+            fundament_info = self._parse_column(cols, raw, fundament_info)
         self.info["fundament"] = fundament_info
+
+        if output_format == "dict":
+            return fundament_info
+        return pd.DataFrame.from_dict(fundament_info, orient="index", columns=["Stat"])
+
+    def _parse_column(self, cols, raw, fundament_info):
+        header = ""
+        for i, value in enumerate(cols):
+            if i % 2 == 0:
+                header = value
+            else:
+                if header == "Volatility":
+                    fundament_info = self._parse_volatility(
+                        header, fundament_info, value, raw
+                    )
+                elif header == "52W Range":
+                    fundament_info = self._parse_52w_range(
+                        header, fundament_info, value, raw
+                    )
+                elif header == "Optionable" or header == "Shortable":
+                    if raw:
+                        fundament_info[header] = value
+                    elif value == "Yes":
+                        fundament_info[header] = True
+                    else:
+                        fundament_info[header] = False
+                else:
+                    # Handle EPS Next Y keys with two different values
+                    if header == "EPS next Y" and header in fundament_info.keys():
+                        header += " Percentage"
+                    if raw:
+                        fundament_info[header] = value
+                    else:
+                        try:
+                            fundament_info[header] = number_covert(value)
+                        except ValueError:
+                            fundament_info[header] = value
         return fundament_info
 
     def _parse_52w_range(self, header, fundament_info, value, raw):
@@ -207,7 +229,7 @@ class finvizfinance:
         fullview_ratings_outer = self.soup.find(
             "table", class_="fullview-ratings-outer"
         )
-        df = pd.DataFrame([], columns=["Date", "Status", "Outer", "Rating", "Price"])
+        frame = []
         rows = fullview_ratings_outer.findAll("td", class_="fullview-ratings-inner")
         for row in rows:
             each_row = row.find("tr")
@@ -218,16 +240,15 @@ class finvizfinance:
             outer = cols[2].text
             rating = cols[3].text
             price = cols[4].text
-            df = df.append(
-                {
-                    "Date": date,
-                    "Status": status,
-                    "Outer": outer,
-                    "Rating": rating,
-                    "Price": price,
-                },
-                ignore_index=True,
-            )
+            info_dict = {
+                "Date": date,
+                "Status": status,
+                "Outer": outer,
+                "Rating": rating,
+                "Price": price,
+            }
+            frame.append(info_dict)
+        df = pd.DataFrame(frame)
         self.info["ratings_outer"] = df
         return df
 
@@ -240,23 +261,26 @@ class finvizfinance:
         fullview_news_outer = self.soup.find("table", class_="fullview-news-outer")
         rows = fullview_news_outer.findAll("tr")
 
+        frame = []
         last_date = ""
-        df = pd.DataFrame([], columns=["Date", "Title", "Link"])
         for row in rows:
-            cols = row.findAll("td")
-            date = cols[0].text
-            title = cols[1].a.text
-            link = cols[1].a["href"]
-            news_time = date.split()
-            if len(news_time) == 2:
-                last_date = news_time[0]
-                news_time = " ".join(news_time)
-            else:
-                news_time = last_date + " " + news_time[0]
-            news_time = datetime.strptime(news_time, "%b-%d-%y %I:%M%p")
-            df = df.append(
-                {"Date": news_time, "Title": title, "Link": link}, ignore_index=True
-            )
+            try:
+                cols = row.findAll("td")
+                date = cols[0].text
+                title = cols[1].a.text
+                link = cols[1].a["href"]
+                news_time = date.split()
+                if len(news_time) == 2:
+                    last_date = news_time[0]
+                    news_time = " ".join(news_time)
+                else:
+                    news_time = last_date + " " + news_time[0]
+                news_time = datetime.strptime(news_time, "%b-%d-%y %I:%M%p")
+                info_dict = {"Date": news_time, "Title": title, "Link": link}
+                frame.append(info_dict)
+            except AttributeError:
+                pass
+        df = pd.DataFrame(frame)
         self.info["news"] = df
         return df
 
@@ -270,7 +294,7 @@ class finvizfinance:
         rows = inside_trader.findAll("tr")
         table_header = [i.text for i in rows[0].findAll("td")]
         table_header += ["SEC Form 4 Link", "Insider_id"]
-        df = pd.DataFrame([], columns=table_header)
+        frame = []
         rows = rows[1:]
         num_col = ["Cost", "#Shares", "Value ($)", "#Shares Total"]
         num_col_index = [table_header.index(i) for i in table_header if i in num_col]
@@ -284,7 +308,8 @@ class finvizfinance:
                     info_dict[table_header[i]] = number_covert(col.text)
             info_dict["SEC Form 4 Link"] = cols[-1].find("a").attrs["href"]
             info_dict["Insider_id"] = cols[0].a["href"].split("oc=")[1].split("&tc=")[0]
-            df = df.append(info_dict, ignore_index=True)
+            frame.append(info_dict)
+        df = pd.DataFrame(frame)
         self.info["inside trader"] = df
         return df
 
@@ -334,9 +359,12 @@ class finvizfinance:
         ]
         ticker_signal = []
         for signal in signals:
-            fticker.set_filter(signal=signal, ticker=self.ticker.upper())
-            if fticker.screener_view(verbose=0) == [self.ticker.upper()]:
-                ticker_signal.append(signal)
+            try:
+                fticker.set_filter(signal=signal, ticker=self.ticker.upper())
+                if fticker.screener_view(verbose=0) == [self.ticker.upper()]:
+                    ticker_signal.append(signal)
+            except:
+                pass
         return ticker_signal
 
     def ticker_full_info(self):

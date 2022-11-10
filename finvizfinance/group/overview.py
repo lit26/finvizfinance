@@ -1,13 +1,11 @@
-import pandas as pd
-from finvizfinance.util import web_scrap, number_covert
-
 """
 .. module:: group.overview
    :synopsis: group overview table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
-
 """
+import pandas as pd
+from finvizfinance.util import web_scrap, number_covert
 
 
 class Overview:
@@ -15,10 +13,12 @@ class Overview:
     Getting information from the finviz group overview page.
     """
 
+    v_page = 110
+
     def __init__(self):
         """initiate module"""
-        self.BASE_URL = "https://finviz.com/groups.ashx?{group}&v=110"
-        self.url = self.BASE_URL.format(group="g=sector")
+        self.BASE_URL = "https://finviz.com/groups.ashx?{group}&v={v_page}"
+        self.url = self.BASE_URL.format(group="g=sector", v_page=self.v_page)
         self._load_setting()
 
     def _load_setting(self):
@@ -72,20 +72,30 @@ class Overview:
             df(pandas.DataFrame): group information table.
         """
         if group not in self.group_dict:
-            raise ValueError()
+            group_keys = list(self.group_dict.keys())
+            raise ValueError(
+                "Invalid group parameter '{}'. Possible parameter input: {}".format(
+                    group, group_keys
+                )
+            )
         if order not in self.order_dict:
-            raise ValueError()
+            order_keys = list(self.order_dict.keys())
+            raise ValueError(
+                "Invalid order parameter '{}'. Possible parameter input: {}".format(
+                    order, order_keys
+                )
+            )
         self.url = (
-            self.BASE_URL.format(group=self.group_dict[group])
+            self.BASE_URL.format(group=self.group_dict[group], v_page=self.v_page)
             + "&"
             + self.order_dict[order]
         )
 
         soup = web_scrap(self.url)
-        table = soup.findAll("table")[5]
+        table = soup.find("table", class_="table-light")
         rows = table.findAll("tr")
         table_header = [i.text for i in rows[0].findAll("td")][1:]
-        df = pd.DataFrame([], columns=table_header)
+        frame = []
         rows = rows[1:]
         num_col_index = list(range(2, len(table_header)))
         for row in rows:
@@ -98,5 +108,5 @@ class Overview:
                 else:
                     info_dict[table_header[i]] = number_covert(col.text)
 
-            df = df.append(info_dict, ignore_index=True)
-        return df
+            frame.append(info_dict)
+        return pd.DataFrame(frame)
