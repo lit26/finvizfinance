@@ -11,7 +11,7 @@ URL = 'https://github.com/lit26/finvizfinance'
 
 LICENSE = 'The MIT License (MIT)'
 DESCRIPTION = 'Finviz Finance. Information downloader.'
-LONG_DESCRIPTION = (HERE / "README_pypi.md").read_text()
+LONG_DESCRIPTION = (HERE / "README.md").read_text()
 LONG_DESC_TYPE = "text/markdown"
 
 INSTALL_REQUIRES = [
