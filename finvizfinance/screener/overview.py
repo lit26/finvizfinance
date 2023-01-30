@@ -17,6 +17,7 @@ from finvizfinance.util import (
     web_scrap,
     number_covert,
     progress_bar,
+    get_auth_header,
     NUMBER_COL,
     util_dict,
     headers,
@@ -30,41 +31,30 @@ class Overview:
 
     v_page = 111
 
-    def __init__(self, username=None, password=None):
+    def __init__(self, username=None, password=None, useElite=False):
         """initiate module"""
-        is_elite = False
-        if username is not None and password is not None:
+        self.is_elite = False
+        if useElite == True and username is not None and password is not None:
             try:
-                auth_cookie = self._get_auth_header(username, password)
+                auth_cookie = get_auth_header(username, password)
                 if auth_cookie is not None:
                     headers["Cookie"] = auth_cookie
-                    is_elite = True
+                    self.is_elite = True
             except Exception as e:
                 print(e)
 
         self.BASE_URL = (
             ("https://finviz.com/screener.ashx?v={v_page}{signal}{filter}&ft=4{ticker}")
-            if not is_elite
+            if not self.is_elite
             else (
                 "https://elite.finviz.com/screener.ashx?v={v_page}{signal}{filter}&ft=4{ticker}"
             )
         )
-        print(self.BASE_URL)
         self.url = self.BASE_URL.format(
             v_page=self.v_page, signal="", filter="", ticker=""
         )
         self._load_setting()
         self.page_count = None
-
-    def _get_auth_header(self, email, password):
-        login_url = "https://finviz.com/login_submit.ashx"
-        data = {"email": email, "password": password, "remember": "true"}
-        response = requests.post(url=login_url, data=data, headers=headers)
-        for history in response.history:
-            if history.cookies:
-                for c in history.cookies:
-                    if c.name == ".ASPXAUTH":
-                        return f"{c.name}={c.value}"
 
     def _load_setting(self):
         """load all the signals and filters."""

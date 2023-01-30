@@ -1,5 +1,6 @@
 import pytest
 from finvizfinance.screener.overview import Overview
+from os import environ
 
 def test_screener_overview():
     foverview = Overview()
@@ -27,3 +28,24 @@ def test_screener_get_settings():
     with pytest.raises(ValueError):
         foverview.get_filter_options('Dummy')
 
+
+def test_screener_check_elite_with_no_auth():
+    foverview = Overview()
+    assert(foverview.is_elite == False)
+
+def test_screener_check_elite_with_wrong_auth():
+    foverview = Overview(useElite=True, username='some', password='some')
+    assert(foverview.is_elite == False)
+
+def test_screener_check_elite_with_right_auth():
+    foverview = Overview(useElite=True, username='some', password='some')
+    assert(foverview.is_elite == False)
+
+def test_screener_check_elite_with_right_auth():
+    if (environ.get('fv_user') and environ.get('fv_password')):
+        foverview = Overview(useElite=True, username=environ.get('fv_user'), password=environ.get('fv_password'))
+        assert(foverview.is_elite == True)
+    else:
+        pytest.skip("Finviz Elite test requires 'fv_user' and 'fv_password' env variables properly set")
+
+    

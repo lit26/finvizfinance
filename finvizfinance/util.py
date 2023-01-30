@@ -102,6 +102,28 @@ def get_header():
     return headers
 
 
+def get_auth_header(email, password):
+    """Give a pair of user credentials,
+    returns a http header that, added to a data request,
+    enables to access authenticated data
+
+    Args:
+        email(str): user email
+        password(str): user password
+    Returns:
+        auth_header(string): the header string to use during next requests"""
+
+    login_url = "https://finviz.com/login_submit.ashx"
+    data = {"email": email, "password": password, "remember": "true"}
+    response = requests.post(url=login_url, data=data, headers=headers)
+    for history in response.history:
+            if history.cookies:
+                for c in history.cookies:
+                    if c.name == ".ASPXAUTH":
+                        return f"{c.name}={c.value}"
+    return None
+
+
 def web_scrap(url):
     """Scrap website.
 
