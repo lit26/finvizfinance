@@ -8,9 +8,6 @@
 import warnings
 import pandas as pd
 from time import sleep
-import requests
-from time import sleep
-import requests
 
 from finvizfinance.quote import finvizfinance
 from finvizfinance.util import (
@@ -31,10 +28,10 @@ class Overview:
 
     v_page = 111
 
-    def __init__(self, username=None, password=None, useElite=False):
+    def __init__(self, username=None, password=None, use_elite=False):
         """initiate module"""
         self.is_elite = False
-        if useElite == True and username is not None and password is not None:
+        if use_elite == True and username and password:
             try:
                 auth_cookie = get_auth_header(username, password)
                 if auth_cookie is not None:
