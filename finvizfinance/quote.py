@@ -230,27 +230,30 @@ class finvizfinance:
             "table", class_="fullview-ratings-outer"
         )
         frame = []
-        rows = fullview_ratings_outer.findAll("td", class_="fullview-ratings-inner")
-        for row in rows:
-            each_row = row.find("tr")
-            cols = each_row.findAll("td")
-            date = cols[0].text
-            date = datetime.strptime(date, "%b-%d-%y")
-            status = cols[1].text
-            outer = cols[2].text
-            rating = cols[3].text
-            price = cols[4].text
-            info_dict = {
-                "Date": date,
-                "Status": status,
-                "Outer": outer,
-                "Rating": rating,
-                "Price": price,
-            }
-            frame.append(info_dict)
-        df = pd.DataFrame(frame)
-        self.info["ratings_outer"] = df
-        return df
+        try:
+            rows = fullview_ratings_outer.findAll("td", class_="fullview-ratings-inner")
+            for row in rows:
+                each_row = row.find("tr")
+                cols = each_row.findAll("td")
+                date = cols[0].text
+                date = datetime.strptime(date, "%b-%d-%y")
+                status = cols[1].text
+                outer = cols[2].text
+                rating = cols[3].text
+                price = cols[4].text
+                info_dict = {
+                    "Date": date,
+                    "Status": status,
+                    "Outer": outer,
+                    "Rating": rating,
+                    "Price": price,
+                }
+                frame.append(info_dict)
+            df = pd.DataFrame(frame)
+            self.info["ratings_outer"] = df
+            return df
+        except AttributeError:
+            return None
 
     def ticker_news(self):
         """Get news information table.
