@@ -94,7 +94,7 @@ class Overview:
         soup = web_scrap(self.url)
         table = soup.find("table", class_="table-light")
         rows = table.findAll("tr")
-        table_header = [i.text for i in rows[0].findAll("td")][1:]
+        table_header = [i.text.replace("\n\n", "") for i in rows[0].findAll("td")][1:]
         frame = []
         rows = rows[1:]
         num_col_index = list(range(2, len(table_header)))
