@@ -37,10 +37,11 @@ class Calendar:
                 for row in rows[1:]:
                     cols = row.findAll("td")
                     info_dict = {
-                        "Datetime": "{}, {}".format(date, cols[0].text),
+                        "Datetime": f"{date}, {cols[0].text}",
                         "Release": cols[2].text,
                         "Impact": re.findall(
-                            "gfx/calendar/impact_(.*).gif", cols[3].find("img")["src"]
+                            "gfx/calendar/impact_(.*).gif",
+                            cols[3].find("img")["src"],
                         )[0],
                         "For": cols[4].text,
                         "Actual": cols[5].text,
