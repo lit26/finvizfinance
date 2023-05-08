@@ -32,10 +32,7 @@ class Overview:
         value = []
         for option in options:
             temp = option["value"].split("?")[1].split("&")
-            if len(temp) == 4:
-                temp = "&".join(temp[:2])
-            else:
-                temp = temp[0]
+            temp = "&".join(temp[:2]) if len(temp) == 4 else temp[0]
             value.append(temp)
         self.group_dict = dict(zip(key, value))
 
@@ -74,16 +71,12 @@ class Overview:
         if group not in self.group_dict:
             group_keys = list(self.group_dict.keys())
             raise ValueError(
-                "Invalid group parameter '{}'. Possible parameter input: {}".format(
-                    group, group_keys
-                )
+                f"Invalid group parameter '{group}'. Possible parameter input: {group_keys}"
             )
         if order not in self.order_dict:
             order_keys = list(self.order_dict.keys())
             raise ValueError(
-                "Invalid order parameter '{}'. Possible parameter input: {}".format(
-                    order, order_keys
-                )
+                f"Invalid order parameter '{order}'. Possible parameter input: {order_keys}"
             )
         self.url = (
             self.BASE_URL.format(group=self.group_dict[group], v_page=self.v_page)
@@ -100,13 +93,11 @@ class Overview:
         num_col_index = list(range(2, len(table_header)))
         for row in rows:
             cols = row.findAll("td")[1:]
-            info_dict = {}
-            for i, col in enumerate(cols):
-                # check if the col is number
-                if i not in num_col_index:
-                    info_dict[table_header[i]] = col.text
-                else:
-                    info_dict[table_header[i]] = number_covert(col.text)
-
+            info_dict = {
+                table_header[i]: col.text
+                if i not in num_col_index
+                else number_covert(col.text)
+                for i, col in enumerate(cols)
+            }
             frame.append(info_dict)
         return pd.DataFrame(frame)

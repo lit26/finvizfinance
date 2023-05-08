@@ -41,16 +41,13 @@ class Earnings:
         """
         check_list = ["This Week", "Next Week", "Previous Week", "This Month"]
         if period not in check_list:
-            raise ValueError(
-                "Invalid period '{}'. Available period: {}".format(period, check_list)
-            )
+            raise ValueError(f"Invalid period '{period}'. Available period: {check_list}")
         self.period = period
         ffinancial = Financial()
         filters_dict = {"Earnings Date": period}
         ffinancial.set_filter(filters_dict=filters_dict)
         self.df = ffinancial.screener_view(order="Earnings Date", verbose=0)
-        self.earning_days = list(set(self.df["Earnings"].to_list()))
-        self.earning_days.sort()
+        self.earning_days = sorted(set(self.df["Earnings"].to_list()))
 
     def partition_days(self, mode="financial"):
         """Partition dataframe to separate dataframes according to the dates.
@@ -68,9 +65,7 @@ class Earnings:
             "technical",
         ]
         if mode not in check_list:
-            raise ValueError(
-                "Invalid mode '{}'. Available mode: {}".format(mode, check_list)
-            )
+            raise ValueError(f"Invalid mode '{mode}'. Available mode: {check_list}")
 
         for earning_day in self.earning_days:
             if mode == "financial":

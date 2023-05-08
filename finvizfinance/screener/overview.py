@@ -53,9 +53,7 @@ class Overview:
         url_signal = ""
         if signal not in self.signal_dict and signal != "":
             signal_keys = list(self.signal_dict.keys())
-            raise ValueError(
-                "Invalid signal '{}'. Possible signal: {}".format(signal, signal_keys)
-            )
+            raise ValueError(f"Invalid signal '{signal}'. Possible signal: {signal_keys}")
         elif signal != "":
             url_signal = "&s=" + self.signal_dict[signal]
         return url_signal
@@ -88,9 +86,7 @@ class Overview:
         if screen_filter not in self.filter_dict:
             filter_keys = list(self.filter_dict.keys())
             raise ValueError(
-                "Invalid filter '{}'. Possible filter: {}".format(
-                    screen_filter, filter_keys
-                )
+                f"Invalid filter '{screen_filter}'. Possible filter: {filter_keys}"
             )
         return list(self.filter_dict[screen_filter]["option"])
 
@@ -115,24 +111,17 @@ class Overview:
         for key, value in filters_dict.items():
             if key not in self.filter_dict:
                 filter_keys = list(self.filter_dict.keys())
-                raise ValueError(
-                    "Invalid filter '{}'. Possible filter: {}".format(key, filter_keys)
-                )
+                raise ValueError(f"Invalid filter '{key}'. Possible filter: {filter_keys}")
             if value not in self.filter_dict[key]["option"]:
                 filter_options = list(self.filter_dict[key]["option"].keys())
                 raise ValueError(
-                    "Invalid filter option '{}'. Possible filter options: {}".format(
-                        value, filter_options
-                    )
+                    f"Invalid filter option '{value}'. Possible filter options: {filter_options}"
                 )
-            prefix = self.filter_dict[key]["prefix"]
             urlcode = self.filter_dict[key]["option"][value]
             if urlcode != "":
-                filters.append("{}_{}".format(prefix, urlcode))
-        url_filter = ""
-        if len(filters) != 0:
-            url_filter = "&f=" + ",".join(filters)
-        return url_filter
+                prefix = self.filter_dict[key]["prefix"]
+                filters.append(f"{prefix}_{urlcode}")
+        return "&f=" + ",".join(filters) if filters else ""
 
     def _set_ticker(self, ticker):
         """Set ticker.
@@ -142,9 +131,7 @@ class Overview:
         Returns:
             url_ticker(str): ticker string for url
         """
-        if ticker == "":
-            return ""
-        return "&t=" + ticker
+        return "" if ticker == "" else "&t=" + ticker
 
     def set_filter(self, signal="", filters_dict={}, ticker=""):
         """Update the settings.
@@ -185,18 +172,17 @@ class Overview:
         """
         rows = rows[1:]
         if limit != -1:
-            rows = rows[0:limit]
+            rows = rows[:limit]
 
         frame = []
         for row in rows:
             cols = row.findAll("td")[1:]
-            info_dict = {}
-            for i, col in enumerate(cols):
-                # check if the col is number
-                if i not in num_col_index:
-                    info_dict[table_header[i]] = col.text
-                else:
-                    info_dict[table_header[i]] = number_covert(col.text)
+            info_dict = {
+                table_header[i]: col.text
+                if i not in num_col_index
+                else number_covert(col.text)
+                for i, col in enumerate(cols)
+            }
             frame.append(info_dict)
         return pd.concat([df, pd.DataFrame(frame)], ignore_index=True)
 
@@ -239,9 +225,7 @@ class Overview:
         if order != "ticker":
             if order not in self.order_dict:
                 order_keys = list(self.order_dict.keys())
-                raise ValueError(
-                    "Invalid order '{}'. Possible order: {}".format(order, order_keys)
-                )
+                raise ValueError(f"Invalid order '{order}'. Possible order: {order_keys}")
             url = self.url + "&" + self.order_dict[order]
         if not ascend:
             url = url.replace("o=", "o=-")
@@ -257,16 +241,15 @@ class Overview:
 
         if select_page:
             if select_page > page:
-                raise ValueError("Invalid page {}".format(select_page))
+                raise ValueError(f"Invalid page {select_page}")
             if limit != -1:
                 limit = -1
                 warnings.warn("Limit parameter is ignored when page is selected.")
             start_page = select_page - 1
             end_page = select_page
 
-        if limit != -1:
-            if page > (limit - 1) // 20 + 1:
-                page = (limit - 1) // 20 + 1
+        if limit != -1 and page > (limit - 1) // 20 + 1:
+            page = (limit - 1) // 20 + 1
 
         if verbose == 1:
             if not select_page:
@@ -295,9 +278,9 @@ class Overview:
 
                 url = self.url
                 if order == "ticker":
-                    url += "&r={}".format(i * 20 + 1)
+                    url += f"&r={i * 20 + 1}"
                 else:
-                    url += "&r={}".format(i * 20 + 1) + "&" + self.order_dict[order]
+                    url += f"&r={i * 20 + 1}&" + self.order_dict[order]
                 if not ascend:
                     url = url.replace("o=", "o=-")
                 soup = web_scrap(url)
@@ -320,16 +303,11 @@ class Overview:
             df(pandas.DataFrame): screener information table
         """
         check_list = ["Sector", "Industry", "Country"]
-        error_list = [i for i in compare_list if i not in check_list]
-        if len(error_list) != 0:
-            raise ValueError("Please check: {}".format(error_list))
+        if error_list := [i for i in compare_list if i not in check_list]:
+            raise ValueError(f"Please check: {error_list}")
 
         stock = finvizfinance(ticker)
         stock_fundament = stock.ticker_fundament()
-        filters_dict = {}
-        for compare in compare_list:
-            filters_dict[compare] = stock_fundament[compare]
-
+        filters_dict = {compare: stock_fundament[compare] for compare in compare_list}
         self.set_filter(filters_dict=filters_dict)
-        df = self.screener_view(order=order, verbose=verbose)
-        return df
+        return self.screener_view(order=order, verbose=verbose)

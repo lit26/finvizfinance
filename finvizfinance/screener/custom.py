@@ -141,9 +141,7 @@ class Custom(Overview):
         if order != "ticker":
             if order not in self.order_dict:
                 order_keys = list(self.order_dict.keys())
-                raise ValueError(
-                    "Invalid order '{}'. Possible order: {}".format(order, order_keys)
-                )
+                raise ValueError(f"Invalid order '{order}'. Possible order: {order_keys}")
             url = self.url + "&" + self.order_dict[order]
         if not ascend:
             url = url.replace("o=", "o=-")
@@ -161,16 +159,15 @@ class Custom(Overview):
 
         if select_page:
             if select_page > page:
-                raise ValueError("Invalid page {}".format(select_page))
+                raise ValueError(f"Invalid page {select_page}")
             if limit != -1:
                 limit = -1
                 warnings.warn("Limit parameter is ignored when page is selected.")
             start_page = select_page - 1
             end_page = select_page
 
-        if limit != -1:
-            if page > (limit - 1) // 20 + 1:
-                page = (limit - 1) // 20 + 1
+        if limit != -1 and page > (limit - 1) // 20 + 1:
+            page = (limit - 1) // 20 + 1
 
         if verbose == 1:
             if not select_page:
@@ -199,9 +196,9 @@ class Custom(Overview):
 
                 url = self.url
                 if order == "ticker":
-                    url += "&r={}".format(i * 20 + 1)
+                    url += f"&r={i * 20 + 1}"
                 else:
-                    url += "&r={}".format(i * 20 + 1) + "&" + self.order_dict[order]
+                    url += f"&r={i * 20 + 1}&" + self.order_dict[order]
                 if not ascend:
                     url = url.replace("o=", "o=-")
                 url += "&c=" + ",".join(columns)

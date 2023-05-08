@@ -36,4 +36,5 @@ def test_finvizfinance_insider_option(mocker):
     insider_id = '1234'
     Insider(insider_id)
     web_scrap_mock.assert_called_with(
-        'https://finviz.com/insidertrading.ashx?oc=' + insider_id + '&tc=7')
+        f'https://finviz.com/insidertrading.ashx?oc={insider_id}&tc=7'
+    )

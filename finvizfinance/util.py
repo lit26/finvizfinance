@@ -117,9 +117,8 @@ def image_scrap(url, ticker, out_dir):
         r.raw.decode_content = True
         if len(out_dir) != 0:
             out_dir += "/"
-        f = open("{}{}.jpg".format(out_dir, ticker), "wb")
-        f.write(r.content)
-        f.close()
+        with open(f"{out_dir}{ticker}.jpg", "wb") as f:
+            f.write(r.content)
     except requests.exceptions.HTTPError as err:
         raise Exception(err)
     except requests.exceptions.Timeout as err:
@@ -140,15 +139,15 @@ def scrap_function(url):
     table_header = [i.text.strip() for i in rows[0].findAll("td")][1:]
     frame = []
     rows = rows[1:]
-    num_col_index = [i for i in range(2, len(table_header))]
+    num_col_index = list(range(2, len(table_header)))
     for row in rows:
         cols = row.findAll("td")[1:]
-        info_dict = {}
-        for i, col in enumerate(cols):
-            if i not in num_col_index:
-                info_dict[table_header[i]] = col.text
-            else:
-                info_dict[table_header[i]] = number_covert(col.text)
+        info_dict = {
+            table_header[i]: col.text
+            if i not in num_col_index
+            else number_covert(col.text)
+            for i, col in enumerate(cols)
+        }
         frame.append(info_dict)
     return pd.DataFrame(frame)
 
@@ -217,7 +216,7 @@ def progress_bar(page, total):
     bar_len = 30
     filled_len = int(round(bar_len * page / float(total)))
     bar = "#" * filled_len + "-" * (bar_len - filled_len)
-    sys.stdout.write("[Info] loading page [{}] {}/{} \r".format(bar, page, total))
+    sys.stdout.write(f"[Info] loading page [{bar}] {page}/{total} \r")
     sys.stdout.flush()
 
 
