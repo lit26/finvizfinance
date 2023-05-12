@@ -42,8 +42,10 @@ class Ticker(Overview):
         if order != "ticker":
             if order not in self.order_dict:
                 order_keys = list(self.order_dict.keys())
-                raise ValueError(f"Invalid order '{order}'. Possible order: {order_keys}")
-            url = f"{self.url}&{self.order_dict[order]}"
+                raise ValueError(
+                    "Invalid order '{}'. Possible order: {}".format(order, order_keys)
+                )
+            url = self.url + "&" + self.order_dict[order]
         if not ascend:
             url = url.replace("o=", "o=-")
         soup = web_scrap(url)
@@ -66,6 +68,6 @@ class Ticker(Overview):
             sleep(sleep_sec)  # Adding sleep
             if verbose == 1:
                 progress_bar(i + 1, page)
-            soup = web_scrap(f"{self.url}&r={i * 1000 + 1}")
+            soup = web_scrap(self.url + "&r={}".format(i * 1000 + 1))
             tickers = self._screener_helper(i, page, soup, tickers, limit)
         return tickers

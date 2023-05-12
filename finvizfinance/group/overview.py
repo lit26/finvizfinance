@@ -71,13 +71,15 @@ class Overview:
         if group not in self.group_dict:
             group_keys = list(self.group_dict.keys())
             raise ValueError(
-                f"Invalid group parameter '{group}'. Possible parameter input: {group_keys}"
-            )
+                "Invalid group parameter '{}'. Possible parameter input: {}".format(
+                    group, group_keys
+                )
         if order not in self.order_dict:
             order_keys = list(self.order_dict.keys())
             raise ValueError(
-                f"Invalid order parameter '{order}'. Possible parameter input: {order_keys}"
-            )
+                "Invalid order parameter '{}'. Possible parameter input: {}".format(
+                    order, order_keys
+                )
         self.url = (
             self.BASE_URL.format(group=self.group_dict[group], v_page=self.v_page)
             + "&"

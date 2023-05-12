@@ -35,7 +35,7 @@ class Quote:
         Returns:
             price(float): price of the ticker
         """
-        soup = web_scrap(f"https://finviz.com/request_quote.ashx?t={ticker}")
+        soup = web_scrap("https://finviz.com/request_quote.ashx?t={}".format(ticker))
         return soup.text
 
 
@@ -88,9 +88,9 @@ class finvizfinance:
             charturl(str): url for the chart
         """
         if timeframe not in ["daily", "weekly", "monthly"]:
-            raise ValueError(f"Invalid timeframe '{timeframe}'")
+            raise ValueError("Invalid timeframe '{}'".format(timeframe))
         if charttype not in ["candle", "line", "advanced"]:
-            raise ValueError(f"Invalid chart type '{charttype}'")
+            raise ValueError("Invalid chart type '{}'".format(charttype))
         url_type = "c"
         url_ta = "0"
         if charttype == "line":
@@ -124,8 +124,9 @@ class finvizfinance:
         """
         if output_format not in ["dict", "series"]:
             raise ValueError(
-                f"""Invalid output format '{output_format}'. Possible choice: {["dict", "series"]}"""
-            )
+                "Invalid output format '{}'. Possible choice: {}".format(
+                    output_format, ["dict", "series"]
+                )
         table = self.soup.find("table", class_="fullview-title")
         rows = table.findAll("tr")
 

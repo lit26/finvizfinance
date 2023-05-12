@@ -53,7 +53,9 @@ class Overview:
         url_signal = ""
         if signal not in self.signal_dict and signal != "":
             signal_keys = list(self.signal_dict.keys())
-            raise ValueError(f"Invalid signal '{signal}'. Possible signal: {signal_keys}")
+            raise ValueError(
+                "Invalid signal '{}'. Possible signal: {}".format(signal, signal_keys)
+            )
         elif signal != "":
             url_signal = "&s=" + self.signal_dict[signal]
         return url_signal
@@ -86,8 +88,9 @@ class Overview:
         if screen_filter not in self.filter_dict:
             filter_keys = list(self.filter_dict.keys())
             raise ValueError(
-                f"Invalid filter '{screen_filter}'. Possible filter: {filter_keys}"
-            )
+                "Invalid filter '{}'. Possible filter: {}".format(
+                    screen_filter, filter_keys
+                )
         return list(self.filter_dict[screen_filter]["option"])
 
     def get_orders(self):
@@ -111,12 +114,15 @@ class Overview:
         for key, value in filters_dict.items():
             if key not in self.filter_dict:
                 filter_keys = list(self.filter_dict.keys())
-                raise ValueError(f"Invalid filter '{key}'. Possible filter: {filter_keys}")
+                 raise ValueError(
+                    "Invalid filter '{}'. Possible filter: {}".format(key, filter_keys)
+                )
             if value not in self.filter_dict[key]["option"]:
                 filter_options = list(self.filter_dict[key]["option"].keys())
                 raise ValueError(
-                    f"Invalid filter option '{value}'. Possible filter options: {filter_options}"
-                )
+                    "Invalid filter option '{}'. Possible filter options: {}".format(
+                        value, filter_options
+                    )
             urlcode = self.filter_dict[key]["option"][value]
             if urlcode != "":
                 prefix = self.filter_dict[key]["prefix"]
@@ -225,7 +231,9 @@ class Overview:
         if order != "ticker":
             if order not in self.order_dict:
                 order_keys = list(self.order_dict.keys())
-                raise ValueError(f"Invalid order '{order}'. Possible order: {order_keys}")
+                raise ValueError(
+                    "Invalid order '{}'. Possible order: {}".format(order, order_keys)
+                )
             url = self.url + "&" + self.order_dict[order]
         if not ascend:
             url = url.replace("o=", "o=-")
@@ -241,7 +249,7 @@ class Overview:
 
         if select_page:
             if select_page > page:
-                raise ValueError(f"Invalid page {select_page}")
+                raise ValueError("Invalid page {}".format(select_page))
             if limit != -1:
                 limit = -1
                 warnings.warn("Limit parameter is ignored when page is selected.")
@@ -278,9 +286,9 @@ class Overview:
 
                 url = self.url
                 if order == "ticker":
-                    url += f"&r={i * 20 + 1}"
+                    url += "&r={}".format(i * 20 + 1)
                 else:
-                    url += f"&r={i * 20 + 1}&" + self.order_dict[order]
+                    url += "&r={}".format(i * 20 + 1) + "&" + self.order_dict[order]
                 if not ascend:
                     url = url.replace("o=", "o=-")
                 soup = web_scrap(url)
@@ -303,8 +311,8 @@ class Overview:
             df(pandas.DataFrame): screener information table
         """
         check_list = ["Sector", "Industry", "Country"]
-        if error_list := [i for i in compare_list if i not in check_list]:
-            raise ValueError(f"Please check: {error_list}")
+        if len(error_list) != 0:
+            raise ValueError("Please check: {}".format(error_list))
 
         stock = finvizfinance(ticker)
         stock_fundament = stock.ticker_fundament()
