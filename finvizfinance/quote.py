@@ -133,12 +133,20 @@ class finvizfinance:
         table = self.soup.find("table", class_="fullview-title")
         rows = table.findAll("tr")
 
-        fundament_info["Company"] = rows[1].text
-        (
-            fundament_info["Sector"],
-            fundament_info["Industry"],
-            fundament_info["Country"],
-        ) = rows[2].text.split(" | ")
+        try:
+            fundament_info["Company"] = rows[1].text
+            (
+                fundament_info["Sector"],
+                fundament_info["Industry"],
+                fundament_info["Country"],
+            ) = rows[2].text.split(" | ")
+        except IndexError:
+            (_, fundament_info["Company"], _) = rows[0].text.split(' | ')
+            (
+                fundament_info["Sector"],
+                fundament_info["Industry"],
+                fundament_info["Country"],
+            ) = rows[1].text.split(" | ")
 
         fundament_table = self.soup.find("table", class_="snapshot-table2")
         rows = fundament_table.findAll("tr")
