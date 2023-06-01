@@ -133,12 +133,27 @@ class finvizfinance:
         table = self.soup.find("table", class_="fullview-title")
         rows = table.findAll("tr")
 
-        fundament_info["Company"] = rows[1].text
-        (
-            fundament_info["Sector"],
-            fundament_info["Industry"],
-            fundament_info["Country"],
-        ) = rows[2].text.split(" | ")
+        try:
+            fundament_info["Company"] = rows[1].text
+            (
+                fundament_info["Sector"],
+                fundament_info["Industry"],
+                fundament_info["Country"],
+            ) = rows[2].text.split(" | ")
+        except IndexError:
+            try:
+                (_, fundament_info["Company"], _) = rows[0].text.split(' | ')
+                (
+                    fundament_info["Sector"],
+                    fundament_info["Industry"],
+                    fundament_info["Country"],
+                ) = rows[1].text.split(" | ")
+            except IndexError:
+                print('Cannot parse Company, Sector, Industry and Country')
+                fundament_info["Company"] = ''
+                fundament_info["Sector"] = ''
+                fundament_info["Industry"] = ''
+                fundament_info["Country"] = ''
 
         fundament_table = self.soup.find("table", class_="snapshot-table2")
         rows = fundament_table.findAll("tr")
@@ -232,8 +247,12 @@ class finvizfinance:
         frame = []
         try:
             rows = fullview_ratings_outer.findAll("td", class_="fullview-ratings-inner")
+            if len(rows) == 0:
+                rows = fullview_ratings_outer.findAll('tr')[1:]
             for row in rows:
                 each_row = row.find("tr")
+                if not each_row:
+                    each_row = row
                 cols = each_row.findAll("td")
                 date = cols[0].text
                 date = datetime.strptime(date, "%b-%d-%y")
