@@ -135,19 +135,18 @@ class finvizfinance:
 
         try:
             fundament_info["Company"] = rows[1].text
-            (
-                fundament_info["Sector"],
-                fundament_info["Industry"],
-                fundament_info["Country"],
-            ) = rows[2].text.split(" | ")
+            row_split = rows[2].text.split(" | ")
+            fundament_info["Sector"] = row_split[0]
+            fundament_info['Industry'] = row_split[1]
+            fundament_info['Country'] = row_split[2]
         except IndexError:
             try:
-                (_, fundament_info["Company"], _) = rows[0].text.split(' | ')
-                (
-                    fundament_info["Sector"],
-                    fundament_info["Industry"],
-                    fundament_info["Country"],
-                ) = rows[1].text.split(" | ")
+                row_split = rows[0].text.split(' | ')
+                fundament_info["Company"] = row_split[1]
+                row_split = rows[1].text.split(" | ")
+                fundament_info["Sector"] = row_split[0]
+                fundament_info['Industry'] = row_split[1]
+                fundament_info['Country'] = row_split[2]
             except IndexError:
                 print('Cannot parse Company, Sector, Industry and Country')
                 fundament_info["Company"] = ''
