@@ -211,4 +211,8 @@ class Custom(Overview):
                 df = self._screener_helper(
                     i, page, rows, df, num_col_index, table_header, limit
                 )
+                
+        # Remove extra newline characters from the column Ticker
+        df.columns = df.columns.str.replace('\n', '')
+        
         return df
