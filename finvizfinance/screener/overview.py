@@ -54,7 +54,8 @@ class Overview:
         if signal not in self.signal_dict and signal != "":
             signal_keys = list(self.signal_dict.keys())
             raise ValueError(
-                "Invalid signal '{}'. Possible signal: {}".format(signal, signal_keys)
+                "Invalid signal '{}'. Possible signal: {}".format(
+                    signal, signal_keys)
             )
         elif signal != "":
             url_signal = "&s=" + self.signal_dict[signal]
@@ -116,7 +117,8 @@ class Overview:
             if key not in self.filter_dict:
                 filter_keys = list(self.filter_dict.keys())
                 raise ValueError(
-                    "Invalid filter '{}'. Possible filter: {}".format(key, filter_keys)
+                    "Invalid filter '{}'. Possible filter: {}".format(
+                        key, filter_keys)
                 )
             if value not in self.filter_dict[key]["option"]:
                 filter_options = list(self.filter_dict[key]["option"].keys())
@@ -177,6 +179,15 @@ class Overview:
         except:
             return 0
 
+    def _get_total_pages(self, soup):
+        """Get total pages"""
+        try:
+            page_links = soup.find_all('a', class_='screener-pages')
+            page_numbers = [link.text for link in page_links]
+            return page_numbers[-1]
+        except:
+            return 0
+
     def _get_table(self, rows, df, num_col_index, table_header, limit=-1):
         """Get screener table helper function.
 
@@ -208,7 +219,8 @@ class Overview:
         """
         if i == page - 1:
             df = self._get_table(
-                rows, df, num_col_index, table_header, limit=((limit - 1) % 20 + 1)
+                rows, df, num_col_index, table_header, limit=(
+                    (limit - 1) % 20 + 1)
             )
         else:
             df = self._get_table(rows, df, num_col_index, table_header)
@@ -240,7 +252,8 @@ class Overview:
             if order not in self.order_dict:
                 order_keys = list(self.order_dict.keys())
                 raise ValueError(
-                    "Invalid order '{}'. Possible order: {}".format(order, order_keys)
+                    "Invalid order '{}'. Possible order: {}".format(
+                        order, order_keys)
                 )
             url = self.url + "&" + self.order_dict[order]
         if not ascend:
@@ -260,7 +273,8 @@ class Overview:
                 raise ValueError("Invalid page {}".format(select_page))
             if limit != -1:
                 limit = -1
-                warnings.warn("Limit parameter is ignored when page is selected.")
+                warnings.warn(
+                    "Limit parameter is ignored when page is selected.")
             start_page = select_page - 1
             end_page = select_page
 
@@ -277,7 +291,8 @@ class Overview:
         table = soup.find("table", class_="table-light")
         rows = table.findAll("tr")
         table_header = [i.text.strip() for i in rows[0].findAll("td")][1:]
-        num_col_index = [table_header.index(i) for i in table_header if i in NUMBER_COL]
+        num_col_index = [table_header.index(
+            i) for i in table_header if i in NUMBER_COL]
         df = pd.DataFrame([], columns=table_header)
         if not select_page or select_page == 1:
             df = self._screener_helper(
@@ -297,7 +312,8 @@ class Overview:
                 if order == "ticker":
                     url += "&r={}".format(i * 20 + 1)
                 else:
-                    url += "&r={}".format(i * 20 + 1) + "&" + self.order_dict[order]
+                    url += "&r={}".format(i * 20 + 1) + \
+                        "&" + self.order_dict[order]
                 if not ascend:
                     url = url.replace("o=", "o=-")
                 soup = web_scrap(url)
@@ -333,3 +349,54 @@ class Overview:
         self.set_filter(filters_dict=filters_dict)
         df = self.screener_view(order=order, verbose=verbose)
         return df
+
+    def paginated_screener_view(
+        self,
+        order="ticker",
+        ascend=True,
+        page_no=0
+    ):
+        """Get paginated screener table.
+
+        Args:
+            order(str): sort the table by the choice of order.
+            ascend(bool): if True, the order is ascending.
+            page_no(int): get the required page, page no starts from 0.
+        Returns:
+            dict: A dictionary containing the following keys:
+            - 'df' (pandas.DataFrame): Screener information table.
+            - 'total_pages' (int): Total number of pages in the table.
+
+        """
+        url = self.url
+        if order != "ticker":
+            if order not in self.order_dict:
+                order_keys = list(self.order_dict.keys())
+                raise ValueError(
+                    "Invalid order '{}'. Possible order: {}".format(
+                        order, order_keys)
+                )
+            url = self.url + "&" + self.order_dict[order]
+        if not ascend:
+            url = url.replace("o=", "o=-")
+
+        url += "&r={}".format(page_no * 20 + 1)
+        soup = web_scrap(url)
+        total_pages = self._get_total_pages(soup)
+
+        if total_pages == 0:
+            print("No ticker found.")
+            return None
+
+        table = soup.find("table", class_="table-light")
+        rows = table.findAll("tr")
+        table_header = [i.text for i in rows[0].findAll("td")][1:]
+        num_col_index = [table_header.index(
+            i) for i in table_header if i in NUMBER_COL]
+        df = pd.DataFrame([], columns=table_header)
+
+        df = self._screener_helper(
+            page_no, total_pages, rows, df, num_col_index, table_header, -1
+        )
+
+        return {'df': df, 'total_pages': total_pages}

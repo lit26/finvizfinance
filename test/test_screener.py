@@ -1,16 +1,17 @@
 import pytest
 from finvizfinance.screener.overview import Overview
 
+
 def test_screener_overview():
     foverview = Overview()
     filters_dict = {'Exchange': 'AMEX', 'Sector': 'Basic Materials'}
     foverview.set_filter(filters_dict=filters_dict)
     df = foverview.screener_view(order="Company", ascend=False)
-    assert(df is not None)
+    assert (df is not None)
     ticker = 'TSLA'
     foverview.set_filter(signal='', filters_dict={}, ticker=ticker)
     df = foverview.screener_view()
-    assert(df is not None)
+    assert (df is not None)
 
 
 def test_screener_get_settings():
@@ -27,3 +28,17 @@ def test_screener_get_settings():
     with pytest.raises(ValueError):
         foverview.get_filter_options('Dummy')
 
+
+def test_paginated_screener_overview():
+    foverview = Overview()
+    filters_dict = {'Exchange': 'AMEX', 'Sector': 'Basic Materials'}
+    foverview.set_filter(filters_dict=filters_dict)
+    data = foverview.paginated_screener_view(
+        order="Company", ascend=False, page_no=2)
+    assert (data['df'] is not None)
+    assert (data['total_pages'] is not None)
+    ticker = 'TSLA'
+    foverview.set_filter(signal='', filters_dict={}, ticker=ticker)
+    data = foverview.paginated_screener_view()
+    assert (data['df'] is not None)
+    assert (data['total_pages'] is not None)
