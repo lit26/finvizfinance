@@ -185,7 +185,10 @@ class Overview:
             page_links = soup.find_all('a', class_='screener-pages')
             page_numbers = [link.text for link in page_links]
             return page_numbers[-1]
-        except:
+        except IndexError:
+            return 0
+        except Exception as e:
+            print(f"Error occurred: {str(e)}")
             return 0
 
     def _get_table(self, rows, df, num_col_index, table_header, limit=-1):
