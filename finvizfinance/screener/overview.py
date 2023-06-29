@@ -34,6 +34,7 @@ class Overview:
             v_page=self.v_page, signal="", filter="", ticker=""
         )
         self._load_setting()
+        self.page_count = 0
 
     def _load_setting(self):
         """load all the signals and filters."""
@@ -54,7 +55,8 @@ class Overview:
         if signal not in self.signal_dict and signal != "":
             signal_keys = list(self.signal_dict.keys())
             raise ValueError(
-                "Invalid signal '{}'. Possible signal: {}".format(signal, signal_keys)
+                "Invalid signal '{}'. Possible signal: {}".format(
+                    signal, signal_keys)
             )
         elif signal != "":
             url_signal = "&s=" + self.signal_dict[signal]
@@ -116,7 +118,8 @@ class Overview:
             if key not in self.filter_dict:
                 filter_keys = list(self.filter_dict.keys())
                 raise ValueError(
-                    "Invalid filter '{}'. Possible filter: {}".format(key, filter_keys)
+                    "Invalid filter '{}'. Possible filter: {}".format(
+                        key, filter_keys)
                 )
             if value not in self.filter_dict[key]["option"]:
                 filter_options = list(self.filter_dict[key]["option"].keys())
@@ -173,7 +176,9 @@ class Overview:
         """Check the page number"""
         try:
             options = soup.find(id="pageSelect").findAll("option")
-            return len(options)
+            page_count = len(options)
+            self.page_count = page_count
+            return page_count
         except:
             return 0
 
@@ -208,7 +213,8 @@ class Overview:
         """
         if i == page - 1:
             df = self._get_table(
-                rows, df, num_col_index, table_header, limit=((limit - 1) % 20 + 1)
+                rows, df, num_col_index, table_header, limit=(
+                    (limit - 1) % 20 + 1)
             )
         else:
             df = self._get_table(rows, df, num_col_index, table_header)
@@ -240,7 +246,8 @@ class Overview:
             if order not in self.order_dict:
                 order_keys = list(self.order_dict.keys())
                 raise ValueError(
-                    "Invalid order '{}'. Possible order: {}".format(order, order_keys)
+                    "Invalid order '{}'. Possible order: {}".format(
+                        order, order_keys)
                 )
             url = self.url + "&" + self.order_dict[order]
         if not ascend:
@@ -260,7 +267,8 @@ class Overview:
                 raise ValueError("Invalid page {}".format(select_page))
             if limit != -1:
                 limit = -1
-                warnings.warn("Limit parameter is ignored when page is selected.")
+                warnings.warn(
+                    "Limit parameter is ignored when page is selected.")
             start_page = select_page - 1
             end_page = select_page
 
@@ -277,7 +285,8 @@ class Overview:
         table = soup.find("table", class_="table-light")
         rows = table.findAll("tr")
         table_header = [i.text.strip() for i in rows[0].findAll("td")][1:]
-        num_col_index = [table_header.index(i) for i in table_header if i in NUMBER_COL]
+        num_col_index = [table_header.index(
+            i) for i in table_header if i in NUMBER_COL]
         df = pd.DataFrame([], columns=table_header)
         if not select_page or select_page == 1:
             df = self._screener_helper(
@@ -297,7 +306,8 @@ class Overview:
                 if order == "ticker":
                     url += "&r={}".format(i * 20 + 1)
                 else:
-                    url += "&r={}".format(i * 20 + 1) + "&" + self.order_dict[order]
+                    url += "&r={}".format(i * 20 + 1) + \
+                        "&" + self.order_dict[order]
                 if not ascend:
                     url = url.replace("o=", "o=-")
                 soup = web_scrap(url)
