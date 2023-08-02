@@ -34,6 +34,7 @@ class Overview:
             v_page=self.v_page, signal="", filter="", ticker=""
         )
         self._load_setting()
+        self.page_count = None
 
     def _load_setting(self):
         """load all the signals and filters."""
@@ -166,7 +167,8 @@ class Overview:
         """Check the page number"""
         try:
             options = soup.find(id="pageSelect").findAll("option")
-            return len(options)
+            self.page_count = len(options)
+            return self.page_count
         except:
             return 0
 
