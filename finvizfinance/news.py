@@ -62,7 +62,12 @@ class News:
                 source = link.split("/")[2]
                 if source == "feedproxy.google.com":
                     source = link.split("/")[4]
-                info_dict = {"Date": date, "Title": title, "Source": source, "Link": link}
+                info_dict = {
+                    "Date": date,
+                    "Title": title,
+                    "Source": source,
+                    "Link": link,
+                }
                 table.append(info_dict)
             except TypeError:
                 # Empty news line
