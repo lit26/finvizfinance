@@ -325,7 +325,7 @@ class finvizfinance:
         """
         inside_trader = self.soup.find("table", class_="body-table")
         rows = inside_trader.findAll("tr")
-        table_header = [i.text for i in rows[0].findAll("td")]
+        table_header = [i.text for i in rows[0].findAll("th")]
         table_header += ["SEC Form 4 Link", "Insider_id"]
         frame = []
         rows = rows[1:]

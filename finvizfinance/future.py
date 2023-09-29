@@ -44,9 +44,11 @@ class Future:
             raise ValueError("Invalid timeframe '{}'".format(timeframe))
 
         soup = web_scrap("https://finviz.com/futures_performance.ashx" + params)
-        data = soup.text[
-            soup.text.find("var rows = ")
-            + 11 : soup.text.find("FinvizInitFuturesPerformance(rows);")
+
+        html = soup.prettify()
+        data = html[
+            html.find("var rows = ")
+            + 11: html.find("FinvizInitFuturesPerformance(rows);")
         ]
         data = json.loads(data.strip()[:-1])
         df = pd.DataFrame(data)

@@ -276,9 +276,9 @@ class Overview:
             else:
                 progress_bar(1, 1)
 
-        table = soup.find("table", class_="table-light")
+        table = soup.find("table", class_="screener_table")
         rows = table.findAll("tr")
-        table_header = [i.text.strip() for i in rows[0].findAll("td")][1:]
+        table_header = [i.text.strip() for i in rows[0].findAll("th")][1:]
         num_col_index = [table_header.index(i) for i in table_header if i in NUMBER_COL]
         df = pd.DataFrame([], columns=table_header)
         if not select_page or select_page == 1:
@@ -303,7 +303,7 @@ class Overview:
                 if not ascend:
                     url = url.replace("o=", "o=-")
                 soup = web_scrap(url)
-                table = soup.find("table", class_="table-light")
+                table = soup.find("table", class_="screener_table")
                 rows = table.findAll("tr")
                 df = self._screener_helper(
                     i, page, rows, df, num_col_index, table_header, limit
