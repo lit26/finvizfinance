@@ -136,9 +136,9 @@ def scrap_function(url):
         df(pandas.DataFrame): performance table
     """
     soup = web_scrap(url)
-    table = soup.find("table", class_="table-light")
+    table = soup.find("table", class_="groups_table")
     rows = table.findAll("tr")
-    table_header = [i.text.strip() for i in rows[0].findAll("td")][1:]
+    table_header = [i.text.strip() for i in rows[0].findAll("th")][1:]
     frame = []
     rows = rows[1:]
     num_col_index = [i for i in range(2, len(table_header))]
