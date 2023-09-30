@@ -62,9 +62,11 @@ class Insider:
         Returns:
             df(pandas.DataFrame): insider information table
         """
-        insider_trader = self.soup.find("table", class_="body-table")
+        # print(self.soup.prettify())
+        insider_trader = self.soup.findAll("table")[6]
         rows = insider_trader.findAll("tr")
-        table_header = [i.text.strip() for i in rows[0].findAll("td")] + [
+        # print(rows)
+        table_header = [i.text.strip() for i in rows[0].findAll("th")] + [
             "SEC Form 4 Link"
         ]
         frame = []

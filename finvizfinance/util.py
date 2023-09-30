@@ -8,6 +8,7 @@ import sys
 import requests
 import pandas as pd
 from bs4 import BeautifulSoup
+from datetime import datetime, date
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) \
@@ -135,9 +136,9 @@ def scrap_function(url):
         df(pandas.DataFrame): performance table
     """
     soup = web_scrap(url)
-    table = soup.find("table", class_="table-light")
+    table = soup.find("table", class_="groups_table")
     rows = table.findAll("tr")
-    table_header = [i.text.strip() for i in rows[0].findAll("td")][1:]
+    table_header = [i.text.strip() for i in rows[0].findAll("th")][1:]
     frame = []
     rows = rows[1:]
     num_col_index = [i for i in range(2, len(table_header))]
@@ -211,6 +212,21 @@ def number_covert(num):
         return float(num[:-1]) * 1000
     else:
         return float("".join(num.split(",")))
+
+
+def format_datetime(date_str):
+    if date_str.lower().startswith("today"):
+        today = date.today()
+        time_str = date_str.split()[1]
+
+        hour, minute = map(int, time_str[:-2].split(":"))
+        ampm = time_str[-2:]
+
+        if ampm.lower() == "pm" and hour != 12:
+            hour += 12
+        return datetime(today.year, today.month, today.day, hour, minute)
+    else:
+        return datetime.strptime(date_str, "%b-%d-%y %I:%M%p")
 
 
 def progress_bar(page, total):

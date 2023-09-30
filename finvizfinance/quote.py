@@ -4,11 +4,17 @@
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
-from datetime import datetime
+from datetime import datetime, date
 import json
 import pandas as pd
 import requests
-from finvizfinance.util import web_scrap, image_scrap, number_covert, headers
+from finvizfinance.util import (
+    web_scrap,
+    image_scrap,
+    number_covert,
+    headers,
+    format_datetime,
+)
 
 QUOTE_URL = "https://finviz.com/quote.ashx?t={ticker}"
 NUM_COL = [
@@ -137,22 +143,22 @@ class finvizfinance:
             fundament_info["Company"] = rows[1].text
             row_split = rows[2].text.split(" | ")
             fundament_info["Sector"] = row_split[0]
-            fundament_info['Industry'] = row_split[1]
-            fundament_info['Country'] = row_split[2]
+            fundament_info["Industry"] = row_split[1]
+            fundament_info["Country"] = row_split[2]
         except IndexError:
             try:
-                row_split = rows[0].text.split(' | ')
+                row_split = rows[0].text.split(" | ")
                 fundament_info["Company"] = row_split[1]
                 row_split = rows[1].text.split(" | ")
                 fundament_info["Sector"] = row_split[0]
-                fundament_info['Industry'] = row_split[1]
-                fundament_info['Country'] = row_split[2]
+                fundament_info["Industry"] = row_split[1]
+                fundament_info["Country"] = row_split[2]
             except IndexError:
-                print('Cannot parse Company, Sector, Industry and Country')
-                fundament_info["Company"] = ''
-                fundament_info["Sector"] = ''
-                fundament_info["Industry"] = ''
-                fundament_info["Country"] = ''
+                print("Cannot parse Company, Sector, Industry and Country")
+                fundament_info["Company"] = ""
+                fundament_info["Sector"] = ""
+                fundament_info["Industry"] = ""
+                fundament_info["Country"] = ""
 
         fundament_table = self.soup.find("table", class_="snapshot-table2")
         rows = fundament_table.findAll("tr")
@@ -247,20 +253,24 @@ class finvizfinance:
         try:
             rows = fullview_ratings_outer.findAll("td", class_="fullview-ratings-inner")
             if len(rows) == 0:
-                rows = fullview_ratings_outer.findAll('tr')[1:]
+                rows = fullview_ratings_outer.findAll("tr")[1:]
             for row in rows:
                 each_row = row.find("tr")
                 if not each_row:
                     each_row = row
                 cols = each_row.findAll("td")
-                date = cols[0].text
-                date = datetime.strptime(date, "%b-%d-%y")
+                rating_date = cols[0].text
+                if rating_date.lower().startswith("today"):
+                    rating_date = date.today()
+                else:
+                    rating_date = datetime.strptime(rating_date, "%b-%d-%y")
+
                 status = cols[1].text
                 outer = cols[2].text
                 rating = cols[3].text
                 price = cols[4].text
                 info_dict = {
-                    "Date": date,
+                    "Date": rating_date,
                     "Status": status,
                     "Outer": outer,
                     "Rating": rating,
@@ -287,16 +297,18 @@ class finvizfinance:
         for row in rows:
             try:
                 cols = row.findAll("td")
-                date = cols[0].text
+                news_date = cols[0].text
                 title = cols[1].a.text
                 link = cols[1].a["href"]
-                news_time = date.split()
+                news_time = news_date.split()
                 if len(news_time) == 2:
                     last_date = news_time[0]
                     news_time = " ".join(news_time)
                 else:
                     news_time = last_date + " " + news_time[0]
-                news_time = datetime.strptime(news_time, "%b-%d-%y %I:%M%p")
+
+                news_time = format_datetime(news_time)
+
                 info_dict = {"Date": news_time, "Title": title, "Link": link}
                 frame.append(info_dict)
             except AttributeError:
@@ -313,7 +325,7 @@ class finvizfinance:
         """
         inside_trader = self.soup.find("table", class_="body-table")
         rows = inside_trader.findAll("tr")
-        table_header = [i.text for i in rows[0].findAll("td")]
+        table_header = [i.text for i in rows[0].findAll("th")]
         table_header += ["SEC Form 4 Link", "Insider_id"]
         frame = []
         rows = rows[1:]
