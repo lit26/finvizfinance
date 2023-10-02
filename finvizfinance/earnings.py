@@ -49,8 +49,7 @@ class Earnings:
         filters_dict = {"Earnings Date": period}
         ffinancial.set_filter(filters_dict=filters_dict)
         self.df = ffinancial.screener_view(order="Earnings Date", verbose=0)
-        self.earning_days = list(set(self.df["Earnings"].to_list()))
-        self.earning_days.sort()
+        self.earning_days = sorted(set(self.df["Earnings"].to_list()))
 
     def partition_days(self, mode="financial"):
         """Partition dataframe to separate dataframes according to the dates.

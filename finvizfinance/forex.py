@@ -32,8 +32,7 @@ class Forex:
             url = "https://finviz.com/forex_performance.ashx?v=1&tv=2&o=-perfdaypct"
         else:
             raise ValueError("Options of change: percent(default), PIPS")
-        df = scrap_function(url)
-        return df
+        return scrap_function(url)
 
     def chart(self, forex, timeframe="D", urlonly=False):
         """Get forex chart.
@@ -47,5 +46,4 @@ class Forex:
         """
 
         url = "https://finviz.com/forex_charts.ashx?t=ALL&tf="
-        charturl = image_scrap_function(url, forex, timeframe, urlonly)
-        return charturl
+        return image_scrap_function(url, forex, timeframe, urlonly)

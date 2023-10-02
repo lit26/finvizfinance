@@ -55,9 +55,8 @@ class Ticker(Overview):
                 print("No ticker found.")
             return None
 
-        if limit != -1:
-            if page > (limit - 1) // 1000 + 1:
-                page = (limit - 1) // 1000 + 1
+        if limit != -1 and page > (limit - 1) // 1000 + 1:
+            page = (limit - 1) // 1000 + 1
 
         if verbose == 1:
             progress_bar(1, page)

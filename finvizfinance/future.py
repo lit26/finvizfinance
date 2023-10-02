@@ -51,5 +51,4 @@ class Future:
             + 11: html.find("FinvizInitFuturesPerformance(rows);")
         ]
         data = json.loads(data.strip()[:-1])
-        df = pd.DataFrame(data)
-        return df
+        return pd.DataFrame(data)

@@ -88,13 +88,11 @@ class Custom(Overview):
         num_col_index = list(range(2, len(table_header)))
         for row in rows:
             cols = row.findAll("td")[1:]
-            info_dict = {}
-            for i, col in enumerate(cols):
-                # check if the col is number
-                if i not in num_col_index:
-                    info_dict[table_header[i]] = col.text
-                else:
-                    info_dict[table_header[i]] = number_covert(col.text)
-
+            info_dict = {
+                table_header[i]: col.text
+                if i not in num_col_index
+                else number_covert(col.text)
+                for i, col in enumerate(cols)
+            }
             frame.append(info_dict)
         return pd.DataFrame(frame)

@@ -23,8 +23,7 @@ class Crypto:
             df(pandas.DataFrame): crypto performance table
         """
         url = "https://finviz.com/crypto_performance.ashx"
-        df = scrap_function(url)
-        return df
+        return scrap_function(url)
 
     def chart(self, crypto, timeframe="D", urlonly=False):
         """Get crypto chart.
@@ -38,5 +37,4 @@ class Crypto:
         """
 
         url = "https://finviz.com/crypto_charts.ashx?t=ALL&tf="
-        charturl = image_scrap_function(url, crypto, timeframe, urlonly)
-        return charturl
+        return image_scrap_function(url, crypto, timeframe, urlonly)

@@ -188,9 +188,8 @@ class Custom(Overview):
             start_page = select_page - 1
             end_page = select_page
 
-        if limit != -1:
-            if page > (limit - 1) // 20 + 1:
-                page = (limit - 1) // 20 + 1
+        if limit != -1 and page > (limit - 1) // 20 + 1:
+            page = (limit - 1) // 20 + 1
 
         if verbose == 1:
             if not select_page:

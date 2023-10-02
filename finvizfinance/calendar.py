@@ -40,7 +40,8 @@ class Calendar:
                         "Datetime": "{}, {}".format(date, cols[0].text),
                         "Release": cols[2].text,
                         "Impact": re.findall(
-                            "gfx/calendar/impact_(.*).gif", cols[3].find("img")["src"]
+                            "gfx/calendar/impact_(.*).gif",
+                            cols[3].find("img")["src"],
                         )[0],
                         "For": cols[4].text,
                         "Actual": cols[5].text,

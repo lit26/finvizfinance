@@ -92,7 +92,6 @@ class Overview:
                 "Invalid filter '{}'. Possible filter: {}".format(
                     screen_filter, filter_keys
                 )
-            )
         return list(self.filter_dict[screen_filter]["option"])
 
     def get_orders(self):
@@ -116,7 +115,7 @@ class Overview:
         for key, value in filters_dict.items():
             if key not in self.filter_dict:
                 filter_keys = list(self.filter_dict.keys())
-                raise ValueError(
+                 raise ValueError(
                     "Invalid filter '{}'. Possible filter: {}".format(key, filter_keys)
                 )
             if value not in self.filter_dict[key]["option"]:
@@ -125,15 +124,11 @@ class Overview:
                     "Invalid filter option '{}'. Possible filter options: {}".format(
                         value, filter_options
                     )
-                )
-            prefix = self.filter_dict[key]["prefix"]
             urlcode = self.filter_dict[key]["option"][value]
             if urlcode != "":
-                filters.append("{}_{}".format(prefix, urlcode))
-        url_filter = ""
-        if len(filters) != 0:
-            url_filter = "&f=" + ",".join(filters)
-        return url_filter
+                prefix = self.filter_dict[key]["prefix"]
+                filters.append(f"{prefix}_{urlcode}")
+        return "&f=" + ",".join(filters) if filters else ""
 
     def _set_ticker(self, ticker):
         """Set ticker.
@@ -143,9 +138,7 @@ class Overview:
         Returns:
             url_ticker(str): ticker string for url
         """
-        if ticker == "":
-            return ""
-        return "&t=" + ticker
+        return "" if ticker == "" else "&t=" + ticker
 
     def set_filter(self, signal="", filters_dict={}, ticker=""):
         """Update the settings.
@@ -187,18 +180,17 @@ class Overview:
         """
         rows = rows[1:]
         if limit != -1:
-            rows = rows[0:limit]
+            rows = rows[:limit]
 
         frame = []
         for row in rows:
             cols = row.findAll("td")[1:]
-            info_dict = {}
-            for i, col in enumerate(cols):
-                # check if the col is number
-                if i not in num_col_index:
-                    info_dict[table_header[i]] = col.text
-                else:
-                    info_dict[table_header[i]] = number_covert(col.text)
+            info_dict = {
+                table_header[i]: col.text
+                if i not in num_col_index
+                else number_covert(col.text)
+                for i, col in enumerate(cols)
+            }
             frame.append(info_dict)
         return pd.concat([df, pd.DataFrame(frame)], ignore_index=True)
 
@@ -266,9 +258,8 @@ class Overview:
             start_page = select_page - 1
             end_page = select_page
 
-        if limit != -1:
-            if page > (limit - 1) // 20 + 1:
-                page = (limit - 1) // 20 + 1
+        if limit != -1 and page > (limit - 1) // 20 + 1:
+            page = (limit - 1) // 20 + 1
 
         if verbose == 1:
             if not select_page:
@@ -322,16 +313,11 @@ class Overview:
             df(pandas.DataFrame): screener information table
         """
         check_list = ["Sector", "Industry", "Country"]
-        error_list = [i for i in compare_list if i not in check_list]
         if len(error_list) != 0:
             raise ValueError("Please check: {}".format(error_list))
 
         stock = finvizfinance(ticker)
         stock_fundament = stock.ticker_fundament()
-        filters_dict = {}
-        for compare in compare_list:
-            filters_dict[compare] = stock_fundament[compare]
-
+        filters_dict = {compare: stock_fundament[compare] for compare in compare_list}
         self.set_filter(filters_dict=filters_dict)
-        df = self.screener_view(order=order, verbose=verbose)
-        return df
+        return self.screener_view(order=order, verbose=verbose)

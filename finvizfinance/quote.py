@@ -107,10 +107,10 @@ class finvizfinance:
             url_ta = "1"
 
         url_timeframe = "d"
-        if timeframe == "weekly":
-            url_timeframe = "w"
-        elif timeframe == "monthly":
+        if timeframe == "monthly":
             url_timeframe = "m"
+        elif timeframe == "weekly":
+            url_timeframe = "w"
         chart_url = "https://finviz.com/chart.ashx?t={ticker}&ty={type}&ta={ta}&p={timeframe}".format(
             ticker=self.ticker, type=url_type, ta=url_ta, timeframe=url_timeframe
         )
@@ -133,12 +133,9 @@ class finvizfinance:
                 "Invalid output format '{}'. Possible choice: {}".format(
                     output_format, ["dict", "series"]
                 )
-            )
-        fundament_info = {}
-
         table = self.soup.find("table", class_="fullview-title")
         rows = table.findAll("tr")
-
+              
         try:
             fundament_info["Company"] = rows[1].text
             row_split = rows[2].text.split(" | ")
@@ -178,33 +175,32 @@ class finvizfinance:
         for i, value in enumerate(cols):
             if i % 2 == 0:
                 header = value
-            else:
-                if header == "Volatility":
-                    fundament_info = self._parse_volatility(
-                        header, fundament_info, value, raw
-                    )
-                elif header == "52W Range":
-                    fundament_info = self._parse_52w_range(
-                        header, fundament_info, value, raw
-                    )
-                elif header == "Optionable" or header == "Shortable":
-                    if raw:
-                        fundament_info[header] = value
-                    elif value == "Yes":
-                        fundament_info[header] = True
-                    else:
-                        fundament_info[header] = False
+            elif header == "Volatility":
+                fundament_info = self._parse_volatility(
+                    header, fundament_info, value, raw
+                )
+            elif header == "52W Range":
+                fundament_info = self._parse_52w_range(
+                    header, fundament_info, value, raw
+                )
+            elif header in ["Optionable", "Shortable"]:
+                if raw:
+                    fundament_info[header] = value
+                elif value == "Yes":
+                    fundament_info[header] = True
                 else:
-                    # Handle EPS Next Y keys with two different values
-                    if header == "EPS next Y" and header in fundament_info.keys():
-                        header += " Percentage"
-                    if raw:
+                    fundament_info[header] = False
+            else:
+                # Handle EPS Next Y keys with two different values
+                if header == "EPS next Y" and header in fundament_info.keys():
+                    header += " Percentage"
+                if raw:
+                    fundament_info[header] = value
+                else:
+                    try:
+                        fundament_info[header] = number_covert(value)
+                    except ValueError:
                         fundament_info[header] = value
-                    else:
-                        try:
-                            fundament_info[header] = number_covert(value)
-                        except ValueError:
-                            fundament_info[header] = value
         return fundament_info
 
     def _parse_52w_range(self, header, fundament_info, value, raw):
@@ -333,12 +329,12 @@ class finvizfinance:
         num_col_index = [table_header.index(i) for i in table_header if i in num_col]
         for row in rows:
             cols = row.findAll("td")
-            info_dict = {}
-            for i, col in enumerate(cols):
-                if i not in num_col_index:
-                    info_dict[table_header[i]] = col.text
-                else:
-                    info_dict[table_header[i]] = number_covert(col.text)
+            info_dict = {
+                table_header[i]: col.text
+                if i not in num_col_index
+                else number_covert(col.text)
+                for i, col in enumerate(cols)
+            }
             info_dict["SEC Form 4 Link"] = cols[-1].find("a").attrs["href"]
             info_dict["Insider_id"] = cols[0].a["href"].split("oc=")[1].split("&tc=")[0]
             frame.append(info_dict)
@@ -436,7 +432,6 @@ class Statements:
             website = requests.get(url, headers=headers)
             website.raise_for_status()
             response = json.loads(website.content)
-            df = pd.DataFrame.from_dict(response["data"], orient="index")
-            return df
+            return pd.DataFrame.from_dict(response["data"], orient="index")
         except requests.exceptions.HTTPError as err:
             raise Exception(err)
