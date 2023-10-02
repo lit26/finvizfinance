@@ -82,6 +82,22 @@ COLUMNS = {
     68: "Earnings Date",
     69: "Target Price",
     70: "IPO Date",
+    73: "Book value per share",
+    74: "Cash per share",
+    75: "Dividend",
+    76: "Employees",
+    77: "EPS estimate next quarter",
+    78: "Income",
+    79: "Index",
+    80: "Optionable",
+    81: "Previous Close",
+    82: "Sales",
+    83: "Shortable",
+    84: "Short Interest",
+    85: "Float/Outstanding",
+    86: "Open",
+    87: "High",
+    88: "Low",
 }
 
 
@@ -147,6 +163,10 @@ class Custom(Overview):
             url = self.url + "&" + self.order_dict[order]
         if not ascend:
             url = url.replace("o=", "o=-")
+
+        if 0 in columns:
+            columns.remove(0)
+        columns.insert(0, 0)
         columns = [str(i) for i in columns]
         url += "&c=" + ",".join(columns)
         soup = web_scrap(url)
