@@ -24,16 +24,25 @@ jobs:
     <<: *test-template
     docker:
       - image: circleci/python:3.7
+    
 
   test_py38:
     <<: *test-template
     docker:
       - image: circleci/python:3.8
+    when: 
+    condition:
+      and:
+        - contains: $CIRCLE_PULL_REQUEST_LABELS, 'run_tests'
 
   test_py39:
     <<: *test-template
     docker:
       - image: circleci/python:3.9
+    when: 
+    condition:
+      and:
+        - contains: $CIRCLE_PULL_REQUEST_LABELS, 'run_tests'
   coverage:
     docker:
       - image: circleci/python:3.7
