@@ -136,29 +136,12 @@ class finvizfinance:
             )
         fundament_info = {}
 
-        table = self.soup.find("table", class_="fullview-title")
-        rows = table.find_all("tr")
-
-        try:
-            fundament_info["Company"] = rows[1].text
-            row_split = rows[2].text.split(" | ")
-            fundament_info["Sector"] = row_split[0]
-            fundament_info["Industry"] = row_split[1]
-            fundament_info["Country"] = row_split[2]
-        except IndexError:
-            try:
-                row_split = rows[0].text.split(" | ")
-                fundament_info["Company"] = row_split[1]
-                row_split = rows[1].text.split(" | ")
-                fundament_info["Sector"] = row_split[0]
-                fundament_info["Industry"] = row_split[1]
-                fundament_info["Country"] = row_split[2]
-            except IndexError:
-                print("Cannot parse Company, Sector, Industry and Country")
-                fundament_info["Company"] = ""
-                fundament_info["Sector"] = ""
-                fundament_info["Industry"] = ""
-                fundament_info["Country"] = ""
+        quote_links = self.soup.find("div", class_="quote-links")
+        links = quote_links.find_all("a")
+        fundament_info["Section"] = links[0].text
+        fundament_info['Industry'] = links[1].text
+        fundament_info["Country"] = links[2].text
+        fundament_info["Exchange"] = links[3].text
 
         fundament_table = self.soup.find("table", class_="snapshot-table2")
         rows = fundament_table.find_all("tr")
