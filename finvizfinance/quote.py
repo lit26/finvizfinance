@@ -137,7 +137,7 @@ class finvizfinance:
         fundament_info = {}
 
         table = self.soup.find("table", class_="fullview-title")
-        rows = table.findAll("tr")
+        rows = table.find_all("tr")
 
         try:
             fundament_info["Company"] = rows[1].text
@@ -161,10 +161,10 @@ class finvizfinance:
                 fundament_info["Country"] = ""
 
         fundament_table = self.soup.find("table", class_="snapshot-table2")
-        rows = fundament_table.findAll("tr")
+        rows = fundament_table.find_all("tr")
 
         for row in rows:
-            cols = row.findAll("td")
+            cols = row.find_all("td")
             cols = [i.text for i in cols]
             fundament_info = self._parse_column(cols, raw, fundament_info)
         self.info["fundament"] = fundament_info
@@ -251,14 +251,14 @@ class finvizfinance:
         )
         frame = []
         try:
-            rows = fullview_ratings_outer.findAll("td", class_="fullview-ratings-inner")
+            rows = fullview_ratings_outer.find_all("td", class_="fullview-ratings-inner")
             if len(rows) == 0:
-                rows = fullview_ratings_outer.findAll("tr")[1:]
+                rows = fullview_ratings_outer.find_all("tr")[1:]
             for row in rows:
                 each_row = row.find("tr")
                 if not each_row:
                     each_row = row
-                cols = each_row.findAll("td")
+                cols = each_row.find_all("td")
                 rating_date = cols[0].text
                 if rating_date.lower().startswith("today"):
                     rating_date = date.today()
@@ -290,13 +290,13 @@ class finvizfinance:
             df(pandas.DataFrame): news information table
         """
         fullview_news_outer = self.soup.find("table", class_="fullview-news-outer")
-        rows = fullview_news_outer.findAll("tr")
+        rows = fullview_news_outer.find_all("tr")
 
         frame = []
         last_date = ""
         for row in rows:
             try:
-                cols = row.findAll("td")
+                cols = row.find_all("td")
                 news_date = cols[0].text
                 title = cols[1].a.text
                 link = cols[1].a["href"]
@@ -324,15 +324,15 @@ class finvizfinance:
             df(pandas.DataFrame): insider information table
         """
         inside_trader = self.soup.find("table", class_="body-table")
-        rows = inside_trader.findAll("tr")
-        table_header = [i.text for i in rows[0].findAll("th")]
+        rows = inside_trader.find_all("tr")
+        table_header = [i.text for i in rows[0].find_all("th")]
         table_header += ["SEC Form 4 Link", "Insider_id"]
         frame = []
         rows = rows[1:]
         num_col = ["Cost", "#Shares", "Value ($)", "#Shares Total"]
         num_col_index = [table_header.index(i) for i in table_header if i in num_col]
         for row in rows:
-            cols = row.findAll("td")
+            cols = row.find_all("td")
             info_dict = {}
             for i, col in enumerate(cols):
                 if i not in num_col_index:

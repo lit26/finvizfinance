@@ -25,17 +25,17 @@ class Calendar:
             df(pandas.DataFrame): economic calendar table
         """
         soup = web_scrap("https://finviz.com/calendar.ashx")
-        tables = soup.findAll("table", class_="calendar")
+        tables = soup.find_all("table", class_="calendar")
 
         frame = []
         for table in tables:
-            rows = table.findAll("tr")
+            rows = table.find_all("tr")
             # check row
-            if rows[1].findAll("td")[2].text != "No economic releases":
+            if rows[1].find_all("td")[2].text != "No economic releases":
                 # parse date
                 date = rows[0].find("td").text
                 for row in rows[1:]:
-                    cols = row.findAll("td")
+                    cols = row.find_all("td")
                     info_dict = {
                         "Datetime": "{}, {}".format(date, cols[0].text),
                         "Release": cols[2].text,

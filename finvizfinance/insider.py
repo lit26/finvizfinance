@@ -63,10 +63,10 @@ class Insider:
             df(pandas.DataFrame): insider information table
         """
         # print(self.soup.prettify())
-        insider_trader = self.soup.findAll("table")[6]
-        rows = insider_trader.findAll("tr")
+        insider_trader = self.soup.find_all("table")[6]
+        rows = insider_trader.find_all("tr")
         # print(rows)
-        table_header = [i.text.strip() for i in rows[0].findAll("th")] + [
+        table_header = [i.text.strip() for i in rows[0].find_all("th")] + [
             "SEC Form 4 Link"
         ]
         frame = []
@@ -74,7 +74,7 @@ class Insider:
         num_col = ["Cost", "#Shares", "Value ($)", "#Shares Total"]
         num_col_index = [table_header.index(i) for i in table_header if i in num_col]
         for row in rows:
-            cols = row.findAll("td")
+            cols = row.find_all("td")
             if len(cols) < 5:
                 continue
             info_dict = {}

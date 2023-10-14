@@ -137,13 +137,13 @@ def scrap_function(url):
     """
     soup = web_scrap(url)
     table = soup.find("table", class_="groups_table")
-    rows = table.findAll("tr")
-    table_header = [i.text.strip() for i in rows[0].findAll("th")][1:]
+    rows = table.find_all("tr")
+    table_header = [i.text.strip() for i in rows[0].find_all("th")][1:]
     frame = []
     rows = rows[1:]
     num_col_index = [i for i in range(2, len(table_header))]
     for row in rows:
-        cols = row.findAll("td")[1:]
+        cols = row.find_all("td")[1:]
         info_dict = {}
         for i, col in enumerate(cols):
             if i not in num_col_index:
@@ -178,7 +178,7 @@ def image_scrap_function(url, chart, timeframe, urlonly):
 
     soup = web_scrap(url)
     content = soup.find("div", class_="container")
-    imgs = content.findAll("img")
+    imgs = content.find_all("img")
     for img in imgs:
         website = img["src"]
         name = website.split("?")[1].split("&")[0].split(".")[0]

@@ -304,7 +304,7 @@ class Overview:
                     url = url.replace("o=", "o=-")
                 soup = web_scrap(url)
                 table = soup.find("table", class_="screener_table")
-                rows = table.findAll("tr")
+                rows = table.find_all("tr")
                 df = self._screener_helper(
                     i, page, rows, df, num_col_index, table_header, limit
                 )
