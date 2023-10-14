@@ -42,7 +42,7 @@ jobs:
   test_py311:
     <<: *test-template
     docker:
-      - image: circleci/python:3.11
+      - image: cimg/python:3.11
   coverage:
     docker:
       - image: circleci/python:3.7
