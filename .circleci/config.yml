@@ -77,12 +77,7 @@ workflows:
                 - master
                 - before-release
       - test_py37
-      - test_py38:
-          filters:
-            branches:
-              only:
-                - master
-                - before-release
+      - test_py38
       - test_py39:
           filters:
             branches:
