@@ -24,13 +24,10 @@ jobs:
     <<: *test-template
     docker:
       - image: circleci/python:3.7
-    
-
   test_py38:
     <<: *test-template
     docker:
       - image: circleci/python:3.8
-
   test_py39:
     <<: *test-template
     docker:
