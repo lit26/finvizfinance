@@ -15,20 +15,20 @@ LONG_DESCRIPTION = (HERE / "README.md").read_text()
 LONG_DESC_TYPE = "text/markdown"
 
 INSTALL_REQUIRES = [
-      'pandas',
-      'datetime',
-      'requests',
-      'bs4',
-      'lxml'
+    'pandas',
+    'datetime',
+    'requests',
+    'bs4',
+    'lxml'
 ]
 CLASSIFIERS = [
-      'Programming Language :: Python :: 3.6',
-      'Programming Language :: Python :: 3.7',
-      'Programming Language :: Python :: 3.8',
-      'Programming Language :: Python :: 3.9',
-      'License :: OSI Approved :: MIT License'
+    'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'License :: OSI Approved :: MIT License'
 ]
-PYTHON_REQUIRES='>=3.5'
+PYTHON_REQUIRES = '>=3.5'
 
 setup(name=PACKAGE_NAME,
       version=VERSION,

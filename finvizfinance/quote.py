@@ -41,7 +41,8 @@ class Quote:
         Returns:
             price(float): price of the ticker
         """
-        soup = web_scrap("https://finviz.com/request_quote.ashx?t={}".format(ticker))
+        soup = web_scrap(
+            "https://finviz.com/request_quote.ashx?t={}".format(ticker))
         return soup.text
 
 
@@ -210,13 +211,15 @@ class finvizfinance:
     def _parse_52w_range(self, header, fundament_info, value, raw):
         info_header = ["52W Range From", "52W Range To"]
         info_value = [0, 2]
-        self._parse_value(header, fundament_info, value, raw, info_header, info_value)
+        self._parse_value(header, fundament_info, value,
+                          raw, info_header, info_value)
         return fundament_info
 
     def _parse_volatility(self, header, fundament_info, value, raw):
         info_header = ["Volatility W", "Volatility M"]
         info_value = [0, 1]
-        self._parse_value(header, fundament_info, value, raw, info_header, info_value)
+        self._parse_value(header, fundament_info, value,
+                          raw, info_header, info_value)
         return fundament_info
 
     def _parse_value(self, header, fundament_info, value, raw, info_header, info_value):
@@ -227,7 +230,8 @@ class finvizfinance:
                     fundament_info[info_header[i]] = value[value_index]
             else:
                 for i, value_index in enumerate(info_value):
-                    fundament_info[info_header[i]] = number_covert(value[value_index])
+                    fundament_info[info_header[i]] = number_covert(
+                        value[value_index])
         except:
             fundament_info[header] = value
         return fundament_info
@@ -251,7 +255,8 @@ class finvizfinance:
         )
         frame = []
         try:
-            rows = fullview_ratings_outer.findAll("td", class_="fullview-ratings-inner")
+            rows = fullview_ratings_outer.findAll(
+                "td", class_="fullview-ratings-inner")
             if len(rows) == 0:
                 rows = fullview_ratings_outer.findAll("tr")[1:]
             for row in rows:
@@ -289,7 +294,8 @@ class finvizfinance:
         Returns:
             df(pandas.DataFrame): news information table
         """
-        fullview_news_outer = self.soup.find("table", class_="fullview-news-outer")
+        fullview_news_outer = self.soup.find(
+            "table", class_="fullview-news-outer")
         rows = fullview_news_outer.findAll("tr")
 
         frame = []
@@ -330,7 +336,8 @@ class finvizfinance:
         frame = []
         rows = rows[1:]
         num_col = ["Cost", "#Shares", "Value ($)", "#Shares Total"]
-        num_col_index = [table_header.index(i) for i in table_header if i in num_col]
+        num_col_index = [table_header.index(i)
+                         for i in table_header if i in num_col]
         for row in rows:
             cols = row.findAll("td")
             info_dict = {}
@@ -340,7 +347,8 @@ class finvizfinance:
                 else:
                     info_dict[table_header[i]] = number_covert(col.text)
             info_dict["SEC Form 4 Link"] = cols[-1].find("a").attrs["href"]
-            info_dict["Insider_id"] = cols[0].a["href"].split("oc=")[1].split("&tc=")[0]
+            info_dict["Insider_id"] = cols[0].a["href"].split("oc=")[
+                1].split("&tc=")[0]
             frame.append(info_dict)
         df = pd.DataFrame(frame)
         self.info["inside trader"] = df

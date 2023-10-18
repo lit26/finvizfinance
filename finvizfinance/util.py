@@ -9,6 +9,7 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 from datetime import datetime, date
+from random import choice
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) \
@@ -83,6 +84,45 @@ NUMBER_COL = [
 
 session = requests.Session()
 
+# Change User Agent on every call so it makes us more anonymous
+
+
+def get_header():
+    user_agents = [
+        "Mozilla/5.0 (Windows NT 6.0; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 Edg/103.0.1264.62",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.53 Safari/537.36 Edg/103.0.1264.37",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.134 Safari/537.36 Edg/103.0.1264.77",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.25",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.102 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0",
+    ]
+    headers = {"User-Agent": choice(user_agents)}
+    return headers
+
+
+def get_auth_header(email, password):
+    """Give a pair of user credentials,
+    returns a http header that, added to a data request,
+    enables to access authenticated data
+
+    Args:
+        email(str): user email
+        password(str): user password
+    Returns:
+        auth_header(string): the header string to use during next requests"""
+
+    login_url = "https://finviz.com/login_submit.ashx"
+    data = {"email": email, "password": password, "remember": "true"}
+    response = requests.post(url=login_url, data=data, headers=headers)
+    for history in response.history:
+            if history.cookies:
+                for c in history.cookies:
+                    if c.name == ".ASPXAUTH":
+                        return f"{c.name}={c.value}"
+    return None
+
 
 def web_scrap(url):
     """Scrap website.
@@ -92,7 +132,6 @@ def web_scrap(url):
     Returns:
         soup(beautiful soup): website html
     """
-
     try:
         website = session.get(url, headers=headers, timeout=10)
         website.raise_for_status()
@@ -233,7 +272,8 @@ def progress_bar(page, total):
     bar_len = 30
     filled_len = int(round(bar_len * page / float(total)))
     bar = "#" * filled_len + "-" * (bar_len - filled_len)
-    sys.stdout.write("[Info] loading page [{}] {}/{} \r".format(bar, page, total))
+    sys.stdout.write(
+        "[Info] loading page [{}] {}/{} \r".format(bar, page, total))
     sys.stdout.flush()
 
 
