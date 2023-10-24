@@ -23,20 +23,26 @@ jobs:
   test_py37:
     <<: *test-template
     docker:
-      - image: circleci/python:3.7
-
+      - image: cimg/python:3.7
   test_py38:
     <<: *test-template
     docker:
-      - image: circleci/python:3.8
-
+      - image: cimg/python:3.8
   test_py39:
     <<: *test-template
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
+  test_py310:
+    <<: *test-template
+    docker:
+      - image: cimg/python:3.10
+  test_py311:
+    <<: *test-template
+    docker:
+      - image: cimg/python:3.11
   coverage:
     docker:
-      - image: circleci/python:3.7
+      - image: cimg/python:3.7
     working_directory: ~/finvizfinance
     steps:
       - checkout
@@ -67,6 +73,7 @@ workflows:
               only:
                 - master
                 - before-release
+                - run-tests
       - test_py37
       - test_py38:
           filters:
@@ -74,18 +81,35 @@ workflows:
               only:
                 - master
                 - before-release
+                - run-tests
       - test_py39:
           filters:
             branches:
               only:
                 - master
                 - before-release
+                - run-tests
+      - test_py310:
+          filters:
+            branches:
+              only:
+                - master
+                - before-release
+                - run-tests
+      - test_py311:
+          filters:
+            branches:
+              only:
+                - master
+                - before-release
+                - run-tests
       - coverage:
           filters:
             branches:
               only:
                 - master
                 - before-release
+                
 
 
 ###########################################

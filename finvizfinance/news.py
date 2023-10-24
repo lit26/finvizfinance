@@ -31,8 +31,8 @@ class News:
 
         """
         news_content = self.soup.find(id="news").find("table")
-        news_collection = news_content.findAll("tr", recursive=False)[1]
-        tables = news_collection.findAll("table")
+        news_collection = news_content.find_all("tr", recursive=False)[1]
+        tables = news_collection.find_all("table")
 
         news = tables[0]
         news_df = self._get_news_helper(news)
@@ -52,10 +52,10 @@ class News:
 
         """
         table = []
-        rows = rows.findAll("tr")
+        rows = rows.find_all("tr")
         for row in rows:
             try:
-                cols = row.findAll("td")
+                cols = row.find_all("td")
                 date = cols[1].text
                 title = cols[2].text
                 link = cols[2].a["href"]
