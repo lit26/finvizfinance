@@ -18,7 +18,7 @@ class Ticker(Overview):
 
     def _screener_helper(self, i, page, soup, tickers, limit):
         td = soup.find("td", class_="screener-tickers")
-        page_tickers = td.findAll("span")
+        page_tickers = td.find_all("span")
         if i == page - 1:
             page_tickers = page_tickers[: ((limit - 1) % 1000 + 1)]
         tickers = tickers + [i.text.split("\xa0")[1] for i in page_tickers]

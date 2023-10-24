@@ -24,10 +24,10 @@ class Overview:
     def _load_setting(self):
         """load all the groups."""
         soup = web_scrap(self.url)
-        selects = soup.findAll("select")
+        selects = soup.find_all("select")
 
         # group
-        options = selects[0].findAll("option")
+        options = selects[0].find_all("option")
         key = [i.text.strip() for i in options]
         value = []
         for option in options:
@@ -40,7 +40,7 @@ class Overview:
         self.group_dict = dict(zip(key, value))
 
         # order
-        options = selects[1].findAll("option")
+        options = selects[1].find_all("option")
         key = [i.text.strip() for i in options]
         value = [i["value"].split("&")[-1] for i in options]
         self.order_dict = dict(zip(key, value))
@@ -93,13 +93,13 @@ class Overview:
 
         soup = web_scrap(self.url)
         table = soup.find("table", class_="groups_table")
-        rows = table.findAll("tr")
-        table_header = [i.text.strip() for i in rows[0].findAll("th")][1:]
+        rows = table.find_all("tr")
+        table_header = [i.text.strip() for i in rows[0].find_all("th")][1:]
         frame = []
         rows = rows[1:]
         num_col_index = list(range(2, len(table_header)))
         for row in rows:
-            cols = row.findAll("td")[1:]
+            cols = row.find_all("td")[1:]
             info_dict = {}
             for i, col in enumerate(cols):
                 # check if the col is number

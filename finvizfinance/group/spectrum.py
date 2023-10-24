@@ -33,5 +33,5 @@ class Spectrum(Overview):
         )
 
         soup = web_scrap(self.url)
-        url = "https://finviz.com/" + soup.findAll("img")[5]["src"]
+        url = "https://finviz.com/" + soup.find_all("img")[5]["src"]
         image_scrap(url, group, "")
