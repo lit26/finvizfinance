@@ -139,7 +139,7 @@ class finvizfinance:
         fundament_info['Company'] = self.soup.find("h2", class_="quote-header_ticker-wrapper_company").text.strip()
         quote_links = self.soup.find("div", class_="quote-links")
         links = quote_links.find_all("a")
-        fundament_info["Section"] = links[0].text
+        fundament_info["Sector"] = links[0].text
         fundament_info['Industry'] = links[1].text
         fundament_info["Country"] = links[2].text
         fundament_info["Exchange"] = links[3].text

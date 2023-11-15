@@ -5,5 +5,5 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
-__version__ = '0.14.7rc3'
+__version__ = '0.14.7'
 __author__ = "Tianning Li"
