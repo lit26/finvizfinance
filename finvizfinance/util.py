@@ -84,7 +84,7 @@ NUMBER_COL = [
 session = requests.Session()
 
 
-def web_scrap(url):
+def web_scrap(url,proxies):
     """Scrap website.
 
     Args:
@@ -94,7 +94,7 @@ def web_scrap(url):
     """
 
     try:
-        website = session.get(url, headers=headers, timeout=10)
+        website = session.get(url, headers=headers, timeout=10, proxies=proxies)
         website.raise_for_status()
         soup = BeautifulSoup(website.text, "lxml")
     except requests.exceptions.HTTPError as err:
