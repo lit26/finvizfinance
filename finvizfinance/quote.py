@@ -57,7 +57,7 @@ class finvizfinance:
     def __init__(
         self,
         ticker,
-        proxies,
+        proxies=None,
         verbose=0,
     ):
         """initiate module"""
@@ -65,7 +65,7 @@ class finvizfinance:
         self.ticker = ticker
         self.flag = False
         self.quote_url = QUOTE_URL.format(ticker=ticker)
-        self.soup = web_scrap(url=self.quote_url,proxies=proxies)
+        self.soup = web_scrap(url=self.quote_url,proxies=proxies) if proxies is not None else web_scrap(url=self.quote_url)
         if self._checkexist(verbose):
             self.flag = True
         self.info = {}
