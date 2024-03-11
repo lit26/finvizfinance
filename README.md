@@ -163,13 +163,14 @@ Getting list of tickers according to the filters.
 
 ### Misc (Proxy)
 
-optional proxy can be used for getting information from FinViz website. Accessible from finvizfinance
+Optional proxy can be used for getting information from FinViz website. Accessible from finvizfinance
 it's an extension of requests library proxies
 
 ```python
-from finvizfinance.quote import finvizfinance
+from finvizfinance.util import set_proxy
 
-stock = finvizfinance(url='tsla',proxies={'http': 'http://127.0.0.1:8080'})
+proxies={'http': 'http://127.0.0.1:8080'}
+set_proxy(proxies)
 ```
 
 ### Credit
