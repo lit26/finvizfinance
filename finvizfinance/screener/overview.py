@@ -268,7 +268,7 @@ class Overview:
 
         if limit != -1:
             if page > (limit - 1) // 20 + 1:
-                page = (limit - 1) // 20 + 1
+                end_page = (limit - 1) // 20 + 1
 
         if verbose == 1:
             if not select_page:
@@ -291,7 +291,7 @@ class Overview:
                 sleep(sleep_sec)  # Adding sleep
                 if verbose == 1:
                     if not select_page:
-                        progress_bar(i + 1, page)
+                        progress_bar(i + 1, end_page)
                     else:
                         progress_bar(1, 1)
 
