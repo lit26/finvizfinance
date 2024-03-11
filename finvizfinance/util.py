@@ -83,8 +83,15 @@ NUMBER_COL = [
 
 session = requests.Session()
 
+proxy_dict = None
 
-def web_scrap(url,proxies=None):
+
+def set_proxy(proxies):
+    global proxy_dict
+    proxy_dict = proxies
+
+
+def web_scrap(url):
     """Scrap website.
 
     Args:
@@ -94,7 +101,7 @@ def web_scrap(url,proxies=None):
     """
 
     try:
-        website = session.get(url, headers=headers, timeout=10, proxies=proxies) if proxies is not None else session.get(url, headers=headers, timeout=10)
+        website = session.get(url, headers=headers, timeout=10, proxies=proxy_dict)
         website.raise_for_status()
         soup = BeautifulSoup(website.text, "lxml")
     except requests.exceptions.HTTPError as err:
