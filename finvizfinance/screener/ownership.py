@@ -1,5 +1,3 @@
-from finvizfinance.screener.overview import Overview
-
 """
 .. module:: screen.ownership
    :synopsis: screen ownership table.
@@ -7,8 +5,10 @@ from finvizfinance.screener.overview import Overview
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+from finvizfinance.screener.base import Base
 
-class Ownership(Overview):
+
+class Ownership(Base):
     """Ownership inherit from overview module.
     Getting information from the finviz screener ownership page.
     """

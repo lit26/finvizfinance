@@ -4,10 +4,10 @@
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
-from finvizfinance.screener.overview import Overview
+from finvizfinance.screener.base import Base
 
 
-class Valuation(Overview):
+class Valuation(Base):
     """Valuation inherit from overview module.
     Getting information from the finviz screener valuation page.
     """
