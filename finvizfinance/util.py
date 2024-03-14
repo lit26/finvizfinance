@@ -10,13 +10,6 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from datetime import datetime, date
 
-from finvizfinance.constants import (
-    signal_dict,
-    filter_dict,
-    order_dict,
-    CUSTOM_SCREENER_COLUMNS
-)
-
 headers = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) \
             AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36"
@@ -31,61 +24,6 @@ def set_proxy(proxies):
     proxy_dict = proxies
 
 
-def get_signal():
-    """Get signals.
-
-    Returns:
-        signals(list): all the available trading signals
-    """
-    return list(signal_dict.keys())
-
-
-def get_filters():
-    """Get filters.
-
-    Returns:
-        filters(list): all the available filters
-    """
-    return list(filter_dict.keys())
-
-
-def get_filter_options(screen_filter):
-    """Get filters options.
-
-    Args:
-        screen_filter(str): screen filter for checking options
-
-    Returns:
-        filter_options(list): all the available filters
-    """
-    if screen_filter not in filter_dict:
-        filter_keys = list(filter_dict.keys())
-        raise ValueError(
-            "Invalid filter '{}'. Possible filter: {}".format(
-                screen_filter, filter_keys
-            )
-        )
-    return list(filter_dict[screen_filter]["option"])
-
-
-def get_orders(self):
-    """Get orders.
-
-    Returns:
-        orders(list): all the available orders
-    """
-    return list(order_dict.keys())
-
-
-def get_custom_screener_columns(self):
-    """Get information about the columns
-
-    Returns:
-        columns(dict): return the index and column name.
-    """
-    return CUSTOM_SCREENER_COLUMNS
-
-
 def web_scrap(url, params=None):
     """Scrap website.
 
@@ -95,7 +33,6 @@ def web_scrap(url, params=None):
     Returns:
         soup(beautiful soup): website html
     """
-    print(url, params)
     try:
         website = session.get(url, params=params,
                               headers=headers, timeout=10, proxies=proxy_dict)

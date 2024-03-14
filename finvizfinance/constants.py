@@ -154,6 +154,36 @@ CUSTOM_SCREENER_COLUMNS = {
     88: "Low",
 }
 
+CUSTOM_GROUP_COLUMNS = {
+    0: "No.",
+    1: "Name",
+    2: "Market Cap.",
+    3: "P/E",
+    4: "Forward P/E",
+    5: "PEG",
+    6: "P/S",
+    7: "P/B",
+    8: "P/Cash",
+    9: "P/Free Cash Flow",
+    10: "Dividend Yield",
+    11: "EPS growth past 5 years",
+    12: "EPS growth next 5 years",
+    13: "Sales growth past 5 years",
+    14: "Shares Float",
+    15: "Performance (Week)",
+    16: "Performance (Month)",
+    17: "Performance (Quarter)",
+    18: "Performance (Half Year)",
+    19: "Performance (Year)",
+    20: "Performance (YearToDate)",
+    21: "Analyst Recom.",
+    22: "Average Volume",
+    23: "Relative Volume",
+    24: "Change",
+    25: "Volume",
+    26: "Number of Stocks",
+}
+
 
 util_dict = {
     "signal": {
@@ -2250,3 +2280,10 @@ util_dict = {
 signal_dict = util_dict['signal']
 filter_dict = util_dict["filter"]
 order_dict = util_dict["order"]
+
+group_util_dict = {
+    "group": {'Sector': {'g': 'sector'}, 'Industry': {'g': 'industry'}, 'Industry (Basic Materials)': {'g': 'industry', 'sg': 'basicmaterials'}, 'Industry (Communication Services)': {'g': 'industry', 'sg': 'communicationservices'}, 'Industry (Consumer Cyclical)': {'g': 'industry', 'sg': 'consumercyclical'}, 'Industry (Consumer Defensive)': {'g': 'industry', 'sg': 'consumerdefensive'}, 'Industry (Energy)': {'g': 'industry', 'sg': 'energy'}, 'Industry (Financial)': {'g': 'industry', 'sg': 'financial'}, 'Industry (Healthcare)': {'g': 'industry', 'sg': 'healthcare'}, 'Industry (Industrials)': {'g': 'industry', 'sg': 'industrials'}, 'Industry (Real Estate)': {'g': 'industry', 'sg': 'realestate'}, 'Industry (Technology)': {'g': 'industry', 'sg': 'technology'}, 'Industry (Utilities)': {'g': 'industry', 'sg': 'utilities'}, 'Country (U.S. listed stocks only)': {'g': 'country'}, 'Capitalization': {'g': 'capitalization'}},
+    "order": {'Name': 'name', 'Market Capitalization': 'marketcap', 'Price/Earnings': 'pe', 'Forward Price/Earnings': 'forwardpe', 'PEG (Price/Earnings/Growth)': 'peg', 'Price/Sales': 'ps', 'Price/Book': 'pb', 'Price/Cash': 'pc', 'Price/Free Cash Flow': 'pfcf', 'Dividend Yield': 'dividendyield', 'EPS growth past 5 years': 'eps5years', 'EPS growth next 5 years': 'estltgrowth', 'Sales growth past 5 years': 'sales5years', 'Short Interest Share': 'shortinterestshare', 'Analyst Recommendation': 'recom', 'Performance (Week)': 'perf1w', 'Performance (Month)': 'perf4w', 'Performance (Quarter)': 'perf13w', 'Performance (Half Year)': 'perf26w', 'Performance (Year)': 'perf52w', 'Performance (Year To Date)': 'perfytd', 'Average Volume (3 Month)': 'averagevolume', 'Relative Volume': 'relativevolume', 'Change': 'change', 'Volume': 'volume', 'Number of Stocks': 'count'}
+}
+group_dict = group_util_dict['group']
+group_order_dict = group_util_dict['order']
