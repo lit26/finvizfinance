@@ -228,7 +228,7 @@ util_dict = {
         },
         "Index": {
             "prefix": "idx",
-            "option": {"Any": "", "S&P 500": "sp500", "DJIA": "dji"},
+            "option": {"Any": "", "S&P 500": "sp500", "NASDAQ 100": "ndx", "DJIA": "dji", "RUSSELL 2000": "rut"},
         },
         "Sector": {
             "prefix": "sec",
