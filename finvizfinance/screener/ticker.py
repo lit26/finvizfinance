@@ -15,10 +15,9 @@ from finvizfinance.screener.base import Base
 
 
 class Ticker(Base):
-    """Financial inherit from overview module.
+    """Financial
     Getting information from the finviz screener ticker page.
     """
-
     v_page = 411
 
     def _screener_helper(self, i, page, soup, tickers, limit):

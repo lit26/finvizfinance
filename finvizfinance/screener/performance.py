@@ -9,8 +9,7 @@ from finvizfinance.screener.base import Base
 
 
 class Performance(Base):
-    """Performance inherit from overview module.
+    """Performance
     Getting information from the finviz screener performance page.
     """
-
     v_page = 141

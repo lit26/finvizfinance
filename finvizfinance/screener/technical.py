@@ -9,8 +9,7 @@ from finvizfinance.screener.base import Base
 
 
 class Technical(Base):
-    """Technical inherit from overview module.
+    """Technical
     Getting information from the finviz screener technical page.
     """
-
     v_page = 171

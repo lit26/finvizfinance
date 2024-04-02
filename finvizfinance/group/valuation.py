@@ -8,7 +8,7 @@ from finvizfinance.group.base import Base
 
 
 class Valuation(Base):
-    """Valuation inherit from overview module.
+    """Valuation
     Getting information from the finviz group valuation page.
     """
 

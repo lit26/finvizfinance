@@ -9,8 +9,7 @@ from finvizfinance.screener.base import Base
 
 
 class Ownership(Base):
-    """Ownership inherit from overview module.
+    """Ownership
     Getting information from the finviz screener ownership page.
     """
-
     v_page = 131

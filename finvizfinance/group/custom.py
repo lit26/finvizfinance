@@ -8,7 +8,7 @@ from finvizfinance.group.base import Base
 
 
 class Custom(Base):
-    """Custom inherit from overview module.
+    """Custom
     Getting information from the finviz group custom page.
     """
 

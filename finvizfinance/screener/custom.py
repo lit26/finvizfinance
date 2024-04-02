@@ -8,10 +8,9 @@ from finvizfinance.screener.base import Base
 
 
 class Custom(Base):
-    """Custom inherit from overview module.
+    """Custom
     Getting information from the finviz screener custom page.
     """
-
     v_page = 151
 
     def screener_view(

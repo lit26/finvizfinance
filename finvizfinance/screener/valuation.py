@@ -8,8 +8,7 @@ from finvizfinance.screener.base import Base
 
 
 class Valuation(Base):
-    """Valuation inherit from overview module.
+    """Valuation
     Getting information from the finviz screener valuation page.
     """
-
     v_page = 121

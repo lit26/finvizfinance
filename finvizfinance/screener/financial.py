@@ -8,8 +8,7 @@ from finvizfinance.screener.base import Base
 
 
 class Financial(Base):
-    """Financial inherit from overview module.
+    """Financial
     Getting information from the finviz screener financial page.
     """
-
     v_page = 161

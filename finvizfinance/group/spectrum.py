@@ -10,7 +10,7 @@ from finvizfinance.constants import group_dict, group_order_dict
 
 
 class Spectrum(Base):
-    """Spectrum inherit from overview module.
+    """Spectrum
     Getting information from the finviz group spectrum page.
     """
 
