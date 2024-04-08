@@ -1,9 +1,9 @@
 version: 2
 
 jobs:
-  test_py36: &test-template
+  test_py39: &test-template
     docker:
-      - image: circleci/python:3.6
+      - image: circleci/python:3.9
     working_directory: ~/finvizfinance
     steps:
       - checkout
@@ -19,19 +19,6 @@ jobs:
           command: |
             . venv/bin/activate
             pytest test
-
-  test_py37:
-    <<: *test-template
-    docker:
-      - image: cimg/python:3.7
-  test_py38:
-    <<: *test-template
-    docker:
-      - image: cimg/python:3.8
-  test_py39:
-    <<: *test-template
-    docker:
-      - image: cimg/python:3.9
   test_py310:
     <<: *test-template
     docker:
@@ -42,7 +29,7 @@ jobs:
       - image: cimg/python:3.11
   coverage:
     docker:
-      - image: cimg/python:3.7
+      - image: cimg/python:3.9
     working_directory: ~/finvizfinance
     steps:
       - checkout
@@ -67,21 +54,6 @@ workflows:
   version: 2
   build:
     jobs:
-      - test_py36:
-          filters:
-            branches:
-              only:
-                - master
-                - before-release
-                - run-tests
-      - test_py37
-      - test_py38:
-          filters:
-            branches:
-              only:
-                - master
-                - before-release
-                - run-tests
       - test_py39:
           filters:
             branches:
@@ -115,5 +87,5 @@ workflows:
 ###########################################
 # Testing CircleCI in local
 ###########################################
-# circleci local execute --job test_py37
+# circleci local execute --job test_py39
 # circleci local execute --job coverage
