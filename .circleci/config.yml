@@ -54,13 +54,7 @@ workflows:
   version: 2
   build:
     jobs:
-      - test_py39:
-          filters:
-            branches:
-              only:
-                - master
-                - before-release
-                - run-tests
+      - test_py39
       - test_py310:
           filters:
             branches:
