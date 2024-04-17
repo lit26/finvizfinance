@@ -37,7 +37,7 @@ $ pip install finvizfinance
 
 ### Quote
 
-Getting information (fundament, description, outer rating, stock news, inside trader) of an individual stock.
+Getting information (fundamentals, description, analyst ratings, stock news, insider trading) of an individual stock.
 
 ```python
 from finvizfinance.quote import finvizfinance
@@ -50,12 +50,12 @@ stock = finvizfinance('tsla')
 stock.ticker_charts()
 ```
 
-#### Fundament
+#### Fundamentals
 ```python
-stock_fundament = stock.ticker_fundament()
+stock_fundamentals = stock.ticker_fundamentals()
 
 # result
-# stock_fundament = {'Company': 'Tesla, Inc.', 'Sector': 'Consumer Cyclical', 
+# stock_fundamentals = {'Company': 'Tesla, Inc.', 'Sector': 'Consumer Cyclical', 
 # 'Industry': 'Auto Manufacturers', 'Country': 'USA', 'Index': '-', 'P/E': '849.57', 
 # 'EPS (ttm)': '1.94', 'Insider Own': '0.10%', 'Shs Outstand': '186.00M', 
 # 'Perf Week': '13.63%', 'Market Cap': '302.10B', 'Forward P/E': '106.17',
@@ -70,22 +70,22 @@ stock_description = stock.ticker_description()
 # stock_description = 'Tesla, Inc. designs, develops, manufactures, ...'
 ```
 
-#### Outer Ratings
+#### Analyst Ratings
 ```python
-outer_ratings_df = stock.ticker_outer_ratings()
+analyst_ratings_df = stock.ticker_analyst_ratings()
 ``` 
-![Outer Ratings example](asset/outer_rating.png)
+![Analyst Ratings example](asset/outer_rating.png)
 #### Stock News
 ```python
 news_df = stock.ticker_news()
 ```
 ![stock news example](asset/stock_news.png)
 
-#### Inside Trader
+#### Insider Trading
 ```python
-inside_trader_df = stock.ticker_inside_trader()
+insider_trading_df = stock.ticker_insider_trading()
 ```
-![insider trader example](asset/insider_trader.png)
+![insider trading example](asset/insider_trader.png)
 
 ### News
 

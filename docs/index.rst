@@ -37,11 +37,11 @@ Example getting individual ticker information
 
 .. code-block:: python
 
-   stock_fundament = stock.ticker_fundament()
+   stock_fundamentals = stock.ticker_fundamentals()
    stock_description = stock.ticker_description()
-   outer_ratings_df = stock.ticker_outer_ratings()
+   analyst_ratings_df = stock.ticker_analyst_ratings()
    news_df = stock.ticker_news()
-   inside_trader_df = stock.ticker_inside_trader()
+   insider_trading_df = stock.ticker_insider_trading()
 
 Screener Example
 ================
