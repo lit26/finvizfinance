@@ -118,15 +118,15 @@ class finvizfinance:
             image_scrap(chart_url, self.ticker, out_dir)
         return chart_url
 
-    def ticker_fundament(self, raw=True, output_format="dict"):
-        """Get ticker fundament.
+    def ticker_fundamentals(self, raw=True, output_format="dict"):
+        """Get ticker fundamentals.
 
         Args:
             raw(boolean): if True, the data is raw.
             output_format(str): choice of output format (dict, series).
 
         Returns:
-            fundament(dict): ticker fundament.
+            fundamentals(dict): ticker fundamentals.
         """
         if output_format not in ["dict", "series"]:
             raise ValueError(
@@ -134,87 +134,87 @@ class finvizfinance:
                     output_format, ["dict", "series"]
                 )
             )
-        fundament_info = {}
+        fundamentals_info = {}
 
-        fundament_info['Company'] = self.soup.find("h2", class_="quote-header_ticker-wrapper_company").text.strip()
+        fundamentals_info['Company'] = self.soup.find("h2", class_="quote-header_ticker-wrapper_company").text.strip()
         quote_links = self.soup.find("div", class_="quote-links")
         links = quote_links.find_all("a")
-        fundament_info["Sector"] = links[0].text
-        fundament_info['Industry'] = links[1].text
-        fundament_info["Country"] = links[2].text
-        fundament_info["Exchange"] = links[3].text
+        fundamentals_info["Sector"] = links[0].text
+        fundamentals_info['Industry'] = links[1].text
+        fundamentals_info["Country"] = links[2].text
+        fundamentals_info["Exchange"] = links[3].text
 
-        fundament_table = self.soup.find("table", class_="snapshot-table2")
-        rows = fundament_table.find_all("tr")
+        fundamentals_table = self.soup.find("table", class_="snapshot-table2")
+        rows = fundamentals_table.find_all("tr")
 
         for row in rows:
             cols = row.find_all("td")
             cols = [i.text for i in cols]
-            fundament_info = self._parse_column(cols, raw, fundament_info)
-        self.info["fundament"] = fundament_info
+            fundamentals_info = self._parse_column(cols, raw, fundamentals_info)
+        self.info["fundamentals"] = fundamentals_info
 
         if output_format == "dict":
-            return fundament_info
-        return pd.DataFrame.from_dict(fundament_info, orient="index", columns=["Stat"])
+            return fundamentals_info
+        return pd.DataFrame.from_dict(fundamentals_info, orient="index", columns=["Stat"])
 
-    def _parse_column(self, cols, raw, fundament_info):
+    def _parse_column(self, cols, raw, fundamentals_info):
         header = ""
         for i, value in enumerate(cols):
             if i % 2 == 0:
                 header = value
             else:
                 if header == "Volatility":
-                    fundament_info = self._parse_volatility(
-                        header, fundament_info, value, raw
+                    fundamentals_info = self._parse_volatility(
+                        header, fundamentals_info, value, raw
                     )
                 elif header == "52W Range":
-                    fundament_info = self._parse_52w_range(
-                        header, fundament_info, value, raw
+                    fundamentals_info = self._parse_52w_range(
+                        header, fundamentals_info, value, raw
                     )
                 elif header == "Optionable" or header == "Shortable":
                     if raw:
-                        fundament_info[header] = value
+                        fundamentals_info[header] = value
                     elif value == "Yes":
-                        fundament_info[header] = True
+                        fundamentals_info[header] = True
                     else:
-                        fundament_info[header] = False
+                        fundamentals_info[header] = False
                 else:
                     # Handle EPS Next Y keys with two different values
-                    if header == "EPS next Y" and header in fundament_info.keys():
+                    if header == "EPS next Y" and header in fundamentals_info.keys():
                         header += " Percentage"
                     if raw:
-                        fundament_info[header] = value
+                        fundamentals_info[header] = value
                     else:
                         try:
-                            fundament_info[header] = number_covert(value)
+                            fundamentals_info[header] = number_covert(value)
                         except ValueError:
-                            fundament_info[header] = value
-        return fundament_info
+                            fundamentals_info[header] = value
+        return fundamentals_info
 
-    def _parse_52w_range(self, header, fundament_info, value, raw):
+    def _parse_52w_range(self, header, fundamentals_info, value, raw):
         info_header = ["52W Range From", "52W Range To"]
         info_value = [0, 2]
-        self._parse_value(header, fundament_info, value, raw, info_header, info_value)
-        return fundament_info
+        self._parse_value(header, fundamentals_info, value, raw, info_header, info_value)
+        return fundamentals_info
 
-    def _parse_volatility(self, header, fundament_info, value, raw):
+    def _parse_volatility(self, header, fundamentals_info, value, raw):
         info_header = ["Volatility W", "Volatility M"]
         info_value = [0, 1]
-        self._parse_value(header, fundament_info, value, raw, info_header, info_value)
-        return fundament_info
+        self._parse_value(header, fundamentals_info, value, raw, info_header, info_value)
+        return fundamentals_info
 
-    def _parse_value(self, header, fundament_info, value, raw, info_header, info_value):
+    def _parse_value(self, header, fundamentals_info, value, raw, info_header, info_value):
         try:
             value = value.split()
             if raw:
                 for i, value_index in enumerate(info_value):
-                    fundament_info[info_header[i]] = value[value_index]
+                    fundamentals_info[info_header[i]] = value[value_index]
             else:
                 for i, value_index in enumerate(info_value):
-                    fundament_info[info_header[i]] = number_covert(value[value_index])
+                    fundamentals_info[info_header[i]] = number_covert(value[value_index])
         except:
-            fundament_info[header] = value
-        return fundament_info
+            fundamentals_info[header] = value
+        return fundamentals_info
 
     def ticker_description(self):
         """Get ticker description.
@@ -224,20 +224,20 @@ class finvizfinance:
         """
         return self.soup.find("td", class_="fullview-profile").text
 
-    def ticker_outer_ratings(self):
-        """Get outer ratings table.
+    def ticker_analyst_ratings(self):
+        """Get analyst ratings table.
 
         Returns:
-            df(pandas.DataFrame): outer ratings table
+            df(pandas.DataFrame): analyst ratings table
         """
-        fullview_ratings_outer = self.soup.find(
+        fullview_ratings_analyst = self.soup.find(
             "table", class_="js-table-ratings"
         )
         frame = []
         try:
-            rows = fullview_ratings_outer.find_all("td", class_="fullview-ratings-inner")
+            rows = fullview_ratings_analyst.find_all("td", class_="fullview-ratings-inner")
             if len(rows) == 0:
-                rows = fullview_ratings_outer.find_all("tr")[1:]
+                rows = fullview_ratings_analyst.find_all("tr")[1:]
             for row in rows:
                 each_row = row.find("tr")
                 if not each_row:
@@ -250,19 +250,19 @@ class finvizfinance:
                     rating_date = datetime.strptime(rating_date, "%b-%d-%y")
 
                 status = cols[1].text
-                outer = cols[2].text
+                analyst = cols[2].text
                 rating = cols[3].text
                 price = cols[4].text
                 info_dict = {
                     "Date": rating_date,
                     "Status": status,
-                    "Outer": outer,
+                    "Analyst": analyst,
                     "Rating": rating,
                     "Price": price,
                 }
                 frame.append(info_dict)
             df = pd.DataFrame(frame)
-            self.info["ratings_outer"] = df
+            self.info["ratings_analyst"] = df
             return df
         except AttributeError:
             return None
@@ -301,14 +301,14 @@ class finvizfinance:
         self.info["news"] = df
         return df
 
-    def ticker_inside_trader(self):
+    def ticker_insider_trading(self):
         """Get insider information table.
 
         Returns:
             df(pandas.DataFrame): insider information table
         """
-        inside_trader = self.soup.find("table", class_="body-table")
-        rows = inside_trader.find_all("tr")
+        insider_trading = self.soup.find("table", class_="body-table")
+        rows = insider_trading.find_all("tr")
         table_header = [i.text for i in rows[0].find_all("th")]
         table_header += ["SEC Form 4 Link", "Insider_id"]
         frame = []
@@ -327,7 +327,7 @@ class finvizfinance:
             info_dict["Insider_id"] = cols[0].a["href"].split("oc=")[1].split("&tc=")[0]
             frame.append(info_dict)
         df = pd.DataFrame(frame)
-        self.info["inside trader"] = df
+        self.info["insider trading"] = df
         return df
 
     def ticker_signal(self):
@@ -390,10 +390,10 @@ class finvizfinance:
         Returns:
             df(pandas.DataFrame): insider information table
         """
-        self.ticker_fundament()
-        self.ticker_outer_ratings()
+        self.ticker_fundamentals()
+        self.ticker_analyst_ratings()
         self.ticker_news()
-        self.ticker_inside_trader()
+        self.ticker_insider_trading()
         return self.info
 
 
