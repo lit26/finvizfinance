@@ -13,9 +13,10 @@
 # finvizfinance
 
 finvizfinance is a package which collects financial information from FinViz website. The package provides the information of the following:
-* Stock charts, fundamental & technical information, insider information and stock news
-* Forex charts and performance
-* Crypto charts and performance
+
+- Stock charts, fundamental & technical information, insider information and stock news
+- Forex charts and performance
+- Crypto charts and performance
 
 Screener and Group provide dataframes for comparing stocks according to different filters and trading signals.
 
@@ -28,12 +29,12 @@ To download the latest version from GitHub:
 ```
 $ git clone https://github.com/lit26/finvizfinance.git
 ```
+
 Or install from PyPi:
+
 ```
 $ pip install finvizfinance
 ```
-
-
 
 ### Quote
 
@@ -46,23 +47,26 @@ stock = finvizfinance('tsla')
 ```
 
 #### Chart
+
 ```python
 stock.ticker_charts()
 ```
 
 #### Fundament
+
 ```python
 stock_fundament = stock.ticker_fundament()
 
 # result
-# stock_fundament = {'Company': 'Tesla, Inc.', 'Sector': 'Consumer Cyclical', 
-# 'Industry': 'Auto Manufacturers', 'Country': 'USA', 'Index': '-', 'P/E': '849.57', 
-# 'EPS (ttm)': '1.94', 'Insider Own': '0.10%', 'Shs Outstand': '186.00M', 
+# stock_fundament = {'Company': 'Tesla, Inc.', 'Sector': 'Consumer Cyclical',
+# 'Industry': 'Auto Manufacturers', 'Country': 'USA', 'Index': '-', 'P/E': '849.57',
+# 'EPS (ttm)': '1.94', 'Insider Own': '0.10%', 'Shs Outstand': '186.00M',
 # 'Perf Week': '13.63%', 'Market Cap': '302.10B', 'Forward P/E': '106.17',
 # ...}
 ```
 
 #### Description
+
 ```python
 stock_description = stock.ticker_description()
 
@@ -71,20 +75,27 @@ stock_description = stock.ticker_description()
 ```
 
 #### Outer Ratings
+
 ```python
 outer_ratings_df = stock.ticker_outer_ratings()
-``` 
+```
+
 ![Outer Ratings example](asset/outer_rating.png)
+
 #### Stock News
+
 ```python
 news_df = stock.ticker_news()
 ```
+
 ![stock news example](asset/stock_news.png)
 
 #### Inside Trader
+
 ```python
 inside_trader_df = stock.ticker_inside_trader()
 ```
+
 ![insider trader example](asset/insider_trader.png)
 
 ### News
@@ -97,14 +108,19 @@ from finvizfinance.news import News
 fnews = News()
 all_news = fnews.get_news()
 ```
+
 Finviz News include 'news' and 'blogs'.
+
 ```python
 all_news['news'].head()
 ```
+
 ![news example](asset/news_news.png)
+
 ```python
 all_news['blogs'].head()
 ```
+
 ![news example](asset/news_blogs.png)
 
 ### Insider
@@ -120,6 +136,7 @@ finsider = Insider(option='top owner trade')
 
 insider_trader = finsider.get_insider()
 ```
+
 ![insider example](asset/insider.png)
 
 ### Screener (Overview, Valuation, Financial, Ownership, Performance, Technical)
@@ -137,11 +154,25 @@ foverview.set_filter(filters_dict=filters_dict)
 df = foverview.screener_view()
 df.head()
 ```
+
 ![insider example](asset/screen_overview.png)
 
 ### Screener (Ticker)
 
 Getting list of tickers according to the filters.
 
+### Misc (Proxy)
+
+Optional proxy can be used for getting information from FinViz website. Accessible from finvizfinance
+it's an extension of requests library proxies
+
+```python
+from finvizfinance.util import set_proxy
+
+proxies={'http': 'http://127.0.0.1:8080'}
+set_proxy(proxies)
+```
+
 ### Credit
+
 Developed by Tianning Li. Feel free to give comments or suggestions.

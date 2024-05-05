@@ -1,5 +1,3 @@
-from finvizfinance.screener.overview import Overview
-
 """
 .. module:: screen.performance
    :synopsis: screen performance table.
@@ -7,10 +5,11 @@ from finvizfinance.screener.overview import Overview
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+from finvizfinance.screener.base import Base
 
-class Performance(Overview):
-    """Performance inherit from overview module.
+
+class Performance(Base):
+    """Performance
     Getting information from the finviz screener performance page.
     """
-
     v_page = 141

@@ -7,22 +7,26 @@ Overview
 =============
 
 .. automodule:: finvizfinance.group.overview
-   :members:
+   :show-inheritance:
+   :inherited-members:
 
 Valuation
 =============
 
 .. automodule:: finvizfinance.group.valuation
-   :members:
+   :show-inheritance:
+   :inherited-members:
 
 Performance
 =============
 
 .. automodule:: finvizfinance.group.performance
-   :members:
+   :show-inheritance:
+   :inherited-members:
 
 Spectrum
 =============
 
 .. automodule:: finvizfinance.group.spectrum
-   :members:
+   :show-inheritance:
+   :inherited-members:

@@ -1,5 +1,11 @@
 import pytest
-from finvizfinance.screener.overview import Overview
+from finvizfinance.screener import (
+    Overview,
+    get_signal,
+    get_filters,
+    get_filter_options
+)
+
 
 def test_screener_overview():
     foverview = Overview()
@@ -14,16 +20,14 @@ def test_screener_overview():
 
 
 def test_screener_get_settings():
-    foverview = Overview()
-    signals = foverview.get_signal()
+    signals = get_signal()
     assert type(signals) is list
 
-    filters = foverview.get_filters()
+    filters = get_filters()
     assert type(filters) is list
 
-    filter_options = foverview.get_filter_options('Exchange')
+    filter_options = get_filter_options('Exchange')
     assert type(filter_options) is list
 
     with pytest.raises(ValueError):
-        foverview.get_filter_options('Dummy')
-
+        get_filter_options('Dummy')

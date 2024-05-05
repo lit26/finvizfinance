@@ -1,6 +1,6 @@
 -r requirements.txt
 
 # doc
-Sphinx==2.2.1
-sphinx-rtd-theme==0.4.3
-docutils==0.17.1
+Sphinx==7.2.6
+sphinx-rtd-theme==2.0.0
+docutils==0.20.1
