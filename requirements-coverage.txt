@@ -2,5 +2,5 @@
 
 # coverage test code
 PyYAML
-coverage==4.5.4
-coveralls==1.8.2
+coverage==7.5.3
+coveralls==4.0.1
