@@ -4,6 +4,7 @@
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+
 import json
 import pandas as pd
 from finvizfinance.util import web_scrap
@@ -27,17 +28,11 @@ class Future:
         Returns:
             df(pandas.DataFrame): forex performance table
         """
-        timeframe_dict = {
-            'W': 12,
-            'M': 13,
-            'Q': 14,
-            'HY':15,
-            'Y': 16
-        }
+        timeframe_dict = {"W": 12, "M": 13, "Q": 14, "HY": 15, "Y": 16}
         params = {}
         if timeframe in timeframe_dict:
-            params['v'] = timeframe_dict[timeframe]
-        elif timeframe != 'D':
+            params["v"] = timeframe_dict[timeframe]
+        elif timeframe != "D":
             raise ValueError("Invalid timeframe '{}'".format(timeframe))
 
         soup = web_scrap("https://finviz.com/futures_performance.ashx", params)
@@ -45,7 +40,7 @@ class Future:
         html = soup.prettify()
         data = html[
             html.find("var rows = ")
-            + 11: html.find("FinvizInitFuturesPerformance(rows);")
+            + 11 : html.find("FinvizInitFuturesPerformance(rows);")
         ]
         data = json.loads(data.strip()[:-1])
         df = pd.DataFrame(data)

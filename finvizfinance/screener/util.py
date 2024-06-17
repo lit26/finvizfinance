@@ -2,7 +2,7 @@ from finvizfinance.constants import (
     signal_dict,
     filter_dict,
     order_dict,
-    CUSTOM_SCREENER_COLUMNS
+    CUSTOM_SCREENER_COLUMNS,
 )
 
 

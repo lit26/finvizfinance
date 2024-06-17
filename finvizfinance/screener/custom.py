@@ -4,6 +4,7 @@
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+
 from finvizfinance.screener.base import Base
 
 
@@ -11,6 +12,7 @@ class Custom(Base):
     """Custom
     Getting information from the finviz screener custom page.
     """
+
     v_page = 151
 
     def screener_view(
@@ -36,5 +38,4 @@ class Custom(Base):
         Returns:
             df(pandas.DataFrame): screener information table
         """
-        Base.screen_view(order, limit, select_page, verbose,
-                         ascend, columns, sleep_sec)
+        Base.screen_view(order, limit, select_page, verbose, ascend, columns, sleep_sec)

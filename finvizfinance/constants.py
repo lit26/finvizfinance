@@ -228,7 +228,13 @@ util_dict = {
         },
         "Index": {
             "prefix": "idx",
-            "option": {"Any": "", "S&P 500": "sp500", "NASDAQ 100": "ndx", "DJIA": "dji", "RUSSELL 2000": "rut"},
+            "option": {
+                "Any": "",
+                "S&P 500": "sp500",
+                "NASDAQ 100": "ndx",
+                "DJIA": "dji",
+                "RUSSELL 2000": "rut",
+            },
         },
         "Sector": {
             "prefix": "sec",
@@ -2277,13 +2283,59 @@ util_dict = {
     },
 }
 
-signal_dict = util_dict['signal']
+signal_dict = util_dict["signal"]
 filter_dict = util_dict["filter"]
 order_dict = util_dict["order"]
 
 group_util_dict = {
-    "group": {'Sector': {'g': 'sector'}, 'Industry': {'g': 'industry'}, 'Industry (Basic Materials)': {'g': 'industry', 'sg': 'basicmaterials'}, 'Industry (Communication Services)': {'g': 'industry', 'sg': 'communicationservices'}, 'Industry (Consumer Cyclical)': {'g': 'industry', 'sg': 'consumercyclical'}, 'Industry (Consumer Defensive)': {'g': 'industry', 'sg': 'consumerdefensive'}, 'Industry (Energy)': {'g': 'industry', 'sg': 'energy'}, 'Industry (Financial)': {'g': 'industry', 'sg': 'financial'}, 'Industry (Healthcare)': {'g': 'industry', 'sg': 'healthcare'}, 'Industry (Industrials)': {'g': 'industry', 'sg': 'industrials'}, 'Industry (Real Estate)': {'g': 'industry', 'sg': 'realestate'}, 'Industry (Technology)': {'g': 'industry', 'sg': 'technology'}, 'Industry (Utilities)': {'g': 'industry', 'sg': 'utilities'}, 'Country (U.S. listed stocks only)': {'g': 'country'}, 'Capitalization': {'g': 'capitalization'}},
-    "order": {'Name': 'name', 'Market Capitalization': 'marketcap', 'Price/Earnings': 'pe', 'Forward Price/Earnings': 'forwardpe', 'PEG (Price/Earnings/Growth)': 'peg', 'Price/Sales': 'ps', 'Price/Book': 'pb', 'Price/Cash': 'pc', 'Price/Free Cash Flow': 'pfcf', 'Dividend Yield': 'dividendyield', 'EPS growth past 5 years': 'eps5years', 'EPS growth next 5 years': 'estltgrowth', 'Sales growth past 5 years': 'sales5years', 'Short Interest Share': 'shortinterestshare', 'Analyst Recommendation': 'recom', 'Performance (Week)': 'perf1w', 'Performance (Month)': 'perf4w', 'Performance (Quarter)': 'perf13w', 'Performance (Half Year)': 'perf26w', 'Performance (Year)': 'perf52w', 'Performance (Year To Date)': 'perfytd', 'Average Volume (3 Month)': 'averagevolume', 'Relative Volume': 'relativevolume', 'Change': 'change', 'Volume': 'volume', 'Number of Stocks': 'count'}
+    "group": {
+        "Sector": {"g": "sector"},
+        "Industry": {"g": "industry"},
+        "Industry (Basic Materials)": {"g": "industry", "sg": "basicmaterials"},
+        "Industry (Communication Services)": {
+            "g": "industry",
+            "sg": "communicationservices",
+        },
+        "Industry (Consumer Cyclical)": {"g": "industry", "sg": "consumercyclical"},
+        "Industry (Consumer Defensive)": {"g": "industry", "sg": "consumerdefensive"},
+        "Industry (Energy)": {"g": "industry", "sg": "energy"},
+        "Industry (Financial)": {"g": "industry", "sg": "financial"},
+        "Industry (Healthcare)": {"g": "industry", "sg": "healthcare"},
+        "Industry (Industrials)": {"g": "industry", "sg": "industrials"},
+        "Industry (Real Estate)": {"g": "industry", "sg": "realestate"},
+        "Industry (Technology)": {"g": "industry", "sg": "technology"},
+        "Industry (Utilities)": {"g": "industry", "sg": "utilities"},
+        "Country (U.S. listed stocks only)": {"g": "country"},
+        "Capitalization": {"g": "capitalization"},
+    },
+    "order": {
+        "Name": "name",
+        "Market Capitalization": "marketcap",
+        "Price/Earnings": "pe",
+        "Forward Price/Earnings": "forwardpe",
+        "PEG (Price/Earnings/Growth)": "peg",
+        "Price/Sales": "ps",
+        "Price/Book": "pb",
+        "Price/Cash": "pc",
+        "Price/Free Cash Flow": "pfcf",
+        "Dividend Yield": "dividendyield",
+        "EPS growth past 5 years": "eps5years",
+        "EPS growth next 5 years": "estltgrowth",
+        "Sales growth past 5 years": "sales5years",
+        "Short Interest Share": "shortinterestshare",
+        "Analyst Recommendation": "recom",
+        "Performance (Week)": "perf1w",
+        "Performance (Month)": "perf4w",
+        "Performance (Quarter)": "perf13w",
+        "Performance (Half Year)": "perf26w",
+        "Performance (Year)": "perf52w",
+        "Performance (Year To Date)": "perfytd",
+        "Average Volume (3 Month)": "averagevolume",
+        "Relative Volume": "relativevolume",
+        "Change": "change",
+        "Volume": "volume",
+        "Number of Stocks": "count",
+    },
 }
-group_dict = group_util_dict['group']
-group_order_dict = group_util_dict['order']
+group_dict = group_util_dict["group"]
+group_order_dict = group_util_dict["order"]

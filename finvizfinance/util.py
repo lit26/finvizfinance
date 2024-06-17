@@ -4,6 +4,7 @@
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+
 import sys
 import requests
 import pandas as pd
@@ -34,8 +35,9 @@ def web_scrap(url, params=None):
         soup(beautiful soup): website html
     """
     try:
-        website = session.get(url, params=params,
-                              headers=headers, timeout=10, proxies=proxy_dict)
+        website = session.get(
+            url, params=params, headers=headers, timeout=10, proxies=proxy_dict
+        )
         website.raise_for_status()
         soup = BeautifulSoup(website.text, "lxml")
     except requests.exceptions.HTTPError as err:
@@ -174,6 +176,5 @@ def progress_bar(page, total):
     bar_len = 30
     filled_len = int(round(bar_len * page / float(total)))
     bar = "#" * filled_len + "-" * (bar_len - filled_len)
-    sys.stdout.write(
-        "[Info] loading page [{}] {}/{} \r".format(bar, page, total))
+    sys.stdout.write("[Info] loading page [{}] {}/{} \r".format(bar, page, total))
     sys.stdout.flush()

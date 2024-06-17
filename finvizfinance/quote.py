@@ -4,6 +4,7 @@
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+
 from datetime import datetime, date
 import json
 import pandas as pd
@@ -136,11 +137,13 @@ class finvizfinance:
             )
         fundament_info = {}
 
-        fundament_info['Company'] = self.soup.find("h2", class_="quote-header_ticker-wrapper_company").text.strip()
+        fundament_info["Company"] = self.soup.find(
+            "h2", class_="quote-header_ticker-wrapper_company"
+        ).text.strip()
         quote_links = self.soup.find("div", class_="quote-links")
         links = quote_links.find_all("a")
         fundament_info["Sector"] = links[0].text
-        fundament_info['Industry'] = links[1].text
+        fundament_info["Industry"] = links[1].text
         fundament_info["Country"] = links[2].text
         fundament_info["Exchange"] = links[3].text
 
@@ -230,12 +233,12 @@ class finvizfinance:
         Returns:
             df(pandas.DataFrame): outer ratings table
         """
-        fullview_ratings_outer = self.soup.find(
-            "table", class_="js-table-ratings"
-        )
+        fullview_ratings_outer = self.soup.find("table", class_="js-table-ratings")
         frame = []
         try:
-            rows = fullview_ratings_outer.find_all("td", class_="fullview-ratings-inner")
+            rows = fullview_ratings_outer.find_all(
+                "td", class_="fullview-ratings-inner"
+            )
             if len(rows) == 0:
                 rows = fullview_ratings_outer.find_all("tr")[1:]
             for row in rows:

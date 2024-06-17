@@ -11,5 +11,5 @@ from finvizfinance.screener.util import (
     get_filters,
     get_filter_options,
     get_orders,
-    get_custom_screener_columns
+    get_custom_screener_columns,
 )

@@ -4,6 +4,7 @@
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+
 import pandas as pd
 from finvizfinance.util import web_scrap, number_covert
 from finvizfinance.constants import group_dict, group_order_dict
@@ -27,11 +28,9 @@ class Base:
     def _parse_columns(self, columns):
         if not columns:
             return
-        self.request_params['c'] = ",".join(columns)
+        self.request_params["c"] = ",".join(columns)
 
-    def screener_view(
-            self, group="Sector", order="Name", columns=None
-    ):
+    def screener_view(self, group="Sector", order="Name", columns=None):
         """Get screener table.
 
         Args:
@@ -56,7 +55,11 @@ class Base:
                 )
             )
 
-        self.request_params = {**self.request_params, **group_dict[group], 'o': group_order_dict[order]}
+        self.request_params = {
+            **self.request_params,
+            **group_dict[group],
+            "o": group_order_dict[order],
+        }
         self._parse_columns(columns)
 
         soup = web_scrap(self.url, self.request_params)

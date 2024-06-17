@@ -4,6 +4,7 @@
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+
 from time import sleep
 from finvizfinance.util import (
     web_scrap,
@@ -18,6 +19,7 @@ class Ticker(Base):
     """Financial
     Getting information from the finviz screener ticker page.
     """
+
     v_page = 411
 
     def _screener_helper(self, i, page, soup, tickers, limit):
@@ -45,11 +47,9 @@ class Ticker(Base):
         if order not in order_dict:
             order_keys = list(order_dict.keys())
             raise ValueError(
-                "Invalid order '{}'. Possible order: {}".format(
-                    order, order_keys)
+                "Invalid order '{}'. Possible order: {}".format(order, order_keys)
             )
-        self.request_params['o'] = (
-            "" if ascend else '-') + order_dict[order]
+        self.request_params["o"] = ("" if ascend else "-") + order_dict[order]
         soup = web_scrap(self.url, self.request_params)
         page = self._get_page(soup)
         if page == 0:
@@ -70,7 +70,7 @@ class Ticker(Base):
             sleep(sleep_sec)  # Adding sleep
             if verbose == 1:
                 progress_bar(i + 1, page)
-            self.request_params['r'] = i*1000+1
+            self.request_params["r"] = i * 1000 + 1
             soup = web_scrap(self.url, self.request_params)
             tickers = self._screener_helper(i, page, soup, tickers, limit)
         return tickers
