@@ -3,7 +3,6 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/finvizfinance)
 ![PyPI - License](https://img.shields.io/pypi/l/finvizfinance?color=gre)
 [![Coverage Status](https://coveralls.io/repos/github/lit26/finvizfinance/badge.svg)](https://coveralls.io/github/lit26/finvizfinance)
-![Travis (.org)](https://img.shields.io/travis/lit26/finvizfinance)
 ![Read the Docs](https://img.shields.io/readthedocs/finvizfinance)
 [![Downloads](https://pepy.tech/badge/finvizfinance)](https://pepy.tech/project/finvizfinance)
 [![CodeFactor](https://www.codefactor.io/repository/github/lit26/finvizfinance/badge/master)](https://www.codefactor.io/repository/github/lit26/finvizfinance/overview/master)

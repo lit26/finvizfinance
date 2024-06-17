@@ -5,6 +5,7 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 
 """
+
 import warnings
 import pandas as pd
 from time import sleep
@@ -14,20 +15,16 @@ from finvizfinance.util import (
     number_covert,
     progress_bar,
 )
-from finvizfinance.constants import (
-    NUMBER_COL,
-    signal_dict,
-    filter_dict,
-    order_dict
-)
+from finvizfinance.constants import NUMBER_COL, signal_dict, filter_dict, order_dict
 
 
 class Base:
     """Base
     Getting information from the finviz screener page.
     """
+
     v_page = None
-    url = 'https://finviz.com/screener.ashx'
+    url = "https://finviz.com/screener.ashx"
     size = 20
     request_params = {}
 
@@ -46,10 +43,9 @@ class Base:
         if signal not in signal_dict:
             signal_keys = list(signal_dict.keys())
             raise ValueError(
-                "Invalid signal '{}'. Possible signal: {}".format(
-                    signal, signal_keys)
+                "Invalid signal '{}'. Possible signal: {}".format(signal, signal_keys)
             )
-        self.request_params['s'] = signal_dict[signal]
+        self.request_params["s"] = signal_dict[signal]
 
     def _set_filters(self, filters_dict):
         """Set filters.
@@ -65,8 +61,7 @@ class Base:
             if key not in filter_dict:
                 filter_keys = list(filter_dict.keys())
                 raise ValueError(
-                    "Invalid filter '{}'. Possible filter: {}".format(
-                        key, filter_keys)
+                    "Invalid filter '{}'. Possible filter: {}".format(key, filter_keys)
                 )
             if value not in filter_dict[key]["option"]:
                 filter_options = list(filter_dict[key]["option"].keys())
@@ -80,7 +75,7 @@ class Base:
             if urlcode != "":
                 filters.append("{}_{}".format(prefix, urlcode))
         if len(filters) != 0:
-            self.request_params['f'] = ",".join(filters)
+            self.request_params["f"] = ",".join(filters)
 
     def _set_ticker(self, ticker):
         """Set ticker.
@@ -90,7 +85,7 @@ class Base:
         """
         if ticker == "":
             return
-        self.request_params['t'] = ticker
+        self.request_params["t"] = ticker
 
     def set_filter(self, signal="", filters_dict={}, ticker=""):
         """Update the settings.
@@ -147,8 +142,9 @@ class Base:
             table_headers = self._parse_table_header(soup)
             df = pd.DataFrame([], columns=table_headers)
         table_headers = list(df.columns)
-        num_col_index = [table_headers.index(
-            i) for i in table_headers if i in NUMBER_COL]
+        num_col_index = [
+            table_headers.index(i) for i in table_headers if i in NUMBER_COL
+        ]
         table = soup.find("table", class_="screener_table")
         rows = table.find_all("tr")
         df = self._get_table(rows, df, num_col_index, table_headers, limit)
@@ -161,12 +157,10 @@ class Base:
             columns.remove(0)
         columns.insert(0, 0)
         columns = [str(i) for i in columns]
-        self.request_params['c'] = ",".join(columns)
+        self.request_params["c"] = ",".join(columns)
 
     def reset(self):
-        self.request_params = {
-            "v": self.v_page
-        }
+        self.request_params = {"v": self.v_page}
 
     def screener_view(
         self,
@@ -193,14 +187,12 @@ class Base:
         if order not in order_dict:
             order_keys = list(order_dict.keys())
             raise ValueError(
-                "Invalid order '{}'. Possible order: {}".format(
-                    order, order_keys)
+                "Invalid order '{}'. Possible order: {}".format(order, order_keys)
             )
-        self.request_params['o'] = (
-            "" if ascend else '-') + order_dict[order]
+        self.request_params["o"] = ("" if ascend else "-") + order_dict[order]
 
         if select_page:
-            self.request_params['r'] = (select_page-1) * self.size + 1
+            self.request_params["r"] = (select_page - 1) * self.size + 1
 
         self._parse_columns(columns)
 
@@ -224,7 +216,7 @@ class Base:
             sleep(sleep_sec)
             if verbose == 1:
                 progress_bar(i, page)
-            self.request_params['r'] = i * self.size + 1
+            self.request_params["r"] = i * self.size + 1
             soup = web_scrap(self.url, self.request_params)
             df = self._parse_table(df, soup, limit)
             limit -= self.size

@@ -12,4 +12,5 @@ class Performance(Base):
     """Performance
     Getting information from the finviz screener performance page.
     """
+
     v_page = 141

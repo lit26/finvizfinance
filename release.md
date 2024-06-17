@@ -1,5 +1,6 @@
 | Date       | Version   | Comment                                                                                                                                                                                                                                                                                 |
 | ---------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2024/06/17 | 1.0.0 | Optimization and fix coding style. Release 1.0.0. | 
 | 2024/05/05 | 1.0.0rc1 | Miscellaneous upgrade. PR: [#105](https://github.com/lit26/finvizfinance/pull/105) | 
 | 2023/11/02 | 0.14.7 | Fix quote fundamental naming. PR: [#95](https://github.com/lit26/finvizfinance/pull/95).                                        |
 | 2023/10/23 | 0.14.7rc3 | Fix bs4 package dependencies, custom columns and quote issue. Issue: [#90](https://github.com/lit26/finvizfinance/issues/90) [#92](https://github.com/lit26/finvizfinance/issues/92). PR: [#94](https://github.com/lit26/finvizfinance/pull/94).                                        |

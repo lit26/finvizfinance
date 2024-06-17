@@ -4,6 +4,7 @@
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+
 from finvizfinance.group.base import Base
 from finvizfinance.util import web_scrap, image_scrap
 from finvizfinance.constants import group_dict, group_order_dict
@@ -39,7 +40,7 @@ class Spectrum(Base):
             )
 
         self.request_params = self.request_params.update(group_dict[group])
-        self.request_params['o'] = group_order_dict[order]
+        self.request_params["o"] = group_order_dict[order]
 
         soup = web_scrap(self.url, self.request_params)
         url = "https://finviz.com/" + soup.find_all("img")[5]["src"]
