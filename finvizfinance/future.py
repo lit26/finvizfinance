@@ -27,23 +27,20 @@ class Future:
         Returns:
             df(pandas.DataFrame): forex performance table
         """
-        params = None
-        if timeframe == "D":
-            params = ""
-        elif timeframe == "W":
-            params = "?v=12"
-        elif timeframe == "M":
-            params = "?v=13"
-        elif timeframe == "Q":
-            params = "?v=14"
-        elif timeframe == "HY":
-            params = "?v=15"
-        elif timeframe == "Y":
-            params = "?v=16"
-        else:
+        timeframe_dict = {
+            'W': 12,
+            'M': 13,
+            'Q': 14,
+            'HY':15,
+            'Y': 16
+        }
+        params = {}
+        if timeframe in timeframe_dict:
+            params['v'] = timeframe_dict[timeframe]
+        elif timeframe != 'D':
             raise ValueError("Invalid timeframe '{}'".format(timeframe))
 
-        soup = web_scrap("https://finviz.com/futures_performance.ashx" + params)
+        soup = web_scrap("https://finviz.com/futures_performance.ashx", params)
 
         html = soup.prettify()
         data = html[
