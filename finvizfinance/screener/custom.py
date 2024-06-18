@@ -1,5 +1,5 @@
 """
-.. module:: screen.custom
+.. module:: screener.custom
    :synopsis: screen custom table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>

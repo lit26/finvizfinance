@@ -1,5 +1,5 @@
 """
-.. module:: screen.ticker
+.. module:: screener.ticker
    :synopsis: screen ticker table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>

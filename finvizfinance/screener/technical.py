@@ -1,5 +1,5 @@
 """
-.. module:: screen.technical
+.. module:: screener.technical
    :synopsis: screen technical table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>

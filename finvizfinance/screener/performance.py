@@ -1,5 +1,5 @@
 """
-.. module:: screen.performance
+.. module:: screener.performance
    :synopsis: screen performance table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
