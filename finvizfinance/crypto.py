@@ -1,4 +1,9 @@
+"""
+.. module:: crypto
+    :synopsis: crypto information
 
+.. moduleauthor:: Tianning Li <ltianningli@gmail.com>
+"""
 
 from finvizfinance.util import scrap_function, image_scrap_function
 
