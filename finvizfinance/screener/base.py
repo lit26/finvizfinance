@@ -1,6 +1,6 @@
 """
-.. module:: screen.overview
-   :synopsis: screen overview table.
+.. module:: screener.base
+   :synopsis: screen base module.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 

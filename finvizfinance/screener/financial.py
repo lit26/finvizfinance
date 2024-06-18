@@ -1,5 +1,5 @@
 """
-.. module:: screen.financial
+.. module:: screener.financial
    :synopsis: screen financial table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>

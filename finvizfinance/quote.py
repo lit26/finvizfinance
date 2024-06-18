@@ -1,5 +1,5 @@
 """
-.. module:: finvizfinance
+.. module:: quote
    :synopsis: individual ticker.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>

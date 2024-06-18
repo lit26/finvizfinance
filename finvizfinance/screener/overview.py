@@ -1,5 +1,5 @@
 """
-.. module:: screen.overview
+.. module:: screener.overview
    :synopsis: screen overview table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>

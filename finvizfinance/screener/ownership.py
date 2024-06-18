@@ -1,5 +1,5 @@
 """
-.. module:: screen.ownership
+.. module:: screener.ownership
    :synopsis: screen ownership table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>

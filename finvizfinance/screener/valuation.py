@@ -1,5 +1,5 @@
 """
-.. module:: screen.valuation
+.. module:: screener.valuation
    :synopsis: screen valuation table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>

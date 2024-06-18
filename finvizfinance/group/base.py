@@ -1,6 +1,6 @@
 """
-.. module:: group.overview
-   :synopsis: group overview table.
+.. module:: group.base
+   :synopsis: group base module.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
