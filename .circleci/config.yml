@@ -39,15 +39,17 @@ jobs:
             pip install --upgrade pip
             python3 -m venv venv
             . venv/bin/activate
-            sudo pip install -r requirements-coverage.txt
+            pip install -r requirements-coverage.txt
       - run:
           name: Run coverage
           command: |
+            . venv/bin/activate
             coverage run -m pytest -v test
             coverage report -m
       - run:
           name: Publish coverage
           command: |
+            . venv/bin/activate
             export COVERALLS_REPO_TOKEN=ClAernwluOegoexWqdcN70Skf2RHgrGId
             coveralls
 workflows:
