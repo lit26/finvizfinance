@@ -39,7 +39,7 @@ jobs:
             pip install --upgrade pip
             python3 -m venv venv
             . venv/bin/activate
-            sudo pip install -r requirements-coverage.txt
+            pip install -r requirements-coverage.txt
       - run:
           name: Run coverage
           command: |
@@ -75,6 +75,7 @@ workflows:
               only:
                 - master
                 - before-release
+                - fix/coverage
                 
 
 
