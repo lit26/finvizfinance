@@ -49,6 +49,7 @@ jobs:
       - run:
           name: Publish coverage
           command: |
+            . venv/bin/activate
             export COVERALLS_REPO_TOKEN=ClAernwluOegoexWqdcN70Skf2RHgrGId
             coveralls
 workflows:
