@@ -15,6 +15,12 @@ class Custom(Base):
 
     v_page = 152
 
+    def _parse_columns(self, columns):
+        if not columns:
+            return
+        columns = [str(i) for i in columns]
+        self.request_params["c"] = ",".join(columns)
+
     def screener_view(
         self, group="Sector", order="Name", columns=[0, 1, 2, 3, 10, 22, 24, 25, 26]
     ):
@@ -27,4 +33,4 @@ class Custom(Base):
         Returns:
             df(pandas.DataFrame): group information table.
         """
-        return Base.screener_view(group, order, columns)
+        return Base.screener_view(self, group, order, columns)

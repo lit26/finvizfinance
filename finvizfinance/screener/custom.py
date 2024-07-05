@@ -15,6 +15,15 @@ class Custom(Base):
 
     v_page = 151
 
+    def _parse_columns(self, columns):
+        if not columns:
+            return
+        if 0 in columns:
+            columns.remove(0)
+        columns.insert(0, 0)
+        columns = [str(i) for i in columns]
+        self.request_params["c"] = ",".join(columns)
+
     def screener_view(
         self,
         order="Ticker",
@@ -38,4 +47,6 @@ class Custom(Base):
         Returns:
             df(pandas.DataFrame): screener information table
         """
-        Base.screen_view(order, limit, select_page, verbose, ascend, columns, sleep_sec)
+        return Base.screener_view(
+            self, order, limit, select_page, verbose, ascend, columns, sleep_sec
+        )

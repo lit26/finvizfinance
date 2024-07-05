@@ -151,13 +151,7 @@ class Base:
         return df
 
     def _parse_columns(self, columns):
-        if not columns:
-            return
-        if 0 in columns:
-            columns.remove(0)
-        columns.insert(0, 0)
-        columns = [str(i) for i in columns]
-        self.request_params["c"] = ",".join(columns)
+        return
 
     def reset(self):
         self.request_params = {"v": self.v_page}
