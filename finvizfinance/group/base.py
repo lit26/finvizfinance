@@ -26,9 +26,7 @@ class Base:
         }
 
     def _parse_columns(self, columns):
-        if not columns:
-            return
-        self.request_params["c"] = ",".join(columns)
+        return
 
     def screener_view(self, group="Sector", order="Name", columns=None):
         """Get screener table.
