@@ -1,14 +1,15 @@
 """
-.. module:: screen.valuation
+.. module:: screener.valuation
    :synopsis: screen valuation table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
-from finvizfinance.screener.overview import Overview
+
+from finvizfinance.screener.base import Base
 
 
-class Valuation(Overview):
-    """Valuation inherit from overview module.
+class Valuation(Base):
+    """Valuation
     Getting information from the finviz screener valuation page.
     """
 

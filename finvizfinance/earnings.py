@@ -4,6 +4,7 @@
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+
 import os
 import pandas as pd
 from finvizfinance.screener.financial import Financial

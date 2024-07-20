@@ -7,40 +7,48 @@ Overview
 =============
 
 .. automodule:: finvizfinance.screener.overview
-   :members:
+   :show-inheritance:
+   :inherited-members:
 
 Valuation
 =============
 
 .. automodule:: finvizfinance.screener.valuation
-   :members:
+   :show-inheritance:
+   :inherited-members:
 
 Financial
 =============
 
 .. automodule:: finvizfinance.screener.financial
-   :members:
+   :show-inheritance:
+   :inherited-members:
 
 Ownership
 =============
 
 .. automodule:: finvizfinance.screener.ownership
-   :members:
+   :show-inheritance:
+   :inherited-members:
+
+Performance
+=============
+
+.. automodule:: finvizfinance.screener.performance
+   :show-inheritance:
+   :inherited-members:
 
 Technical
 =============
 
 .. automodule:: finvizfinance.screener.technical
-   :members:
+   :show-inheritance:
+   :inherited-members:
 
-Custom
-=============
-
-.. automodule:: finvizfinance.screener.custom
-   :members:
-
-Tickers
+Ticker
 =============
 
 .. automodule:: finvizfinance.screener.ticker
-   :members:
+   :show-inheritance:
+   :inherited-members:
+

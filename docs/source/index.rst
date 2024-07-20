@@ -8,7 +8,7 @@ Welcome to Finviz Finance in Python's documentation!
 
 It is a Finviz Finance information downloader.
 
-Installation (python >= v3.5)
+Installation (python >= v3.9)
 =============================
 
 .. code-block:: bash

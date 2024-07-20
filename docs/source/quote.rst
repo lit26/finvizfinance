@@ -1,9 +1,10 @@
 Quote
 **************************
 
-Getting individual ticker information.
+Getting stock information.
 
 .. automodule:: finvizfinance.quote
    :members:
+
 
 

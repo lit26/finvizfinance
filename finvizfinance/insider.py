@@ -4,6 +4,7 @@
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
+
 import pandas as pd
 from finvizfinance.util import web_scrap, number_covert
 

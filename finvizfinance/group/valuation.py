@@ -4,11 +4,12 @@
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
-from finvizfinance.group.overview import Overview
+
+from finvizfinance.group.base import Base
 
 
-class Valuation(Overview):
-    """Valuation inherit from overview module.
+class Valuation(Base):
+    """Valuation
     Getting information from the finviz group valuation page.
     """
 

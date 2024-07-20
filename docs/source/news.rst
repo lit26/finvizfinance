@@ -1,7 +1,7 @@
 News
 **************************
 
-Getting trading news.
+Getting news.
 
 .. automodule:: finvizfinance.news
    :members:

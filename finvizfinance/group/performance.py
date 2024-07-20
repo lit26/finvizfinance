@@ -4,11 +4,12 @@
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
-from finvizfinance.group.overview import Overview
+
+from finvizfinance.group.base import Base
 
 
-class Performance(Overview):
-    """Performance inherit from overview module.
+class Performance(Base):
+    """Performance
     Getting information from the finviz group performance page.
     """
 

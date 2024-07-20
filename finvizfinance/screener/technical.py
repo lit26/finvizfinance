@@ -1,15 +1,15 @@
-from finvizfinance.screener.overview import Overview
-
 """
-.. module:: screen.technical
+.. module:: screener.technical
    :synopsis: screen technical table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+from finvizfinance.screener.base import Base
 
-class Technical(Overview):
-    """Technical inherit from overview module.
+
+class Technical(Base):
+    """Technical
     Getting information from the finviz screener technical page.
     """
 

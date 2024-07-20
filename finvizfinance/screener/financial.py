@@ -1,14 +1,15 @@
 """
-.. module:: screen.financial
+.. module:: screener.financial
    :synopsis: screen financial table.
 
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
-from finvizfinance.screener.overview import Overview
+
+from finvizfinance.screener.base import Base
 
 
-class Financial(Overview):
-    """Financial inherit from overview module.
+class Financial(Base):
+    """Financial
     Getting information from the finviz screener financial page.
     """
 

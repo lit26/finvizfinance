@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = '0.14.7'
+VERSION = '1.0.1'
 PACKAGE_NAME = 'finvizfinance'
 AUTHOR = 'Tianning Li'
 AUTHOR_EMAIL = 'ltianningli@gmail.com'
@@ -16,19 +16,17 @@ LONG_DESC_TYPE = "text/markdown"
 
 INSTALL_REQUIRES = [
       'pandas',
-      'datetime',
       'requests',
-      'bs4',
+      'beautifulsoup4',
       'lxml'
 ]
 CLASSIFIERS = [
-      'Programming Language :: Python :: 3.6',
-      'Programming Language :: Python :: 3.7',
-      'Programming Language :: Python :: 3.8',
       'Programming Language :: Python :: 3.9',
+      'Programming Language :: Python :: 3.10',
+      'Programming Language :: Python :: 3.11',
       'License :: OSI Approved :: MIT License'
 ]
-PYTHON_REQUIRES='>=3.5'
+PYTHON_REQUIRES='>=3.9'
 
 setup(name=PACKAGE_NAME,
       version=VERSION,
