@@ -56,7 +56,7 @@ def image_scrap(url, ticker, out_dir):
         out_dir(str): output directory
     """
     try:
-        r = session.get(url, stream=True, headers=headers, timeout=10)
+        r = session.get(url, stream=True, headers=headers, timeout=10, proxies= proxy_dict)
         r.raise_for_status()
         r.raw.decode_content = True
         if len(out_dir) != 0:
