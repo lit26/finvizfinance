@@ -64,11 +64,23 @@ class finvizfinance:
 
         self.ticker = ticker
         self.flag = False
+        self.isETF = False
         self.quote_url = QUOTE_URL.format(ticker=ticker)
         self.soup = web_scrap(self.quote_url)
         if self._checkexist(verbose):
             self.flag = True
+        if self._checketf():
+            self.isETF = True
         self.info = {}
+        
+    def _checketf(self):
+        fundament_info = {}
+        quote_links = self.soup.find("div", class_="quote-links")
+        links = quote_links.find_all("a")
+        fundament_info["Industry"] = links[1].text
+
+        if fundament_info["Industry"] == 'Exchange Traded Fund':
+            self.isETF = True
 
     def _checkexist(self, verbose):
         try:
