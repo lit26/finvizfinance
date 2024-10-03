@@ -287,7 +287,7 @@ class finvizfinance:
                 news_date = cols[0].text
                 title = cols[1].a.text
                 link = cols[1].a["href"]
-                source = cols[1].span.text
+                source = cols[1].span.text[1:-1]
                 news_time = news_date.split()
                 if len(news_time) == 2:
                     last_date = news_time[0]
@@ -297,7 +297,7 @@ class finvizfinance:
 
                 news_time = format_datetime(news_time)
 
-                info_dict = {"Date": news_time, "Title": title, "Link": link, "Source": source[1:-1]}
+                info_dict = {"Date": news_time, "Title": title, "Link": link, "Source": source}
                 frame.append(info_dict)
             except AttributeError:
                 pass
