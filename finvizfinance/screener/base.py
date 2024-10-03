@@ -128,7 +128,10 @@ class Base:
                 else:
                     info_dict[table_header[i]] = number_covert(col.text)
             frame.append(info_dict)
-        return pd.concat([df, pd.DataFrame(frame)], ignore_index=True)
+        if len(df) == 0:
+            return pd.DataFrame(frame)
+        else:
+            return pd.concat([df, pd.DataFrame(frame)], ignore_index=True)
 
     @staticmethod
     def _parse_table_header(soup):

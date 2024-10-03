@@ -56,7 +56,7 @@ def image_scrap(url, ticker, out_dir):
         out_dir(str): output directory
     """
     try:
-        r = session.get(url, stream=True, headers=headers, timeout=10)
+        r = session.get(url, stream=True, headers=headers, timeout=10, proxies= proxy_dict)
         r.raise_for_status()
         r.raw.decode_content = True
         if len(out_dir) != 0:
@@ -136,16 +136,17 @@ def image_scrap_function(url, chart, timeframe, urlonly):
 
 
 def number_covert(num):
-    """covert number(str) to number(float)
+    """Convert number(str) to number(float)
 
     Args:
-        num(str): number of string
+        num(str): number as a string
     Return:
-        num(float): number of string
+        num(float or None): number converted to float or None
     """
-    if num == "-":
+    if not num or num == "-":  # Check if the string is empty or is "-"
         return None
-    elif num[-1] == "%":
+    num = num.strip()  # Remove any surrounding whitespace
+    if num[-1] == "%":
         return float(num[:-1]) / 100
     elif num[-1] == "B":
         return float(num[:-1]) * 1000000000
@@ -154,7 +155,7 @@ def number_covert(num):
     elif num[-1] == "K":
         return float(num[:-1]) * 1000
     else:
-        return float("".join(num.split(",")))
+        return float(num.replace(",", ""))  # Remove commas and convert to float
 
 
 def format_datetime(date_str):
