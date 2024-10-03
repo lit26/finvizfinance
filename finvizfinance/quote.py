@@ -278,7 +278,7 @@ class finvizfinance:
         """
         fullview_news_outer = self.soup.find("table", class_="fullview-news-outer")
         rows = fullview_news_outer.find_all("tr")
-
+        
         frame = []
         last_date = ""
         for row in rows:
@@ -287,6 +287,7 @@ class finvizfinance:
                 news_date = cols[0].text
                 title = cols[1].a.text
                 link = cols[1].a["href"]
+                source = cols[1].span.text
                 news_time = news_date.split()
                 if len(news_time) == 2:
                     last_date = news_time[0]
@@ -296,7 +297,7 @@ class finvizfinance:
 
                 news_time = format_datetime(news_time)
 
-                info_dict = {"Date": news_time, "Title": title, "Link": link}
+                info_dict = {"Date": news_time, "Title": title, "Link": link, "Source": source[1:-1]}
                 frame.append(info_dict)
             except AttributeError:
                 pass
