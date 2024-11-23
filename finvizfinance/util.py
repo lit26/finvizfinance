@@ -41,9 +41,9 @@ def web_scrap(url, params=None):
         website.raise_for_status()
         soup = BeautifulSoup(website.text, "lxml")
     except requests.exceptions.HTTPError as err:
-        raise Exception(err)
+        raise requests.exceptions.HTTPError(f"HTTP error for URL {url}: {err}")
     except requests.exceptions.Timeout as err:
-        raise Exception(err)
+        raise requests.exceptions.Timeout(f"Timeout for URL {url}: {err}")
     return soup
 
 
