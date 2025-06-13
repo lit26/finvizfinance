@@ -277,6 +277,9 @@ class finvizfinance:
             df(pandas.DataFrame): news information table
         """
         fullview_news_outer = self.soup.find("table", class_="fullview-news-outer")
+        if fullview_news_outer is None:
+            self.info["news"] = None
+            return None
         rows = fullview_news_outer.find_all("tr")
         
         frame = []
@@ -312,6 +315,9 @@ class finvizfinance:
             df(pandas.DataFrame): insider information table
         """
         inside_trader = self.soup.find("table", class_="body-table")
+        if inside_trader is None:
+            self.info["inside trader"] = None
+            return None
         rows = inside_trader.find_all("tr")
         table_header = [i.text for i in rows[0].find_all("th")]
         table_header += ["SEC Form 4 Link", "Insider_id"]
