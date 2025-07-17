@@ -18,11 +18,17 @@ headers = {
 session = requests.Session()
 
 proxy_dict = None
+timeout_value = 10
 
 
 def set_proxy(proxies):
     global proxy_dict
     proxy_dict = proxies
+
+
+def set_timeout(timeout):
+    global timeout_value
+    timeout_value = timeout
 
 
 def web_scrap(url, params=None):
@@ -36,7 +42,7 @@ def web_scrap(url, params=None):
     """
     try:
         website = session.get(
-            url, params=params, headers=headers, timeout=10, proxies=proxy_dict
+            url, params=params, headers=headers, timeout=timeout_value, proxies=proxy_dict
         )
         website.raise_for_status()
         soup = BeautifulSoup(website.text, "lxml")
@@ -56,7 +62,7 @@ def image_scrap(url, ticker, out_dir):
         out_dir(str): output directory
     """
     try:
-        r = session.get(url, stream=True, headers=headers, timeout=10, proxies= proxy_dict)
+        r = session.get(url, stream=True, headers=headers, timeout=timeout_value, proxies= proxy_dict)
         r.raise_for_status()
         r.raw.decode_content = True
         if len(out_dir) != 0:
