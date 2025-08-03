@@ -227,6 +227,29 @@ class finvizfinance:
         """
         return self.soup.find("td", class_="fullview-profile").text
 
+    def ticker_peer(self):
+        """Get peer tickers for the given ticker.
+
+        Returns:
+            list: A list of peer ticker symbols (str). Returns an empty list if not found.
+        """
+        try:
+            peer_link = self.soup.find("a", string="Peers")
+            if not peer_link:
+                return []
+
+            href = peer_link.get("href", "")
+            if "t=" not in href:
+                return []
+
+            tickers_part = href.split("t=")[-1]
+            peers = [ticker.strip() for ticker in tickers_part.split(",") if ticker.strip()]
+            return peers
+
+        except Exception as e:
+            print(f"Error extracting ticker peers: {e}")
+            return []
+           
     def ticker_outer_ratings(self):
         """Get outer ratings table.
 
