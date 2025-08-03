@@ -37,3 +37,10 @@ def test_finvizfinance_finvizfinance_chart(mocker):
     finvizfinance('dummy').ticker_charts()
     image_scrap_mock.assert_called_with(
         'https://finviz.com/chart.ashx?t=dummy&ty=c&ta=1&p=d', 'dummy', '')
+
+def test_ticker_peer_returns_list():
+    stock = finvizfinance("AAPL")
+    peers = stock.ticker_peer()
+    assert isinstance(peers, list)
+    assert len(peers) > 0
+    assert all(isinstance(p, str) for p in peers)
