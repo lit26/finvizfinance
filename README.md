@@ -72,6 +72,14 @@ stock_description = stock.ticker_description()
 # stock_description
 # stock_description = 'Tesla, Inc. designs, develops, manufactures, ...'
 ```
+#### Peer
+
+```python
+stock_peer = stock.ticker_peer()
+
+# stock_peer
+# stock_peer = ['LI', 'XPEV', 'NIO', 'RIVN', 'LCID', 'TM', 'HMC', 'GM', 'STLA', 'F']
+```
 
 #### Outer Ratings
 
