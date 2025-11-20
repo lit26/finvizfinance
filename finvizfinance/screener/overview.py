@@ -6,12 +6,12 @@
 
 """
 
-from finvizfinance.screener.base import Base
+from finvizfinance.screener.base import create_screener
 
-
-class Overview(Base):
-    """Overview
+Overview = create_screener(
+    v_page=111,
+    class_name="Overview",
+    doc_string="""Overview
     Getting information from the finviz screener overview page.
-    """
-
-    v_page = 111
+    """,
+)

@@ -243,13 +243,15 @@ class finvizfinance:
                 return []
 
             tickers_part = href.split("t=")[-1]
-            peers = [ticker.strip() for ticker in tickers_part.split(",") if ticker.strip()]
+            peers = [
+                ticker.strip() for ticker in tickers_part.split(",") if ticker.strip()
+            ]
             return peers
 
         except Exception as e:
             print(f"Error extracting ticker peers: {e}")
             return []
-           
+
     def ticker_outer_ratings(self):
         """Get outer ratings table.
 
@@ -304,7 +306,7 @@ class finvizfinance:
             self.info["news"] = None
             return None
         rows = fullview_news_outer.find_all("tr")
-        
+
         frame = []
         last_date = ""
         for row in rows:
@@ -323,7 +325,12 @@ class finvizfinance:
 
                 news_time = format_datetime(news_time)
 
-                info_dict = {"Date": news_time, "Title": title, "Link": link, "Source": source}
+                info_dict = {
+                    "Date": news_time,
+                    "Title": title,
+                    "Link": link,
+                    "Source": source,
+                }
                 frame.append(info_dict)
             except AttributeError:
                 pass

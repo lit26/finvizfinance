@@ -5,12 +5,12 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
-from finvizfinance.screener.base import Base
+from finvizfinance.screener.base import create_screener
 
-
-class Valuation(Base):
-    """Valuation
+Valuation = create_screener(
+    v_page=121,
+    class_name="Valuation",
+    doc_string="""Valuation
     Getting information from the finviz screener valuation page.
-    """
-
-    v_page = 121
+    """,
+)

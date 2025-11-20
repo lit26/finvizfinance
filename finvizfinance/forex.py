@@ -5,17 +5,18 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
-from finvizfinance.util import scrap_function, image_scrap_function
+from finvizfinance.util import scrap_function
+from finvizfinance.market_base import MarketBase
 
 
-class Forex:
+class Forex(MarketBase):
     """Forex
     Getting information from the finviz forex page.
     """
 
     def __init__(self):
         """initiate module"""
-        pass
+        super().__init__()
 
     def performance(self, change="percent"):
         """Get forex performance table.
@@ -46,7 +47,9 @@ class Forex:
         Returns:
             charturl(str): url for the chart
         """
-
-        url = "https://finviz.com/forex_charts.ashx?t=ALL&tf="
-        charturl = image_scrap_function(url, forex, timeframe, urlonly)
-        return charturl
+        return super().chart(
+            asset=forex,
+            timeframe=timeframe,
+            urlonly=urlonly,
+            chart_url_template="https://finviz.com/forex_charts.ashx?t=",
+        )

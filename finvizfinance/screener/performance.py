@@ -5,12 +5,12 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
-from finvizfinance.screener.base import Base
+from finvizfinance.screener.base import create_screener
 
-
-class Performance(Base):
-    """Performance
+Performance = create_screener(
+    v_page=141,
+    class_name="Performance",
+    doc_string="""Performance
     Getting information from the finviz screener performance page.
-    """
-
-    v_page = 141
+    """,
+)

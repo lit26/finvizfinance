@@ -5,12 +5,12 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
-from finvizfinance.screener.base import Base
+from finvizfinance.screener.base import create_screener
 
-
-class Ownership(Base):
-    """Ownership
+Ownership = create_screener(
+    v_page=131,
+    class_name="Ownership",
+    doc_string="""Ownership
     Getting information from the finviz screener ownership page.
-    """
-
-    v_page = 131
+    """,
+)

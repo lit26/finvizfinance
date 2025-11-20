@@ -19,8 +19,14 @@ class Base:
     url = "https://finviz.com/groups.ashx"
     request_params = {}
 
-    def __init__(self):
-        """initiate module"""
+    def __init__(self, v_page=None):
+        """initiate module
+
+        Args:
+            v_page(int): page version number (optional, uses class attribute if not provided)
+        """
+        if v_page is not None:
+            self.v_page = v_page
         self.request_params = {
             "v": self.v_page,
         }
@@ -79,3 +85,24 @@ class Base:
 
             frame.append(info_dict)
         return pd.DataFrame(frame)
+
+
+def create_group(v_page, class_name, doc_string):
+    """Factory function to create a group class with a specific v_page value.
+
+    Args:
+        v_page(int): page version number
+        class_name(str): name of the class
+        doc_string(str): documentation string for the class
+
+    Returns:
+        class: A new class inheriting from Base with the specified v_page
+    """
+    return type(
+        class_name,
+        (Base,),
+        {
+            "v_page": v_page,
+            "__doc__": doc_string,
+        },
+    )

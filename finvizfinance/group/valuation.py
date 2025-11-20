@@ -5,12 +5,12 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
-from finvizfinance.group.base import Base
+from finvizfinance.group.base import create_group
 
-
-class Valuation(Base):
-    """Valuation
+Valuation = create_group(
+    v_page=120,
+    class_name="Valuation",
+    doc_string="""Valuation
     Getting information from the finviz group valuation page.
-    """
-
-    v_page = 120
+    """,
+)

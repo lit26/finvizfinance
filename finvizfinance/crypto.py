@@ -5,17 +5,18 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
-from finvizfinance.util import scrap_function, image_scrap_function
+from finvizfinance.util import scrap_function
+from finvizfinance.market_base import MarketBase
 
 
-class Crypto:
+class Crypto(MarketBase):
     """Crypto
     Getting information from the finviz crypto page.
     """
 
     def __init__(self):
         """initiate module"""
-        pass
+        super().__init__()
 
     def performance(self):
         """Get crypto performance table.
@@ -37,7 +38,9 @@ class Crypto:
         Returns:
             charturl(str): url for the chart
         """
-
-        url = "https://finviz.com/crypto_charts.ashx?t=ALL&tf="
-        charturl = image_scrap_function(url, crypto, timeframe, urlonly)
-        return charturl
+        return super().chart(
+            asset=crypto,
+            timeframe=timeframe,
+            urlonly=urlonly,
+            chart_url_template="https://finviz.com/crypto_charts.ashx?t=",
+        )
