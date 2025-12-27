@@ -10,15 +10,31 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 from datetime import datetime, date
+try:
+    import brotli
+    BROTLI_AVAILABLE = True
+except ImportError:
+    BROTLI_AVAILABLE = False
 
 headers = {
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) \
-            AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36"
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Accept-Encoding": "gzip, deflate",  
+    "DNT": "1",
+    "Connection": "keep-alive",
+    "Upgrade-Insecure-Requests": "1",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Sec-Fetch-User": "?1",
+    "Cache-Control": "max-age=0",
 }
 session = requests.Session()
 
 proxy_dict = None
 timeout_value = 10
+_session_primed = False
 
 
 def set_proxy(proxies):
@@ -31,26 +47,93 @@ def set_timeout(timeout):
     timeout_value = timeout
 
 
-def web_scrap(url, params=None):
+def _prime_session():
+    """Prime the session by visiting the homepage.
+    """
+    global _session_primed
+    if not _session_primed:
+        try:
+            session.get(
+                "https://finviz.com/",
+                headers=headers,
+                timeout=timeout_value,
+                proxies=proxy_dict
+            )
+            _session_primed = True
+        except Exception:
+            # If priming fails, continue anyway - might work without it
+            pass
+
+
+def web_scrap(url, params=None, prime_session=False):
     """Scrap website.
 
     Args:
         url(str): website
         params(dict): request parameters
+        prime_session(bool): if True, visit homepage first to prime session cookies
     Returns:
         soup(beautiful soup): website html
     """
+    if prime_session:
+        _prime_session()
+    
     try:
+        request_headers = headers.copy()
+        if "screener.ashx" in url:
+            request_headers["Referer"] = "https://finviz.com/"
+            request_headers["Sec-Fetch-Site"] = "same-origin"
+            request_headers["Sec-Fetch-Mode"] = "navigate"
+        
         website = session.get(
-            url, params=params, headers=headers, timeout=timeout_value, proxies=proxy_dict
+            url, params=params, headers=request_headers, timeout=timeout_value, proxies=proxy_dict
         )
         website.raise_for_status()
-        soup = BeautifulSoup(website.text, "lxml")
+        
+        if len(website.content) == 0:
+            raise requests.exceptions.HTTPError(
+                f"Empty response from {url}."
+            )
+        
+        # Handle Brotli compression manually if needed
+        content_encoding = website.headers.get('Content-Encoding', '').lower()
+        if content_encoding == 'br' and BROTLI_AVAILABLE:
+            try:
+                # Manually decompress Brotli content
+                decompressed = brotli.decompress(website.content)
+                website._content = decompressed
+                # Force re-encoding detection
+                website.encoding = website.apparent_encoding or 'utf-8'
+            except Exception:
+                # If decompression fails, try to use text anyway
+                pass
+        
+        # Check if response looks like HTML (basic check)
+        # If content is still binary/garbled, it might be compressed
+        response_text = website.text
+        if len(response_text.strip()) == 0 or not response_text.strip().startswith(('<', '<!', '<html', '<HTML')):
+            # Try to detect if it's still compressed
+            if content_encoding == 'br' and not BROTLI_AVAILABLE:
+                raise requests.exceptions.HTTPError(
+                    f"Response is Brotli-compressed but 'brotli' package is not installed. "
+                    "Install it with: pip install brotli"
+                )
+            elif content_encoding == 'br':
+                # Already tried to decompress, but still not HTML
+                raise requests.exceptions.HTTPError(
+                    f"Failed to decompress Brotli response from {url}. "
+                )
+            else:
+                raise requests.exceptions.HTTPError(
+                    f"Empty or invalid HTML response from {url}."
+                )
+        
+        soup = BeautifulSoup(response_text, "lxml")
+        return soup
     except requests.exceptions.HTTPError as err:
         raise requests.exceptions.HTTPError(f"HTTP error for URL {url}: {err}")
     except requests.exceptions.Timeout as err:
         raise requests.exceptions.Timeout(f"Timeout for URL {url}: {err}")
-    return soup
 
 
 def image_scrap(url, ticker, out_dir):
@@ -147,21 +230,33 @@ def number_covert(num):
     Args:
         num(str): number as a string
     Return:
-        num(float or None): number converted to float or None
+        num(float, str, or None): number converted to float, original string if conversion fails, or None
     """
     if not num or num == "-":  # Check if the string is empty or is "-"
         return None
     num = num.strip()  # Remove any surrounding whitespace
-    if num[-1] == "%":
-        return float(num[:-1]) / 100
-    elif num[-1] == "B":
-        return float(num[:-1]) * 1000000000
-    elif num[-1] == "M":
-        return float(num[:-1]) * 1000000
-    elif num[-1] == "K":
-        return float(num[:-1]) * 1000
-    else:
-        return float(num.replace(",", ""))  # Remove commas and convert to float
+    
+    # Check for date-like patterns (e.g., "Nov 24/a", "Jan 15", etc.)
+    # These typically contain month abbreviations and slashes
+    month_abbrevs = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    if "/" in num and any(month in num for month in month_abbrevs):
+        # Likely a date string, return as-is
+        return num
+    
+    try:
+        if num[-1] == "%":
+            return float(num[:-1]) / 100
+        elif num[-1] == "B":
+            return float(num[:-1]) * 1000000000
+        elif num[-1] == "M":
+            return float(num[:-1]) * 1000000
+        elif num[-1] == "K":
+            return float(num[:-1]) * 1000
+        else:
+            return float(num.replace(",", ""))  # Remove commas and convert to float
+    except (ValueError, IndexError):
+        # If conversion fails (e.g., date strings, text fields), return the original string
+        return num
 
 
 def format_datetime(date_str):

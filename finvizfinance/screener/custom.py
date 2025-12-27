@@ -6,6 +6,7 @@
 """
 
 from finvizfinance.screener.base import Base
+from finvizfinance.constants import CUSTOM_SCREENER_COLUMNS
 
 
 class Custom(Base):
@@ -15,14 +16,43 @@ class Custom(Base):
 
     v_page = 151
 
+    def __init__(self):
+        """Initialize Custom screener."""
+        super().__init__()
+        self.requested_columns = None
+
     def _parse_columns(self, columns):
         if not columns:
             return
+        # Store original columns before modification
+        self.requested_columns = columns.copy()
         if 0 in columns:
             columns.remove(0)
         columns.insert(0, 0)
         columns = [str(i) for i in columns]
         self.request_params["c"] = ",".join(columns)
+
+    def _parse_table_header(self, soup):
+        """Parse table headers from requested columns to ensure all columns are included."""
+        # If we have requested columns, build headers from them
+        if self.requested_columns:
+            headers = []
+            for col_idx in self.requested_columns:
+                if col_idx in CUSTOM_SCREENER_COLUMNS:
+                    headers.append(CUSTOM_SCREENER_COLUMNS[col_idx])
+                else:
+                    # Fallback for unknown column indices
+                    headers.append(f"Column_{col_idx}")
+            return headers
+        
+        # Fallback to HTML parsing if no requested columns
+        table = soup.find("table", class_="screener_table")
+        if not table:
+            return []
+        rows = table.findAll("tr")
+        if not rows:
+            return []
+        return [i.text.strip() for i in rows[0].findAll("th")][1:]
 
     def screener_view(
         self,

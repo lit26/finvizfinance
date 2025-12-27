@@ -7,6 +7,7 @@
 """
 
 import warnings
+import re
 import pandas as pd
 from time import sleep
 from finvizfinance.quote import finvizfinance
@@ -100,12 +101,47 @@ class Base:
         self._set_filters(filters_dict)
 
     def _get_page(self, soup):
-        """Check the page number"""
+        """Check the page number.
+        
+        Uses multiple detection methods:
+        1. Primary: pageSelect dropdown (most reliable)
+        2. Fallback: Look for pagination text patterns
+        3. Fallback: Check if screener_table exists (indicates at least 1 page)
+        """
+        # Primary method: pageSelect dropdown
         try:
-            options = soup.find(id="pageSelect").findAll("option")
-            return len(options)
-        except:
-            return 0
+            page_select = soup.find(id="pageSelect")
+            if page_select:
+                options = page_select.findAll("option")
+                if options:
+                    return len(options)
+        except (AttributeError, TypeError):
+            pass
+        
+        # Fallback 1: Look for pagination text (e.g., "Page 1 / 540")
+        try:
+            # Search for pagination patterns in text
+            page_text = soup.find(string=lambda text: text and "/" in text and "Page" in text)
+            if page_text:
+                # Try to extract page count from text like "Page 1 / 540"
+                match = re.search(r'Page\s+\d+\s*/\s*(\d+)', page_text)
+                if match:
+                    return int(match.group(1))
+        except (AttributeError, ValueError, TypeError):
+            pass
+        
+        # Fallback 2: If screener_table exists, assume at least 1 page
+        try:
+            table = soup.find("table", class_="screener_table")
+            if table:
+                rows = table.find_all("tr")
+                # If we have a header row and at least one data row, we have results
+                if len(rows) > 1:
+                    return 1  # At least one page
+        except (AttributeError, TypeError):
+            pass
+        
+        return 0
 
     def _get_table(self, rows, df, num_col_index, table_header, limit=-1):
         """Get screener table helper function.
@@ -121,12 +157,16 @@ class Base:
         for row in rows:
             cols = row.findAll("td")[1:]
             info_dict = {}
+            # Process all data cells, handling cases where count doesn't match headers
             for i, col in enumerate(cols):
-                # check if the col is number
-                if i not in num_col_index:
-                    info_dict[table_header[i]] = col.text
-                else:
-                    info_dict[table_header[i]] = number_covert(col.text)
+                # Only process if we have a corresponding header
+                if i < len(table_header):
+                    # check if the col is number
+                    if i not in num_col_index:
+                        info_dict[table_header[i]] = col.text
+                    else:
+                        info_dict[table_header[i]] = number_covert(col.text)
+                # If more data cells than headers, skip them (shouldn't happen with proper header building)
             frame.append(info_dict)
         if len(df) == 0:
             return pd.DataFrame(frame)
@@ -193,14 +233,40 @@ class Base:
 
         self._parse_columns(columns)
 
-        soup = web_scrap(self.url, self.request_params)
+        # Prime session and make request with better headers for screener
+        soup = web_scrap(self.url, self.request_params, prime_session=True)
+
+        # Check if response appears to be empty
+        if not soup or len(soup.get_text(strip=True)) < 100:
+            print(
+                "Warning: Received empty or very short response from Finviz."
+            )
+            return None
 
         page = self._get_page(soup)
         if page == 0:
-            print("No ticker found.")
-            return None
+            # Check if we got a table but no pagination (edge case)
+            table = soup.find("table", class_="screener_table")
+            if table:
+                rows = table.find_all("tr")
+                if len(rows) > 1:
+                    # We have a table with data, but no pagination detected
+                    # This might be a single-page result or pagination structure changed
+                    warnings.warn(
+                        "Found screener table but could not detect pagination. "
+                        "Attempting to parse single page."
+                    )
+                    page = 1
+                else:
+                    print("No ticker found.")
+                    return None
+            else:
+                print("No ticker found.")
+                return None
         df = self._parse_table(None, soup, limit)
-        limit -= self.size
+        # Only decrement limit if it's not -1 (which means "get all")
+        if limit != -1:
+            limit -= self.size
         if select_page:
             if select_page > page:
                 return None
@@ -208,15 +274,24 @@ class Base:
             return df
 
         for i in range(1, page):
-            if limit <= 0:
+            # Skip limit check if limit is -1 (get all pages)
+            if limit != -1 and limit <= 0:
                 break
             sleep(sleep_sec)
             if verbose == 1:
                 progress_bar(i, page)
             self.request_params["r"] = i * self.size + 1
-            soup = web_scrap(self.url, self.request_params)
-            df = self._parse_table(df, soup, limit)
-            limit -= self.size
+            soup = web_scrap(self.url, self.request_params, prime_session=False)
+            # Skip if we get an empty response
+            if soup and len(soup.get_text(strip=True)) > 100:
+                df = self._parse_table(df, soup, limit)
+            else:
+                if verbose == 1:
+                    print(f"\nWarning: Empty response on page {i+1}, stopping pagination.")
+                break
+            # Only decrement limit if it's not -1 (which means "get all")
+            if limit != -1:
+                limit -= self.size
         self.reset()
         return df
 
