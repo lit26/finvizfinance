@@ -155,7 +155,8 @@ class Base:
 
         frame = []
         for row in rows:
-            cols = row.findAll("td")[1:]
+            # Don't skip first <td> if first header is "No." (column 0 in Custom screener)
+            cols = row.findAll("td")[1:] if (not table_header or table_header[0] != "No.") else row.findAll("td")
             info_dict = {}
             # Process all data cells, handling cases where count doesn't match headers
             for i, col in enumerate(cols):
