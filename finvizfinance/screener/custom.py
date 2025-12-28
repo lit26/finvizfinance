@@ -77,6 +77,7 @@ class Custom(Base):
         Returns:
             df(pandas.DataFrame): screener information table
         """
+        self._parse_columns(columns)
         return Base.screener_view(
             self, order, limit, select_page, verbose, ascend, columns, sleep_sec
         )
