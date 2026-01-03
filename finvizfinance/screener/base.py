@@ -102,21 +102,12 @@ class Base:
 
     def _get_page(self, soup):
         """Check the page number.
-        
-        Uses multiple detection methods:
-        1. Primary: pageSelect dropdown (most reliable)
-        2. Fallback: Look for pagination text patterns
-        3. Fallback: Check if screener_table exists (indicates at least 1 page)
         """
-        
-        try:
-            page_select = soup.find(id="pageSelect")
-            if page_select:
-                options = page_select.findAll("option")
-                if options:
-                    return len(options)
-        except (AttributeError, TypeError):
-            pass
+        page_select = soup.find(id="pageSelect")
+        if page_select:
+            options = page_select.findAll("option")
+            if options:
+                return len(options)
         
         return 0
 

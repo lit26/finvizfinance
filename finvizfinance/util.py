@@ -10,11 +10,6 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 from datetime import datetime, date
-# try:
-#     import brotli
-#     BROTLI_AVAILABLE = True
-# except ImportError:
-#     BROTLI_AVAILABLE = False
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
@@ -42,17 +37,13 @@ def _prime_session():
     """
     global _session_primed
     if not _session_primed:
-        try:
-            session.get(
-                "https://finviz.com/",
-                headers=headers,
-                timeout=timeout_value,
-                proxies=proxy_dict
-            )
-            _session_primed = True
-        except Exception:
-            # If priming fails, continue anyway - might work without it
-            pass
+        session.get(
+            "https://finviz.com/",
+            headers=headers,
+            timeout=timeout_value,
+            proxies=proxy_dict
+        )
+        _session_primed = True
 
 
 def web_scrap(url, params=None, prime_session=False):
