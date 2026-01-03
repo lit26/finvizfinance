@@ -10,25 +10,15 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 from datetime import datetime, date
-try:
-    import brotli
-    BROTLI_AVAILABLE = True
-except ImportError:
-    BROTLI_AVAILABLE = False
+# try:
+#     import brotli
+#     BROTLI_AVAILABLE = True
+# except ImportError:
+#     BROTLI_AVAILABLE = False
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-    "Accept-Language": "en-US,en;q=0.9",
-    "Accept-Encoding": "gzip, deflate",  
-    "DNT": "1",
-    "Connection": "keep-alive",
-    "Upgrade-Insecure-Requests": "1",
-    "Sec-Fetch-Dest": "document",
-    "Sec-Fetch-Mode": "navigate",
-    "Sec-Fetch-Site": "none",
-    "Sec-Fetch-User": "?1",
-    "Cache-Control": "max-age=0",
 }
 session = requests.Session()
 
@@ -95,38 +85,7 @@ def web_scrap(url, params=None, prime_session=False):
                 f"Empty response from {url}."
             )
         
-        # Handle Brotli compression manually if needed
-        content_encoding = website.headers.get('Content-Encoding', '').lower()
-        if content_encoding == 'br' and BROTLI_AVAILABLE:
-            try:
-                # Manually decompress Brotli content
-                decompressed = brotli.decompress(website.content)
-                website._content = decompressed
-                # Force re-encoding detection
-                website.encoding = website.apparent_encoding or 'utf-8'
-            except Exception:
-                # If decompression fails, try to use text anyway
-                pass
-        
-        # Check if response looks like HTML (basic check)
-        # If content is still binary/garbled, it might be compressed
         response_text = website.text
-        if len(response_text.strip()) == 0 or not response_text.strip().startswith(('<', '<!', '<html', '<HTML')):
-            # Try to detect if it's still compressed
-            if content_encoding == 'br' and not BROTLI_AVAILABLE:
-                raise requests.exceptions.HTTPError(
-                    f"Response is Brotli-compressed but 'brotli' package is not installed. "
-                    "Install it with: pip install brotli"
-                )
-            elif content_encoding == 'br':
-                # Already tried to decompress, but still not HTML
-                raise requests.exceptions.HTTPError(
-                    f"Failed to decompress Brotli response from {url}. "
-                )
-            else:
-                raise requests.exceptions.HTTPError(
-                    f"Empty or invalid HTML response from {url}."
-                )
         
         soup = BeautifulSoup(response_text, "lxml")
         return soup

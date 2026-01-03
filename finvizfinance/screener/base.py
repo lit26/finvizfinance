@@ -108,36 +108,13 @@ class Base:
         2. Fallback: Look for pagination text patterns
         3. Fallback: Check if screener_table exists (indicates at least 1 page)
         """
-        # Primary method: pageSelect dropdown
+        
         try:
             page_select = soup.find(id="pageSelect")
             if page_select:
                 options = page_select.findAll("option")
                 if options:
                     return len(options)
-        except (AttributeError, TypeError):
-            pass
-        
-        # Fallback 1: Look for pagination text (e.g., "Page 1 / 540")
-        try:
-            # Search for pagination patterns in text
-            page_text = soup.find(string=lambda text: text and "/" in text and "Page" in text)
-            if page_text:
-                # Try to extract page count from text like "Page 1 / 540"
-                match = re.search(r'Page\s+\d+\s*/\s*(\d+)', page_text)
-                if match:
-                    return int(match.group(1))
-        except (AttributeError, ValueError, TypeError):
-            pass
-        
-        # Fallback 2: If screener_table exists, assume at least 1 page
-        try:
-            table = soup.find("table", class_="screener_table")
-            if table:
-                rows = table.find_all("tr")
-                # If we have a header row and at least one data row, we have results
-                if len(rows) > 1:
-                    return 1  # At least one page
         except (AttributeError, TypeError):
             pass
         
