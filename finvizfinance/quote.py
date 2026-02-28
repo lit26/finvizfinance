@@ -487,6 +487,8 @@ class Statements:
             website.raise_for_status()
             response = json.loads(website.content)
             df = pd.DataFrame.from_dict(response["data"], orient="index")
+            currency = response.get("currency")
+            df.columns.name = f"Currency: {currency}"
             return df
         except requests.exceptions.HTTPError as err:
             raise Exception(err)
