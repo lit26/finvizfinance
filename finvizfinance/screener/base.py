@@ -120,18 +120,30 @@ class Base:
         frame = []
         for row in rows:
             cols = row.findAll("td")[1:]
-            info_dict = {}
+            # Build the row as a list of values keyed by column position rather
+            # than by header name. Finviz occasionally returns duplicate header
+            # names (e.g. two ``Dividend`` columns) — a name-keyed dict would
+            # silently collapse those, shrinking the DataFrame's column count
+            # and causing an IndexError on the next page when ``table_header``
+            # (re-derived from ``df.columns``) becomes shorter than the row's
+            # cell count.
+            row_values = []
             for i, col in enumerate(cols):
-                # check if the col is number
+                if i >= len(table_header):
+                    break
                 if i not in num_col_index:
-                    info_dict[table_header[i]] = col.text
+                    row_values.append(col.text)
                 else:
-                    info_dict[table_header[i]] = number_covert(col.text)
-            frame.append(info_dict)
+                    row_values.append(number_covert(col.text))
+            # Pad with None if the row is shorter than the header (also
+            # defensive against future Finviz HTML changes).
+            row_values.extend([None] * (len(table_header) - len(row_values)))
+            frame.append(row_values)
+        new_df = pd.DataFrame(frame, columns=table_header)
         if len(df) == 0:
-            return pd.DataFrame(frame)
+            return new_df
         else:
-            return pd.concat([df, pd.DataFrame(frame)], ignore_index=True)
+            return pd.concat([df, new_df], ignore_index=True)
 
     @staticmethod
     def _parse_table_header(soup):
