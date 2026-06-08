@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>finvizfinance — API Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+<script>(function(){try{var t=localStorage.getItem('fvf-theme')||((window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light');document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<script src="docs.js" defer></script>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <a href="index.html">finvizfinance</a><br>
+      <span class="ver">API Reference · v1.3.0</span>
+    </div>
+    <nav>
+      <div class="nav-group">
+        <div class="nav-title">Introduction</div>
+        <a class="nav-link active" href="index.html">Overview &amp; Setup</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-title">Modules</div>
+        <a class="nav-link" href="quote.html">Stock Quote</a>
+        <a class="nav-link" href="screener.html">Screener</a>
+        <a class="nav-link" href="group.html">Group</a>
+        <a class="nav-link" href="market.html">Market Data</a>
+        <a class="nav-link" href="charts.html">Forex · Crypto · Future</a>
+        <a class="nav-link" href="utils.html">Configuration &amp; Utilities</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-title">Appendix</div>
+        <a class="nav-link" href="reference.html">Reference Data</a>
+      </div>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <h1>finvizfinance</h1>
+    <p class="lead">A Python library that downloads stock, forex, crypto, and futures data from the
+      <a href="https://finviz.com" target="_blank" rel="noopener">FinViz</a> website and returns it as
+      tidy <code>pandas</code> DataFrames.</p>
+
+    <p>finvizfinance scrapes FinViz's public web pages and exposes them through a small, consistent set of
+      Python classes. It is useful for quantitative research, screening universes of stocks against fundamental
+      and technical filters, pulling insider trades and news, and downloading charts.</p>
+
+    <div class="note">
+      <b>What this library returns</b>
+      Most methods return a <code>pandas.DataFrame</code>; a few return a <code>dict</code>, a <code>list</code>,
+      or download an image to disk. Every method documents its exact return type below.
+    </div>
+
+    <h2 id="install">Installation</h2>
+    <p>finvizfinance supports <strong>Python 3.9+</strong> and depends on <code>pandas</code>,
+      <code>requests</code>, <code>beautifulsoup4</code>, and <code>lxml</code>.</p>
+    <pre><code><span class="tok-com"># From PyPI</span>
+pip install finvizfinance
+
+<span class="tok-com"># From source</span>
+git clone https://github.com/lit26/finvizfinance.git</code></pre>
+
+    <h2 id="quickstart">Quick start</h2>
+    <pre><code><span class="tok-kw">from</span> finvizfinance.quote <span class="tok-kw">import</span> finvizfinance
+
+stock = finvizfinance(<span class="tok-str">'AAPL'</span>)
+fundament = stock.ticker_fundament()   <span class="tok-com"># dict of ~70 fundamentals</span>
+news_df    = stock.ticker_news()       <span class="tok-com"># pandas DataFrame</span>
+
+<span class="tok-kw">from</span> finvizfinance.screener.overview <span class="tok-kw">import</span> Overview
+
+foverview = Overview()
+foverview.set_filter(filters_dict={<span class="tok-str">'Index'</span>: <span class="tok-str">'S&amp;P 500'</span>, <span class="tok-str">'Sector'</span>: <span class="tok-str">'Technology'</span>})
+df = foverview.screener_view()         <span class="tok-com"># DataFrame of matching tickers</span></code></pre>
+
+    <h2 id="map">Library map</h2>
+    <p>Pick the module that matches the data you need.</p>
+    <div class="card-grid">
+      <a class="card" href="quote.html">
+        <h3>Stock Quote</h3>
+        <p>Fundamentals, description, peers, ETF holders, analyst ratings, news, insider trades, signals and financial statements for a single ticker.</p>
+      </a>
+      <a class="card" href="screener.html">
+        <h3>Screener</h3>
+        <p>Filter the entire stock universe and pull Overview, Valuation, Financial, Ownership, Performance, Technical, Custom or Ticker-only tables.</p>
+      </a>
+      <a class="card" href="group.html">
+        <h3>Group</h3>
+        <p>Aggregated metrics by Sector, Industry, Country or Market-Cap, plus relative-performance spectrum images.</p>
+      </a>
+      <a class="card" href="market.html">
+        <h3>Market Data</h3>
+        <p>Market-wide News &amp; blogs, Insider trading activity, the economic Calendar, and Earnings-date partitioning.</p>
+      </a>
+      <a class="card" href="charts.html">
+        <h3>Forex · Crypto · Future</h3>
+        <p>Performance tables and downloadable charts for foreign exchange, cryptocurrencies and futures.</p>
+      </a>
+      <a class="card" href="utils.html">
+        <h3>Configuration &amp; Utilities</h3>
+        <p>Set an HTTP proxy, adjust the request timeout, and the low-level scraping helpers the package is built on.</p>
+      </a>
+      <a class="card" href="reference.html">
+        <h3>Reference Data</h3>
+        <p>The full lists of screener signals, filters &amp; their options, sort orders, group options and custom column indices.</p>
+      </a>
+    </div>
+
+    <h2 id="conventions">Conventions used in this reference</h2>
+    <table class="params">
+      <tr><th>Marker</th><th>Meaning</th></tr>
+      <tr><td><span class="obj-kind kind-class">class</span></td><td>An instantiable class.</td></tr>
+      <tr><td><span class="obj-kind kind-method">method</span></td><td>A method called on an instance.</td></tr>
+      <tr><td><span class="obj-kind kind-func">function</span></td><td>A module-level function.</td></tr>
+      <tr><td><span class="obj-kind kind-attr">attr</span></td><td>A class attribute.</td></tr>
+      <tr><td><span class="req">required</span></td><td>Argument has no default; you must supply it.</td></tr>
+      <tr><td><span class="opt">optional</span></td><td>Argument has a default value, shown in the signature.</td></tr>
+    </table>
+
+    <div class="warn">
+      <b>A note on web scraping</b>
+      finvizfinance reads FinViz's live HTML. If FinViz changes its page layout or rate-limits your IP,
+      calls may raise <code>requests</code> exceptions or return unexpected shapes. Be considerate with
+      request volume — the screener already sleeps between pages (see the <code>sleep_sec</code> argument) —
+      and consider a <a href="utils.html#set_proxy">proxy</a> for heavy use. Respect FinViz's terms of service.
+    </div>
+
+    <div class="footer">
+      finvizfinance v1.3.0 · Library by Tianning Li, MIT License ·
+      Upstream: <a href="https://github.com/lit26/finvizfinance" target="_blank" rel="noopener">github.com/lit26/finvizfinance</a> ·
+      Data source: <a href="https://finviz.com" target="_blank" rel="noopener">finviz.com</a>
+    </div>
+  </main>
+</div>
+</body>
+</html>

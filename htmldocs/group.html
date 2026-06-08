@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Group — finvizfinance API</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+<script>(function(){try{var t=localStorage.getItem('fvf-theme')||((window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light');document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<script src="docs.js" defer></script>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <a href="index.html">finvizfinance</a><br>
+      <span class="ver">API Reference · v1.3.0</span>
+    </div>
+    <nav>
+      <div class="nav-group">
+        <div class="nav-title">Introduction</div>
+        <a class="nav-link" href="index.html">Overview &amp; Setup</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-title">Modules</div>
+        <a class="nav-link" href="quote.html">Stock Quote</a>
+        <a class="nav-link" href="screener.html">Screener</a>
+        <a class="nav-link active" href="group.html">Group</a>
+        <a class="nav-sub" href="#views">View classes</a>
+        <a class="nav-sub" href="#screener_view">screener_view</a>
+        <a class="nav-sub" href="#custom">Custom</a>
+        <a class="nav-sub" href="#spectrum">Spectrum</a>
+        <a class="nav-sub" href="#helpers">Helper functions</a>
+        <a class="nav-link" href="market.html">Market Data</a>
+        <a class="nav-link" href="charts.html">Forex · Crypto · Future</a>
+        <a class="nav-link" href="utils.html">Configuration &amp; Utilities</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-title">Appendix</div>
+        <a class="nav-link" href="reference.html">Reference Data</a>
+      </div>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <h1>Group</h1>
+    <p class="subtitle"><code>finvizfinance.group.*</code></p>
+    <p class="lead">Aggregated metrics for whole <strong>sectors, industries, countries and market-cap buckets</strong>
+      — the same numbers as the screener, but rolled up by group instead of per ticker.</p>
+
+    <h2 id="pattern">The group pattern</h2>
+    <p>Pick a view class, then call <code>screener_view()</code> with the grouping and sort order you want. Unlike
+      the screener, groups need no filters and return everything in a single request.</p>
+    <pre><code><span class="tok-kw">from</span> finvizfinance.group.overview <span class="tok-kw">import</span> Overview
+
+foverview = Overview()
+df = foverview.screener_view(group=<span class="tok-str">'Sector'</span>, order=<span class="tok-str">'Name'</span>)
+df.head()</code></pre>
+
+    <!-- View classes -->
+    <h2 id="views">View classes</h2>
+    <p>Import each from its submodule, e.g. <code>from finvizfinance.group.performance import Performance</code>.
+      All take no constructor arguments.</p>
+    <table>
+      <tr><th>Class</th><th>Submodule</th><th>What it returns</th></tr>
+      <tr><td><span class="obj-kind kind-class">class</span><code>Overview</code></td><td><code>group.overview</code></td><td>General per-group summary (market cap, P/E, dividend, performance, volume).</td></tr>
+      <tr><td><span class="obj-kind kind-class">class</span><code>Valuation</code></td><td><code>group.valuation</code></td><td>Per-group valuation multiples.</td></tr>
+      <tr><td><span class="obj-kind kind-class">class</span><code>Performance</code></td><td><code>group.performance</code></td><td>Per-group returns and volume metrics.</td></tr>
+      <tr><td><span class="obj-kind kind-class">class</span><code>Custom</code></td><td><code>group.custom</code></td><td>Per-group metrics for columns you choose — see <a href="#custom">Custom</a>.</td></tr>
+      <tr><td><span class="obj-kind kind-class">class</span><code>Spectrum</code></td><td><code>group.spectrum</code></td><td>Downloads the relative-performance spectrum image — see <a href="#spectrum">Spectrum</a>.</td></tr>
+    </table>
+
+    <!-- screener_view -->
+    <h2 id="screener_view">screener_view</h2>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">screener_view</span><span class="params">(group='Sector', order='Name', columns=None)</span></div>
+      <div class="api-body">
+        <p>Available on <code>Overview</code>, <code>Valuation</code> and <code>Performance</code>.</p>
+        <table class="params">
+          <tr><th>Parameter</th><th>Type</th><th></th><th>Description</th></tr>
+          <tr><td>group</td><td>str</td><td><span class="opt">= 'Sector'</span></td><td>How to bucket the market, e.g. <code>'Sector'</code>, <code>'Industry'</code>, <code>'Capitalization'</code>, or an industry-within-sector option. Invalid values raise <code>ValueError</code>. Full list: <a href="reference.html#groups">Group options</a>.</td></tr>
+          <tr><td>order</td><td>str</td><td><span class="opt">= 'Name'</span></td><td>Sort field, e.g. <code>'Name'</code>, <code>'Market Capitalization'</code>, <code>'Performance (Week)'</code>. Invalid values raise <code>ValueError</code>. Full list: <a href="reference.html#group-orders">Group orders</a>.</td></tr>
+          <tr><td>columns</td><td>list</td><td><span class="opt">= None</span></td><td>Ignored for standard views; used only by <a href="#custom"><code>Custom</code></a>.</td></tr>
+        </table>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>pandas.DataFrame</code>, one row per group, numeric columns converted to <code>float</code>.</div>
+      </div>
+    </div>
+
+    <!-- Custom -->
+    <h2 id="custom">class <code>Custom</code></h2>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">screener_view</span><span class="params">(group='Sector', order='Name', columns=[0,1,2,3,10,22,24,25,26])</span></div>
+      <div class="api-body">
+        <p>Like the standard group view, but you select the columns by index.</p>
+        <table class="params">
+          <tr><th>Parameter</th><th>Type</th><th></th><th>Description</th></tr>
+          <tr><td>group</td><td>str</td><td><span class="opt">= 'Sector'</span></td><td>See <a href="reference.html#groups">Group options</a>.</td></tr>
+          <tr><td>order</td><td>str</td><td><span class="opt">= 'Name'</span></td><td>See <a href="reference.html#group-orders">Group orders</a>.</td></tr>
+          <tr><td>columns</td><td>list[int]</td><td><span class="opt">= [0,1,2,3,10,22,24,25,26]</span></td><td>Column indices to include.</td></tr>
+        </table>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>pandas.DataFrame</code> with your chosen columns.</div>
+      </div>
+    </div>
+    <pre><code><span class="tok-kw">from</span> finvizfinance.group.custom <span class="tok-kw">import</span> Custom
+df = Custom().screener_view(group=<span class="tok-str">'Industry'</span>, columns=[0, 1, 2, 3, 10])</code></pre>
+
+    <!-- Spectrum -->
+    <h2 id="spectrum">class <code>Spectrum</code></h2>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">screener_view</span><span class="params">(group='Sector', order='Name', out_dir='')</span></div>
+      <div class="api-body">
+        <p>Downloads the FinViz "spectrum" image — a colour map of relative performance across the group — and
+          saves it as <code>&lt;group&gt;.jpg</code>.</p>
+        <table class="params">
+          <tr><th>Parameter</th><th>Type</th><th></th><th>Description</th></tr>
+          <tr><td>group</td><td>str</td><td><span class="opt">= 'Sector'</span></td><td>See <a href="reference.html#groups">Group options</a>.</td></tr>
+          <tr><td>order</td><td>str</td><td><span class="opt">= 'Name'</span></td><td>See <a href="reference.html#group-orders">Group orders</a>.</td></tr>
+          <tr><td>out_dir</td><td>str</td><td><span class="opt">= ''</span></td><td>Destination directory for the image.</td></tr>
+        </table>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>None</code> — the image is written to disk.</div>
+      </div>
+    </div>
+
+    <!-- Helpers -->
+    <h2 id="helpers">Helper functions</h2>
+    <p>Import from <code>finvizfinance.group.util</code>.</p>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-func">function</span><span class="name">get_group</span><span class="params">()</span></div>
+      <div class="api-body"><p>All valid <code>group</code> values.</p><div class="return-block"><span class="label">Returns</span> &nbsp; <code>list[str]</code></div></div>
+    </div>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-func">function</span><span class="name">get_orders</span><span class="params">()</span></div>
+      <div class="api-body"><p>All valid group <code>order</code> values.</p><div class="return-block"><span class="label">Returns</span> &nbsp; <code>list[str]</code></div></div>
+    </div>
+    <pre><code><span class="tok-kw">from</span> finvizfinance.group.util <span class="tok-kw">import</span> get_group, get_orders
+get_group()    <span class="tok-com"># ['Sector', 'Industry', 'Capitalization', ...]</span></code></pre>
+
+    <div class="footer">
+      finvizfinance v1.3.0 · <a href="index.html">Home</a> · Module <code>finvizfinance.group</code>
+    </div>
+  </main>
+</div>
+</body>
+</html>

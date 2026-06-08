@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configuration &amp; Utilities — finvizfinance API</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+<script>(function(){try{var t=localStorage.getItem('fvf-theme')||((window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light');document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<script src="docs.js" defer></script>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <a href="index.html">finvizfinance</a><br>
+      <span class="ver">API Reference · v1.3.0</span>
+    </div>
+    <nav>
+      <div class="nav-group">
+        <div class="nav-title">Introduction</div>
+        <a class="nav-link" href="index.html">Overview &amp; Setup</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-title">Modules</div>
+        <a class="nav-link" href="quote.html">Stock Quote</a>
+        <a class="nav-link" href="screener.html">Screener</a>
+        <a class="nav-link" href="group.html">Group</a>
+        <a class="nav-link" href="market.html">Market Data</a>
+        <a class="nav-link" href="charts.html">Forex · Crypto · Future</a>
+        <a class="nav-link active" href="utils.html">Configuration &amp; Utilities</a>
+        <a class="nav-sub" href="#set_proxy">set_proxy</a>
+        <a class="nav-sub" href="#set_timeout">set_timeout</a>
+        <a class="nav-sub" href="#internals">Internal helpers</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-title">Appendix</div>
+        <a class="nav-link" href="reference.html">Reference Data</a>
+      </div>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <h1>Configuration &amp; Utilities</h1>
+    <p class="subtitle"><code>finvizfinance.util</code></p>
+    <p class="lead">Global settings that affect every network request the library makes, plus the low-level
+      scraping helpers the rest of the package is built on.</p>
+
+    <div class="note"><b>Global state</b>
+      <code>set_proxy</code> and <code>set_timeout</code> mutate module-level globals and a shared
+      <code>requests.Session</code>. Set them <strong>once, early</strong> — they apply to all subsequent calls
+      across every module.</div>
+
+    <!-- ============ set_proxy ============ -->
+    <h2 id="set_proxy">set_proxy</h2>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-func">function</span><span class="name">set_proxy</span><span class="params">(proxies)</span></div>
+      <div class="api-body">
+        <p>Route all FinViz requests through an HTTP/HTTPS proxy. The dictionary is passed straight to
+          <code>requests</code> as its <code>proxies</code> argument.</p>
+        <table class="params">
+          <tr><th>Parameter</th><th>Type</th><th></th><th>Description</th></tr>
+          <tr><td>proxies</td><td>dict</td><td><span class="req">required</span></td><td>A <code>requests</code>-style proxy map, e.g. <code>{'http': 'http://127.0.0.1:8080', 'https': 'http://127.0.0.1:8080'}</code>.</td></tr>
+        </table>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>None</code>.</div>
+      </div>
+    </div>
+    <pre><code><span class="tok-kw">from</span> finvizfinance.util <span class="tok-kw">import</span> set_proxy
+
+set_proxy({<span class="tok-str">'http'</span>: <span class="tok-str">'http://127.0.0.1:8080'</span>})</code></pre>
+
+    <!-- ============ set_timeout ============ -->
+    <h2 id="set_timeout">set_timeout</h2>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-func">function</span><span class="name">set_timeout</span><span class="params">(timeout)</span></div>
+      <div class="api-body">
+        <p>Override the per-request timeout (default <code>10</code> seconds).</p>
+        <table class="params">
+          <tr><th>Parameter</th><th>Type</th><th></th><th>Description</th></tr>
+          <tr><td>timeout</td><td>int | float</td><td><span class="req">required</span></td><td>Seconds before a request is abandoned with a <code>requests.exceptions.Timeout</code>.</td></tr>
+        </table>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>None</code>.</div>
+      </div>
+    </div>
+    <pre><code><span class="tok-kw">from</span> finvizfinance.util <span class="tok-kw">import</span> set_timeout
+set_timeout(30)</code></pre>
+
+    <!-- ============ Internals ============ -->
+    <h2 id="internals">Internal helpers</h2>
+    <p>These power the higher-level classes. You normally won't call them directly, but they're documented here
+      for completeness and for anyone extending the library.</p>
+
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-func">function</span><span class="name">web_scrap</span><span class="params">(url, params=None)</span></div>
+      <div class="api-body"><p>GET a URL through the shared session (honouring proxy &amp; timeout) and parse the HTML.</p>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>bs4.BeautifulSoup</code>. Raises <code>requests</code> <code>HTTPError</code>/<code>Timeout</code> on failure.</div></div>
+    </div>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-func">function</span><span class="name">image_scrap</span><span class="params">(url, ticker, out_dir)</span></div>
+      <div class="api-body"><p>Download an image URL and save it as <code>&lt;ticker&gt;.jpg</code> in <code>out_dir</code>.</p>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>None</code>.</div></div>
+    </div>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-func">function</span><span class="name">scrap_function</span><span class="params">(url)</span></div>
+      <div class="api-body"><p>Parse a FinViz "groups" performance table (used by Forex/Crypto).</p>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>pandas.DataFrame</code>.</div></div>
+    </div>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-func">function</span><span class="name">image_scrap_function</span><span class="params">(url, chart, timeframe, urlonly)</span></div>
+      <div class="api-body"><p>Resolve a Forex/Crypto chart image URL for the given timeframe and optionally download it.</p>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>str</code> — the chart URL.</div></div>
+    </div>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-func">function</span><span class="name">number_covert</span><span class="params">(num)</span></div>
+      <div class="api-body"><p>Convert a FinViz numeric string to a float: strips commas, expands <code>K/M/B</code> suffixes, turns a
+        trailing <code>%</code> into a fraction, and maps empty / <code>'-'</code> to <code>None</code>.</p>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>float</code> or <code>None</code>.</div></div>
+    </div>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-func">function</span><span class="name">format_datetime</span><span class="params">(date_str)</span></div>
+      <div class="api-body"><p>Parse FinViz date strings (including the <code>"Today HH:MMam/pm"</code> form) into a <code>datetime</code>.</p>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>datetime.datetime</code>.</div></div>
+    </div>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-func">function</span><span class="name">progress_bar</span><span class="params">(page, total)</span></div>
+      <div class="api-body"><p>Render the text progress bar shown while the screener pages through results.</p>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>None</code>.</div></div>
+    </div>
+
+    <div class="footer">
+      finvizfinance v1.3.0 · <a href="index.html">Home</a> · Module <code>finvizfinance.util</code>
+    </div>
+  </main>
+</div>
+</body>
+</html>

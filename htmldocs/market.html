@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Market Data — finvizfinance API</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+<script>(function(){try{var t=localStorage.getItem('fvf-theme')||((window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light');document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<script src="docs.js" defer></script>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <a href="index.html">finvizfinance</a><br>
+      <span class="ver">API Reference · v1.3.0</span>
+    </div>
+    <nav>
+      <div class="nav-group">
+        <div class="nav-title">Introduction</div>
+        <a class="nav-link" href="index.html">Overview &amp; Setup</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-title">Modules</div>
+        <a class="nav-link" href="quote.html">Stock Quote</a>
+        <a class="nav-link" href="screener.html">Screener</a>
+        <a class="nav-link" href="group.html">Group</a>
+        <a class="nav-link active" href="market.html">Market Data</a>
+        <a class="nav-sub" href="#news">News</a>
+        <a class="nav-sub" href="#insider">Insider</a>
+        <a class="nav-sub" href="#calendar">Calendar</a>
+        <a class="nav-sub" href="#earnings">Earnings</a>
+        <a class="nav-link" href="charts.html">Forex · Crypto · Future</a>
+        <a class="nav-link" href="utils.html">Configuration &amp; Utilities</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-title">Appendix</div>
+        <a class="nav-link" href="reference.html">Reference Data</a>
+      </div>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <h1>Market Data</h1>
+    <p class="lead">Market-wide feeds that are not tied to a single ticker: financial news, insider-trading
+      activity, the economic calendar, and earnings-date partitioning.</p>
+
+    <!-- ============ News ============ -->
+    <h2 id="news">class <code>News</code></h2>
+    <p class="subtitle"><code>finvizfinance.news</code></p>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-class">class</span><span class="name">News</span><span class="params">()</span></div>
+      <div class="api-body"><p>Loads the FinViz news page on construction.</p></div>
+    </div>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">get_news</span><span class="params">()</span></div>
+      <div class="api-body">
+        <p>Parses the page into two tables — mainstream <em>news</em> and <em>blogs</em>.</p>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>dict</code> with keys <code>'news'</code> and <code>'blogs'</code>, each a <code>pandas.DataFrame</code> with columns <code>Date</code>, <code>Title</code>, <code>Source</code>, <code>Link</code>.</div>
+      </div>
+    </div>
+    <pre><code><span class="tok-kw">from</span> finvizfinance.news <span class="tok-kw">import</span> News
+
+all_news = News().get_news()
+all_news[<span class="tok-str">'news'</span>].head()
+all_news[<span class="tok-str">'blogs'</span>].head()</code></pre>
+
+    <!-- ============ Insider ============ -->
+    <h2 id="insider">class <code>Insider</code></h2>
+    <p class="subtitle"><code>finvizfinance.insider</code></p>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-class">class</span><span class="name">Insider</span><span class="params">(option='latest')</span></div>
+      <div class="api-body">
+        <p>Loads a slice of FinViz's market-wide insider-trading page on construction. The <code>option</code>
+          chooses which slice.</p>
+        <table class="params">
+          <tr><th>Parameter</th><th>Type</th><th></th><th>Description</th></tr>
+          <tr><td>option</td><td>str</td><td><span class="opt">= 'latest'</span></td><td>One of the values below, or a numeric insider id (as a string) to fetch one insider's history.</td></tr>
+        </table>
+        <p><strong>Valid <code>option</code> values:</strong></p>
+        <div class="pill-list">
+          <span class="pill">latest</span><span class="pill">latest buys</span><span class="pill">latest sales</span>
+          <span class="pill">top week</span><span class="pill">top week buys</span><span class="pill">top week sales</span>
+          <span class="pill">top owner trade</span><span class="pill">top owner buys</span><span class="pill">top owner sales</span>
+          <span class="pill">&lt;insider_id&gt;</span>
+        </div>
+      </div>
+    </div>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">get_insider</span><span class="params">()</span></div>
+      <div class="api-body">
+        <p>Returns the insider-trading table for the configured option.</p>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>pandas.DataFrame</code> with columns such as <code>Ticker</code>, <code>Owner</code>, <code>Relationship</code>, <code>Date</code>, <code>Transaction</code>, <code>Cost</code>, <code>#Shares</code>, <code>Value ($)</code>, <code>#Shares Total</code>, <code>SEC Form 4</code>, plus a <code>SEC Form 4 Link</code> URL column. Numeric columns are converted to <code>float</code>.</div>
+      </div>
+    </div>
+    <pre><code><span class="tok-kw">from</span> finvizfinance.insider <span class="tok-kw">import</span> Insider
+
+finsider = Insider(option=<span class="tok-str">'top owner trade'</span>)
+df = finsider.get_insider()</code></pre>
+
+    <!-- ============ Calendar ============ -->
+    <h2 id="calendar">class <code>Calendar</code></h2>
+    <p class="subtitle"><code>finvizfinance.calendar</code></p>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-class">class</span><span class="name">Calendar</span><span class="params">()</span></div>
+      <div class="api-body"><p>Wrapper around the FinViz economic-calendar page.</p></div>
+    </div>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">calendar</span><span class="params">()</span></div>
+      <div class="api-body">
+        <p>Fetches the week's scheduled U.S. economic releases.</p>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>pandas.DataFrame</code> with columns <code>Datetime</code>, <code>Release</code>, <code>Impact</code>, <code>For</code>, <code>Actual</code>, <code>Expected</code>, <code>Prior</code>.</div>
+      </div>
+    </div>
+    <pre><code><span class="tok-kw">from</span> finvizfinance.calendar <span class="tok-kw">import</span> Calendar
+df = Calendar().calendar()</code></pre>
+
+    <!-- ============ Earnings ============ -->
+    <h2 id="earnings">class <code>Earnings</code></h2>
+    <p class="subtitle"><code>finvizfinance.earnings</code></p>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-class">class</span><span class="name">Earnings</span><span class="params">(period='This Week')</span></div>
+      <div class="api-body">
+        <p>Pulls every stock reporting earnings in a chosen period and groups them by earnings date. On
+          construction it runs a Financial screen filtered to the period.</p>
+        <table class="params">
+          <tr><th>Parameter</th><th>Type</th><th></th><th>Description</th></tr>
+          <tr><td>period</td><td>str</td><td><span class="opt">= 'This Week'</span></td><td>One of <code>'This Week'</code>, <code>'Next Week'</code>, <code>'Previous Week'</code>, <code>'This Month'</code>. Other values raise <code>ValueError</code>.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <h3 id="earnings-partition_days">partition_days</h3>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">partition_days</span><span class="params">(mode='financial')</span></div>
+      <div class="api-body">
+        <p>Splits the period's stocks into a separate table per earnings date, fetched in the chosen view.</p>
+        <table class="params">
+          <tr><th>Parameter</th><th>Type</th><th></th><th>Description</th></tr>
+          <tr><td>mode</td><td>str</td><td><span class="opt">= 'financial'</span></td><td>Which screener view to use: <code>'financial'</code>, <code>'overview'</code>, <code>'valuation'</code>, <code>'ownership'</code>, <code>'performance'</code>, <code>'technical'</code>. Other values raise <code>ValueError</code>.</td></tr>
+        </table>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>dict</code> mapping each earnings date (str) to a <code>pandas.DataFrame</code> of the stocks reporting that day.</div>
+      </div>
+    </div>
+
+    <h3 id="earnings-output_excel">output_excel</h3>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">output_excel</span><span class="params">(output_file='earning_days.xlsx')</span></div>
+      <div class="api-body"><p>Writes the partitioned tables to a single Excel workbook, one sheet per date. Requires <code>xlsxwriter</code>. Call <code>partition_days()</code> first.</p>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>None</code>.</div></div>
+    </div>
+
+    <h3 id="earnings-output_csv">output_csv</h3>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">output_csv</span><span class="params">(output_dir='earning_days')</span></div>
+      <div class="api-body"><p>Writes the partitioned tables to one CSV file per date inside <code>output_dir</code> (created if missing). Call <code>partition_days()</code> first.</p>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>None</code>.</div></div>
+    </div>
+
+    <pre><code><span class="tok-kw">from</span> finvizfinance.earnings <span class="tok-kw">import</span> Earnings
+
+fearn = Earnings(period=<span class="tok-str">'This Week'</span>)
+days = fearn.partition_days(mode=<span class="tok-str">'overview'</span>)   <span class="tok-com"># {'May 06/a': DataFrame, ...}</span>
+fearn.output_csv(<span class="tok-str">'my_earnings'</span>)</code></pre>
+
+    <div class="footer">
+      finvizfinance v1.3.0 · <a href="index.html">Home</a> · Modules <code>news</code>, <code>insider</code>, <code>calendar</code>, <code>earnings</code>
+    </div>
+  </main>
+</div>
+</body>
+</html>

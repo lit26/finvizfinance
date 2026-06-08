@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stock Quote — finvizfinance API</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+<script>(function(){try{var t=localStorage.getItem('fvf-theme')||((window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light');document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<script src="docs.js" defer></script>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <a href="index.html">finvizfinance</a><br>
+      <span class="ver">API Reference · v1.3.0</span>
+    </div>
+    <nav>
+      <div class="nav-group">
+        <div class="nav-title">Introduction</div>
+        <a class="nav-link" href="index.html">Overview &amp; Setup</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-title">Modules</div>
+        <a class="nav-link active" href="quote.html">Stock Quote</a>
+        <a class="nav-sub" href="#finvizfinance">finvizfinance</a>
+        <a class="nav-sub" href="#quote">Quote</a>
+        <a class="nav-sub" href="#statements">Statements</a>
+        <a class="nav-link" href="screener.html">Screener</a>
+        <a class="nav-link" href="group.html">Group</a>
+        <a class="nav-link" href="market.html">Market Data</a>
+        <a class="nav-link" href="charts.html">Forex · Crypto · Future</a>
+        <a class="nav-link" href="utils.html">Configuration &amp; Utilities</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-title">Appendix</div>
+        <a class="nav-link" href="reference.html">Reference Data</a>
+      </div>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <h1>Stock Quote</h1>
+    <p class="subtitle"><code>finvizfinance.quote</code></p>
+    <p class="lead">Everything FinViz publishes about a <strong>single ticker</strong>: fundamentals, profile,
+      peers, ETF holders, analyst ratings, news, insider trades, technical signals and financial statements.</p>
+
+    <div class="toc-mini">
+      <strong>On this page</strong>
+      <ul>
+        <li><a href="#finvizfinance">class <code>finvizfinance</code></a> — the main per-ticker object</li>
+        <li><a href="#quote">class <code>Quote</code></a> — real-time last price</li>
+        <li><a href="#statements">class <code>Statements</code></a> — income / balance / cash-flow statements</li>
+      </ul>
+    </div>
+
+    <!-- ============ finvizfinance ============ -->
+    <h2 id="finvizfinance">class <code>finvizfinance</code></h2>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-class">class</span><span class="name">finvizfinance</span><span class="params">(ticker, verbose=0)</span></div>
+      <div class="api-body">
+        <p>Loads the FinViz quote page for one ticker once, on construction, and caches the parsed HTML.
+          Every <code>ticker_*</code> method reads from that cached page (only <code>ticker_charts</code>,
+          <code>ticker_signal</code> and the statements helper make additional network calls).</p>
+        <table class="params">
+          <tr><th>Parameter</th><th>Type</th><th></th><th>Description</th></tr>
+          <tr><td>ticker</td><td>str</td><td><span class="req">required</span></td><td>Ticker symbol, e.g. <code>'AAPL'</code>. Case-insensitive.</td></tr>
+          <tr><td>verbose</td><td>int</td><td><span class="opt">= 0</span></td><td>Set to <code>1</code> to print <em>"Ticker exists."</em> during construction.</td></tr>
+        </table>
+        <p>If the symbol is not found on FinViz, the constructor prints <em>"Ticker not found."</em> and sets the
+          internal <code>flag</code> attribute to <code>True</code>.</p>
+      </div>
+    </div>
+
+    <pre><code><span class="tok-kw">from</span> finvizfinance.quote <span class="tok-kw">import</span> finvizfinance
+stock = finvizfinance(<span class="tok-str">'tsla'</span>)</code></pre>
+
+    <!-- ticker_fundament -->
+    <h3 id="ticker_fundament">ticker_fundament</h3>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">ticker_fundament</span><span class="params">(raw=True, output_format='dict')</span></div>
+      <div class="api-body">
+        <p>Returns the full fundamentals snapshot (the FinViz "snapshot" table) — roughly 70 key/value metrics
+          such as P/E, EPS, Market Cap, margins, performance and 52-week range, plus Company, Sector, Industry,
+          Country and Exchange.</p>
+        <table class="params">
+          <tr><th>Parameter</th><th>Type</th><th></th><th>Description</th></tr>
+          <tr><td>raw</td><td>bool</td><td><span class="opt">= True</span></td><td>When <code>True</code>, values are returned as the original strings (e.g. <code>'302.10B'</code>, <code>'13.63%'</code>). When <code>False</code>, numeric values are converted to <code>float</code> (percentages become fractions, suffixes K/M/B are expanded, <code>'-'</code> becomes <code>None</code>) and Optionable/Shortable become booleans.</td></tr>
+          <tr><td>output_format</td><td>str</td><td><span class="opt">= 'dict'</span></td><td><code>'dict'</code> returns a plain dictionary; <code>'series'</code> returns a single-column <code>pandas.DataFrame</code> indexed by metric name. Any other value raises <code>ValueError</code>.</td></tr>
+        </table>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>dict</code> (default) or <code>pandas.DataFrame</code> — see <code>output_format</code>.</div>
+        <p class="subtitle">Note: composite cells are split into separate keys — <code>52W Range</code> →
+          <code>52W Range From</code>/<code>52W Range To</code>, and <code>Volatility</code> →
+          <code>Volatility W</code>/<code>Volatility M</code>.</p>
+      </div>
+    </div>
+    <pre><code>f = stock.ticker_fundament()
+<span class="tok-com"># {'Company': 'Tesla, Inc.', 'Sector': 'Consumer Cyclical',</span>
+<span class="tok-com">#  'P/E': '849.57', 'Market Cap': '302.10B', ...}</span>
+
+f_numeric = stock.ticker_fundament(raw=<span class="tok-kw">False</span>)
+<span class="tok-com"># {'P/E': 849.57, 'Market Cap': 302100000000.0, 'Optionable': True, ...}</span></code></pre>
+
+    <!-- ticker_description -->
+    <h3 id="ticker_description">ticker_description</h3>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">ticker_description</span><span class="params">()</span></div>
+      <div class="api-body">
+        <p>The company's business-profile paragraph.</p>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>str</code></div>
+      </div>
+    </div>
+
+    <!-- ticker_peer -->
+    <h3 id="ticker_peer">ticker_peer</h3>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">ticker_peer</span><span class="params">()</span></div>
+      <div class="api-body">
+        <p>Peer (comparable) ticker symbols that FinViz links from the quote page.</p>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>list[str]</code> — peer symbols, or an empty list if none are found.</div>
+      </div>
+    </div>
+    <pre><code>stock.ticker_peer()
+<span class="tok-com"># ['LI', 'XPEV', 'NIO', 'RIVN', 'LCID', 'TM', 'HMC', 'GM', 'STLA', 'F']</span></code></pre>
+
+    <!-- ticker_etf_holders -->
+    <h3 id="ticker_etf_holders">ticker_etf_holders</h3>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">ticker_etf_holders</span><span class="params">()</span></div>
+      <div class="api-body">
+        <p>ETFs that hold the given ticker ("Held by" on FinViz).</p>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>list[str]</code> — ETF symbols, or an empty list if none are found.</div>
+      </div>
+    </div>
+    <pre><code>stock.ticker_etf_holders()
+<span class="tok-com"># ['VTI', 'VOO', 'IVV', 'SPY', 'VUG', 'QQQ', 'VGT', 'IWF', 'XLK', 'SPLG']</span></code></pre>
+
+    <!-- ticker_outer_ratings -->
+    <h3 id="ticker_outer_ratings">ticker_outer_ratings</h3>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">ticker_outer_ratings</span><span class="params">()</span></div>
+      <div class="api-body">
+        <p>Analyst rating changes (upgrades, downgrades, initiations, price targets).</p>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>pandas.DataFrame</code> with columns
+          <code>Date</code>, <code>Status</code>, <code>Outer</code> (the analyst firm), <code>Rating</code>,
+          <code>Price</code> — or <code>None</code> if the ticker has no ratings table.</div>
+      </div>
+    </div>
+
+    <!-- ticker_news -->
+    <h3 id="ticker_news">ticker_news</h3>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">ticker_news</span><span class="params">()</span></div>
+      <div class="api-body">
+        <p>Recent news headlines linked to the ticker.</p>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>pandas.DataFrame</code> with columns
+          <code>Date</code> (parsed <code>datetime</code>), <code>Title</code>, <code>Link</code>,
+          <code>Source</code> — or <code>None</code> if there is no news table.</div>
+      </div>
+    </div>
+
+    <!-- ticker_inside_trader -->
+    <h3 id="ticker_inside_trader">ticker_inside_trader</h3>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">ticker_inside_trader</span><span class="params">()</span></div>
+      <div class="api-body">
+        <p>Insider transactions reported for this ticker.</p>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>pandas.DataFrame</code> including
+          <code>Insider Trading</code>, <code>Relationship</code>, <code>Date</code>, <code>Transaction</code>,
+          <code>Cost</code>, <code>#Shares</code>, <code>Value ($)</code>, <code>#Shares Total</code>,
+          <code>SEC Form 4 Link</code> and <code>Insider_id</code> — or <code>None</code> if no insider table exists.
+          Numeric columns (Cost, #Shares, Value, #Shares Total) are converted to <code>float</code>.</div>
+      </div>
+    </div>
+
+    <!-- ticker_charts -->
+    <h3 id="ticker_charts">ticker_charts</h3>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">ticker_charts</span><span class="params">(timeframe='daily', charttype='advanced', out_dir='', urlonly=False)</span></div>
+      <div class="api-body">
+        <p>Builds the FinViz chart URL for the ticker and, unless <code>urlonly=True</code>, downloads the chart
+          image to disk as <code>&lt;ticker&gt;.jpg</code>.</p>
+        <table class="params">
+          <tr><th>Parameter</th><th>Type</th><th></th><th>Description</th></tr>
+          <tr><td>timeframe</td><td>str</td><td><span class="opt">= 'daily'</span></td><td>One of <code>'daily'</code>, <code>'weekly'</code>, <code>'monthly'</code>. Other values raise <code>ValueError</code>.</td></tr>
+          <tr><td>charttype</td><td>str</td><td><span class="opt">= 'advanced'</span></td><td>One of <code>'candle'</code>, <code>'line'</code>, <code>'advanced'</code>. (Technical overlays from <code>'advanced'</code> apply on the daily timeframe only.) Other values raise <code>ValueError</code>.</td></tr>
+          <tr><td>out_dir</td><td>str</td><td><span class="opt">= ''</span></td><td>Directory to save the image into. Empty string saves in the current working directory.</td></tr>
+          <tr><td>urlonly</td><td>bool</td><td><span class="opt">= False</span></td><td>When <code>True</code>, skip downloading and just return the URL.</td></tr>
+        </table>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>str</code> — the chart image URL.</div>
+      </div>
+    </div>
+    <pre><code>url = stock.ticker_charts(timeframe=<span class="tok-str">'weekly'</span>, charttype=<span class="tok-str">'candle'</span>, urlonly=<span class="tok-kw">True</span>)</code></pre>
+
+    <!-- ticker_signal -->
+    <h3 id="ticker_signal">ticker_signal</h3>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">ticker_signal</span><span class="params">()</span></div>
+      <div class="api-body">
+        <p>Checks the ticker against every FinViz technical/screener signal and returns the ones it currently
+          matches (e.g. <code>'Top Gainers'</code>, <code>'Channel Up'</code>, <code>'Double Bottom'</code>).</p>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>list[str]</code> — matching signal names. See the full set in <a href="reference.html#signals">Reference Data → Signals</a>.</div>
+        <div class="warn"><b>Cost</b> This runs one screener request per signal (33 in total), so it is comparatively slow.</div>
+      </div>
+    </div>
+
+    <!-- ticker_full_info -->
+    <h3 id="ticker_full_info">ticker_full_info</h3>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">ticker_full_info</span><span class="params">()</span></div>
+      <div class="api-body">
+        <p>Convenience aggregator: runs <code>ticker_fundament()</code>, <code>ticker_outer_ratings()</code>,
+          <code>ticker_news()</code> and <code>ticker_inside_trader()</code> and returns them together.</p>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>dict</code> with keys
+          <code>fundament</code>, <code>ratings_outer</code>, <code>news</code>, <code>inside trader</code>.</div>
+      </div>
+    </div>
+
+    <!-- ============ Quote ============ -->
+    <h2 id="quote">class <code>Quote</code></h2>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-class">class</span><span class="name">Quote</span><span class="params">()</span></div>
+      <div class="api-body"><p>A minimal helper for fetching just the latest traded price.</p></div>
+    </div>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">get_current</span><span class="params">(ticker)</span></div>
+      <div class="api-body">
+        <p>Fetches the current/last price for a ticker from FinViz's quote endpoint.</p>
+        <table class="params">
+          <tr><th>Parameter</th><th>Type</th><th></th><th>Description</th></tr>
+          <tr><td>ticker</td><td>str</td><td><span class="req">required</span></td><td>Ticker symbol.</td></tr>
+        </table>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>str</code> — the price as text.</div>
+      </div>
+    </div>
+    <pre><code><span class="tok-kw">from</span> finvizfinance.quote <span class="tok-kw">import</span> Quote
+Quote().get_current(<span class="tok-str">'AAPL'</span>)   <span class="tok-com"># e.g. '227.52'</span></code></pre>
+
+    <!-- ============ Statements ============ -->
+    <h2 id="statements">class <code>Statements</code></h2>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-class">class</span><span class="name">Statements</span><span class="params">()</span></div>
+      <div class="api-body"><p>Downloads financial statements from FinViz's statement API.</p></div>
+    </div>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">get_statements</span><span class="params">(ticker, statement='I', timeframe='A')</span></div>
+      <div class="api-body">
+        <table class="params">
+          <tr><th>Parameter</th><th>Type</th><th></th><th>Description</th></tr>
+          <tr><td>ticker</td><td>str</td><td><span class="req">required</span></td><td>Ticker symbol.</td></tr>
+          <tr><td>statement</td><td>str</td><td><span class="opt">= 'I'</span></td><td><code>'I'</code> = Income Statement, <code>'B'</code> = Balance Sheet, <code>'C'</code> = Cash Flow.</td></tr>
+          <tr><td>timeframe</td><td>str</td><td><span class="opt">= 'A'</span></td><td><code>'A'</code> = Annual, <code>'Q'</code> = Quarterly.</td></tr>
+        </table>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>pandas.DataFrame</code> — line items as rows, reporting periods as columns. Raises an exception on HTTP errors.</div>
+      </div>
+    </div>
+    <pre><code><span class="tok-kw">from</span> finvizfinance.quote <span class="tok-kw">import</span> Statements
+income = Statements().get_statements(<span class="tok-str">'AAPL'</span>, statement=<span class="tok-str">'I'</span>, timeframe=<span class="tok-str">'Q'</span>)</code></pre>
+
+    <div class="footer">
+      finvizfinance v1.3.0 · <a href="index.html">Home</a> · Module <code>finvizfinance.quote</code>
+    </div>
+  </main>
+</div>
+</body>
+</html>

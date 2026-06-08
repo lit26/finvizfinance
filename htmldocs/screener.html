@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Screener — finvizfinance API</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+<script>(function(){try{var t=localStorage.getItem('fvf-theme')||((window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light');document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<script src="docs.js" defer></script>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <a href="index.html">finvizfinance</a><br>
+      <span class="ver">API Reference · v1.3.0</span>
+    </div>
+    <nav>
+      <div class="nav-group">
+        <div class="nav-title">Introduction</div>
+        <a class="nav-link" href="index.html">Overview &amp; Setup</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-title">Modules</div>
+        <a class="nav-link" href="quote.html">Stock Quote</a>
+        <a class="nav-link active" href="screener.html">Screener</a>
+        <a class="nav-sub" href="#views">View classes</a>
+        <a class="nav-sub" href="#set_filter">set_filter</a>
+        <a class="nav-sub" href="#screener_view">screener_view</a>
+        <a class="nav-sub" href="#compare">compare</a>
+        <a class="nav-sub" href="#custom">Custom</a>
+        <a class="nav-sub" href="#ticker">Ticker</a>
+        <a class="nav-sub" href="#helpers">Helper functions</a>
+        <a class="nav-link" href="group.html">Group</a>
+        <a class="nav-link" href="market.html">Market Data</a>
+        <a class="nav-link" href="charts.html">Forex · Crypto · Future</a>
+        <a class="nav-link" href="utils.html">Configuration &amp; Utilities</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-title">Appendix</div>
+        <a class="nav-link" href="reference.html">Reference Data</a>
+      </div>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <h1>Screener</h1>
+    <p class="subtitle"><code>finvizfinance.screener.*</code></p>
+    <p class="lead">Filter the entire stock universe by fundamental, descriptive and technical criteria, then pull
+      the matching tickers as a DataFrame in one of several "views".</p>
+
+    <h2 id="pattern">The screener pattern</h2>
+    <p>Every screener follows the same three steps. Choose a <strong>view class</strong> for the columns you want,
+      apply <strong>filters</strong>, then call <strong><code>screener_view()</code></strong> to download the table.</p>
+    <pre><code><span class="tok-kw">from</span> finvizfinance.screener.overview <span class="tok-kw">import</span> Overview
+
+foverview = Overview()                                  <span class="tok-com"># 1. pick a view</span>
+foverview.set_filter(filters_dict={<span class="tok-str">'Index'</span>: <span class="tok-str">'S&amp;P 500'</span>,    <span class="tok-com"># 2. apply filters</span>
+                                   <span class="tok-str">'Sector'</span>: <span class="tok-str">'Basic Materials'</span>})
+df = foverview.screener_view()                          <span class="tok-com"># 3. download → DataFrame</span>
+df.head()</code></pre>
+    <p>All view classes share the same methods (<code>set_filter</code>, <code>screener_view</code>,
+      <code>compare</code>, <code>reset</code>) inherited from an internal <code>Base</code> class. They differ
+      only in which set of columns FinViz returns.</p>
+
+    <!-- ============ View classes ============ -->
+    <h2 id="views">View classes</h2>
+    <p>Import each from its own submodule, e.g. <code>from finvizfinance.screener.valuation import Valuation</code>.
+      All are constructed with no arguments.</p>
+    <table>
+      <tr><th>Class</th><th>Submodule</th><th>Columns it returns</th></tr>
+      <tr><td><span class="obj-kind kind-class">class</span><code>Overview</code></td><td><code>screener.overview</code></td><td>Company, Sector, Industry, Country, Market Cap, P/E, Price, Change, Volume — a general summary.</td></tr>
+      <tr><td><span class="obj-kind kind-class">class</span><code>Valuation</code></td><td><code>screener.valuation</code></td><td>Valuation multiples: P/E, Fwd P/E, PEG, P/S, P/B, P/C, P/FCF, EPS &amp; sales growth.</td></tr>
+      <tr><td><span class="obj-kind kind-class">class</span><code>Financial</code></td><td><code>screener.financial</code></td><td>Margins, ROA/ROE/ROI, dividend, debt ratios, earnings date.</td></tr>
+      <tr><td><span class="obj-kind kind-class">class</span><code>Ownership</code></td><td><code>screener.ownership</code></td><td>Insider &amp; institutional ownership/transactions, float short, shares outstanding.</td></tr>
+      <tr><td><span class="obj-kind kind-class">class</span><code>Performance</code></td><td><code>screener.performance</code></td><td>Returns over week→year, volatility, average volume, relative volume, beta.</td></tr>
+      <tr><td><span class="obj-kind kind-class">class</span><code>Technical</code></td><td><code>screener.technical</code></td><td>Beta, ATR, SMAs, 52-week range position, RSI, gap, change.</td></tr>
+      <tr><td><span class="obj-kind kind-class">class</span><code>Custom</code></td><td><code>screener.custom</code></td><td>Any columns you choose by index — see <a href="#custom">Custom</a>.</td></tr>
+      <tr><td><span class="obj-kind kind-class">class</span><code>Ticker</code></td><td><code>screener.ticker</code></td><td>Ticker symbols only, as a Python list — see <a href="#ticker">Ticker</a>.</td></tr>
+    </table>
+
+    <!-- ============ set_filter ============ -->
+    <h2 id="set_filter">set_filter</h2>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">set_filter</span><span class="params">(signal='', filters_dict={}, ticker='')</span></div>
+      <div class="api-body">
+        <p>Configures the screen. Call it before <code>screener_view()</code>. Calling it again adds to the
+          existing configuration; use <a href="#reset"><code>reset()</code></a> to clear everything.</p>
+        <table class="params">
+          <tr><th>Parameter</th><th>Type</th><th></th><th>Description</th></tr>
+          <tr><td>signal</td><td>str</td><td><span class="opt">= ''</span></td><td>A single trading signal, e.g. <code>'Top Gainers'</code>. Invalid values raise <code>ValueError</code>. Full list: <a href="reference.html#signals">Signals</a>.</td></tr>
+          <tr><td>filters_dict</td><td>dict</td><td><span class="opt">= {}</span></td><td>Map of <em>filter name → option</em>, e.g. <code>{'Sector': 'Technology', 'P/E': 'Under 20'}</code>. Both the key and the value are validated against FinViz's allowed sets; an invalid key or option raises <code>ValueError</code>. Full lists: <a href="reference.html#filters">Filters &amp; options</a>.</td></tr>
+          <tr><td>ticker</td><td>str</td><td><span class="opt">= ''</span></td><td>Restrict the screen to a comma-separated set of tickers.</td></tr>
+        </table>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>None</code> (mutates the screener in place).</div>
+      </div>
+    </div>
+    <div class="tip"><b>Discover valid filters &amp; options programmatically</b>
+      Use <a href="#helpers"><code>get_filters()</code></a>, <code>get_filter_options(name)</code> and
+      <code>get_signal()</code> instead of hard-coding strings.</div>
+
+    <!-- ============ screener_view ============ -->
+    <h2 id="screener_view">screener_view</h2>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">screener_view</span><span class="params">(order='Ticker', limit=100000, select_page=None, verbose=1, ascend=True, columns=None, sleep_sec=1)</span></div>
+      <div class="api-body">
+        <p>Downloads the filtered table, paging through FinViz results (20 rows per page) until <code>limit</code>
+          is reached or there are no more pages.</p>
+        <table class="params">
+          <tr><th>Parameter</th><th>Type</th><th></th><th>Description</th></tr>
+          <tr><td>order</td><td>str</td><td><span class="opt">= 'Ticker'</span></td><td>Sort field. Invalid values raise <code>ValueError</code>. Full list: <a href="reference.html#orders">Orders</a>.</td></tr>
+          <tr><td>limit</td><td>int</td><td><span class="opt">= 100000</span></td><td>Maximum number of rows to return (effectively "all").</td></tr>
+          <tr><td>select_page</td><td>int</td><td><span class="opt">= None</span></td><td>Fetch only this single results page (1-indexed). When set, <code>limit</code> is ignored (a warning is emitted) and <code>None</code> is returned if the page is beyond the available range.</td></tr>
+          <tr><td>verbose</td><td>int</td><td><span class="opt">= 1</span></td><td><code>1</code> prints a progress bar while paging; <code>0</code> is silent.</td></tr>
+          <tr><td>ascend</td><td>bool</td><td><span class="opt">= True</span></td><td>Sort ascending (<code>True</code>) or descending (<code>False</code>).</td></tr>
+          <tr><td>columns</td><td>list</td><td><span class="opt">= None</span></td><td>Ignored for the standard views; used only by <a href="#custom"><code>Custom</code></a>.</td></tr>
+          <tr><td>sleep_sec</td><td>int</td><td><span class="opt">= 1</span></td><td>Seconds to sleep between page requests, to avoid hammering FinViz.</td></tr>
+        </table>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>pandas.DataFrame</code> of matching rows, or <code>None</code> when no ticker matches the filters. Numeric columns are converted to <code>float</code>.</div>
+        <p class="subtitle">After a full (non-paged) run the screener auto-calls <code>reset()</code>, clearing your filters.</p>
+      </div>
+    </div>
+    <pre><code>df = foverview.screener_view(order=<span class="tok-str">'Market Cap.'</span>, ascend=<span class="tok-kw">False</span>, limit=50)</code></pre>
+
+    <!-- ============ compare ============ -->
+    <h2 id="compare">compare</h2>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">compare</span><span class="params">(ticker, compare_list, order='ticker', verbose=1)</span></div>
+      <div class="api-body">
+        <p>Convenience method: looks up one ticker's Sector / Industry / Country, then screens for all other
+          tickers that share those properties.</p>
+        <table class="params">
+          <tr><th>Parameter</th><th>Type</th><th></th><th>Description</th></tr>
+          <tr><td>ticker</td><td>str</td><td><span class="req">required</span></td><td>The reference ticker to compare against.</td></tr>
+          <tr><td>compare_list</td><td>list</td><td><span class="req">required</span></td><td>Any combination of <code>'Sector'</code>, <code>'Industry'</code>, <code>'Country'</code>. Other values raise <code>ValueError</code>.</td></tr>
+          <tr><td>order</td><td>str</td><td><span class="opt">= 'ticker'</span></td><td>Sort field (see <a href="reference.html#orders">Orders</a>).</td></tr>
+          <tr><td>verbose</td><td>int</td><td><span class="opt">= 1</span></td><td>Progress bar toggle.</td></tr>
+        </table>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>pandas.DataFrame</code> in the calling view's columns.</div>
+      </div>
+    </div>
+    <pre><code><span class="tok-kw">from</span> finvizfinance.screener.overview <span class="tok-kw">import</span> Overview
+Overview().compare(<span class="tok-str">'AAPL'</span>, [<span class="tok-str">'Sector'</span>, <span class="tok-str">'Industry'</span>])</code></pre>
+
+    <!-- ============ reset ============ -->
+    <h2 id="reset">reset</h2>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">reset</span><span class="params">()</span></div>
+      <div class="api-body"><p>Clears all configured filters/signal/ticker, returning the screener to its initial state.</p>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>None</code>.</div></div>
+    </div>
+
+    <!-- ============ Custom ============ -->
+    <h2 id="custom">class <code>Custom</code> — choose your own columns</h2>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-class">class</span><span class="name">Custom</span><span class="params">()</span></div>
+      <div class="api-body"><p>Like the other views, but you pick exactly which columns to return by their FinViz index.</p></div>
+    </div>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">screener_view</span><span class="params">(order='Ticker', limit=-1, select_page=None, verbose=1, ascend=True, columns=[0,1,2,3,4,5,6,7,65,66,67], sleep_sec=1)</span></div>
+      <div class="api-body">
+        <p>Same behaviour as the base <a href="#screener_view"><code>screener_view</code></a>, plus the
+          <code>columns</code> argument.</p>
+        <table class="params">
+          <tr><th>Parameter</th><th>Type</th><th></th><th>Description</th></tr>
+          <tr><td>columns</td><td>list[int]</td><td><span class="opt">= [0,1,2,3,4,5,6,7,65,66,67]</span></td><td>Column indices to include. Index <code>0</code> (No.) is always forced to the front. See the full index→name map in <a href="reference.html#custom-columns">Reference Data → Custom columns</a>.</td></tr>
+        </table>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>pandas.DataFrame</code> with your chosen columns.</div>
+      </div>
+    </div>
+    <pre><code><span class="tok-kw">from</span> finvizfinance.screener.custom <span class="tok-kw">import</span> Custom
+fcustom = Custom()
+fcustom.set_filter(filters_dict={<span class="tok-str">'Sector'</span>: <span class="tok-str">'Technology'</span>})
+df = fcustom.screener_view(columns=[0, 1, 2, 3, 6, 7, 65, 67])</code></pre>
+
+    <!-- ============ Ticker ============ -->
+    <h2 id="ticker">class <code>Ticker</code> — symbols only</h2>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-class">class</span><span class="name">Ticker</span><span class="params">()</span></div>
+      <div class="api-body"><p>Returns just the list of ticker symbols that match the filters — fast, because FinViz packs 1,000 tickers per page.</p></div>
+    </div>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">screener_view</span><span class="params">(order='Ticker', limit=-1, verbose=1, ascend=True, sleep_sec=1)</span></div>
+      <div class="api-body">
+        <table class="params">
+          <tr><th>Parameter</th><th>Type</th><th></th><th>Description</th></tr>
+          <tr><td>order</td><td>str</td><td><span class="opt">= 'Ticker'</span></td><td>Sort field (see <a href="reference.html#orders">Orders</a>).</td></tr>
+          <tr><td>limit</td><td>int</td><td><span class="opt">= -1</span></td><td>Max number of tickers; <code>-1</code> means all.</td></tr>
+          <tr><td>verbose</td><td>int</td><td><span class="opt">= 1</span></td><td>Progress bar toggle.</td></tr>
+          <tr><td>ascend</td><td>bool</td><td><span class="opt">= True</span></td><td>Sort direction.</td></tr>
+          <tr><td>sleep_sec</td><td>int</td><td><span class="opt">= 1</span></td><td>Sleep between page requests.</td></tr>
+        </table>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>list[str]</code> of tickers, or <code>None</code> if none match.</div>
+      </div>
+    </div>
+    <pre><code><span class="tok-kw">from</span> finvizfinance.screener.ticker <span class="tok-kw">import</span> Ticker
+fticker = Ticker()
+fticker.set_filter(signal=<span class="tok-str">'Top Gainers'</span>)
+tickers = fticker.screener_view()   <span class="tok-com"># ['NVDA', 'AMD', ...]</span></code></pre>
+
+    <!-- ============ Helpers ============ -->
+    <h2 id="helpers">Helper functions</h2>
+    <p>Import from <code>finvizfinance.screener.util</code>. These let you discover the valid strings to pass
+      into <code>set_filter</code> and <code>screener_view</code> at runtime.</p>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-func">function</span><span class="name">get_signal</span><span class="params">()</span></div>
+      <div class="api-body"><p>All available trading signals.</p><div class="return-block"><span class="label">Returns</span> &nbsp; <code>list[str]</code></div></div>
+    </div>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-func">function</span><span class="name">get_filters</span><span class="params">()</span></div>
+      <div class="api-body"><p>All available filter names (the keys for <code>filters_dict</code>).</p><div class="return-block"><span class="label">Returns</span> &nbsp; <code>list[str]</code></div></div>
+    </div>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-func">function</span><span class="name">get_filter_options</span><span class="params">(screen_filter)</span></div>
+      <div class="api-body"><p>Valid option values for one filter. Raises <code>ValueError</code> for an unknown filter name.</p>
+        <table class="params"><tr><th>Parameter</th><th>Type</th><th></th><th>Description</th></tr>
+          <tr><td>screen_filter</td><td>str</td><td><span class="req">required</span></td><td>A filter name, e.g. <code>'Sector'</code>.</td></tr></table>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>list[str]</code></div></div>
+    </div>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-func">function</span><span class="name">get_orders</span><span class="params">()</span></div>
+      <div class="api-body"><p>All valid <code>order</code> values for <code>screener_view</code>.</p><div class="return-block"><span class="label">Returns</span> &nbsp; <code>list[str]</code></div></div>
+    </div>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-func">function</span><span class="name">get_custom_screener_columns</span><span class="params">()</span></div>
+      <div class="api-body"><p>The complete index → column-name map used by <a href="#custom"><code>Custom</code></a>.</p>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>dict[int, str]</code></div></div>
+    </div>
+    <pre><code><span class="tok-kw">from</span> finvizfinance.screener.util <span class="tok-kw">import</span> get_filters, get_filter_options
+
+get_filters()                       <span class="tok-com"># ['Exchange', 'Index', 'Sector', ...]</span>
+get_filter_options(<span class="tok-str">'Sector'</span>)        <span class="tok-com"># ['Any', 'Basic Materials', 'Communication Services', ...]</span></code></pre>
+
+    <div class="footer">
+      finvizfinance v1.3.0 · <a href="index.html">Home</a> · Module <code>finvizfinance.screener</code>
+    </div>
+  </main>
+</div>
+</body>
+</html>

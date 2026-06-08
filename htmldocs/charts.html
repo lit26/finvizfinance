@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forex · Crypto · Future — finvizfinance API</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+<script>(function(){try{var t=localStorage.getItem('fvf-theme')||((window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light');document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<script src="docs.js" defer></script>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <a href="index.html">finvizfinance</a><br>
+      <span class="ver">API Reference · v1.3.0</span>
+    </div>
+    <nav>
+      <div class="nav-group">
+        <div class="nav-title">Introduction</div>
+        <a class="nav-link" href="index.html">Overview &amp; Setup</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-title">Modules</div>
+        <a class="nav-link" href="quote.html">Stock Quote</a>
+        <a class="nav-link" href="screener.html">Screener</a>
+        <a class="nav-link" href="group.html">Group</a>
+        <a class="nav-link" href="market.html">Market Data</a>
+        <a class="nav-link active" href="charts.html">Forex · Crypto · Future</a>
+        <a class="nav-sub" href="#forex">Forex</a>
+        <a class="nav-sub" href="#crypto">Crypto</a>
+        <a class="nav-sub" href="#future">Future</a>
+        <a class="nav-link" href="utils.html">Configuration &amp; Utilities</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-title">Appendix</div>
+        <a class="nav-link" href="reference.html">Reference Data</a>
+      </div>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <h1>Forex · Crypto · Future</h1>
+    <p class="lead">Performance tables and downloadable charts for the non-equity markets FinViz tracks.</p>
+
+    <div class="note"><b>Chart timeframes</b>
+      The <code>chart()</code> methods of <code>Forex</code> and <code>Crypto</code> accept these timeframe codes:
+      <code>'5M'</code> (5-minute), <code>'H'</code> (hourly), <code>'D'</code> (daily), <code>'W'</code> (weekly),
+      <code>'M'</code> (monthly). Any other value raises <code>ValueError</code>.
+    </div>
+
+    <!-- ============ Forex ============ -->
+    <h2 id="forex">class <code>Forex</code></h2>
+    <p class="subtitle"><code>finvizfinance.forex</code></p>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-class">class</span><span class="name">Forex</span><span class="params">()</span></div>
+      <div class="api-body"><p>Foreign-exchange performance and charts.</p></div>
+    </div>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">performance</span><span class="params">(change='percent')</span></div>
+      <div class="api-body">
+        <p>Performance table across all currency pairs.</p>
+        <table class="params">
+          <tr><th>Parameter</th><th>Type</th><th></th><th>Description</th></tr>
+          <tr><td>change</td><td>str</td><td><span class="opt">= 'percent'</span></td><td><code>'percent'</code> for percentage change, <code>'PIPS'</code> for change in pips. Other values raise <code>ValueError</code>.</td></tr>
+        </table>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>pandas.DataFrame</code> — performance per pair across multiple timeframes.</div>
+      </div>
+    </div>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">chart</span><span class="params">(forex, timeframe='D', urlonly=False)</span></div>
+      <div class="api-body">
+        <p>Builds (and optionally downloads) the chart image for one currency pair.</p>
+        <table class="params">
+          <tr><th>Parameter</th><th>Type</th><th></th><th>Description</th></tr>
+          <tr><td>forex</td><td>str</td><td><span class="req">required</span></td><td>Pair name, e.g. <code>'EURUSD'</code>.</td></tr>
+          <tr><td>timeframe</td><td>str</td><td><span class="opt">= 'D'</span></td><td>One of <code>5M, H, D, W, M</code>.</td></tr>
+          <tr><td>urlonly</td><td>bool</td><td><span class="opt">= False</span></td><td>When <code>True</code>, return the URL without downloading.</td></tr>
+        </table>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>str</code> — the chart image URL (the image is also saved to disk unless <code>urlonly=True</code>).</div>
+      </div>
+    </div>
+    <pre><code><span class="tok-kw">from</span> finvizfinance.forex <span class="tok-kw">import</span> Forex
+
+fforex = Forex()
+df  = fforex.performance()
+url = fforex.chart(<span class="tok-str">'EURUSD'</span>, timeframe=<span class="tok-str">'D'</span>, urlonly=<span class="tok-kw">True</span>)</code></pre>
+
+    <!-- ============ Crypto ============ -->
+    <h2 id="crypto">class <code>Crypto</code></h2>
+    <p class="subtitle"><code>finvizfinance.crypto</code></p>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-class">class</span><span class="name">Crypto</span><span class="params">()</span></div>
+      <div class="api-body"><p>Cryptocurrency performance and charts.</p></div>
+    </div>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">performance</span><span class="params">()</span></div>
+      <div class="api-body">
+        <p>Performance table across all cryptocurrencies.</p>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>pandas.DataFrame</code></div>
+      </div>
+    </div>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">chart</span><span class="params">(crypto, timeframe='D', urlonly=False)</span></div>
+      <div class="api-body">
+        <table class="params">
+          <tr><th>Parameter</th><th>Type</th><th></th><th>Description</th></tr>
+          <tr><td>crypto</td><td>str</td><td><span class="req">required</span></td><td>Pair name, e.g. <code>'BTCUSD'</code>.</td></tr>
+          <tr><td>timeframe</td><td>str</td><td><span class="opt">= 'D'</span></td><td>One of <code>5M, H, D, W, M</code>.</td></tr>
+          <tr><td>urlonly</td><td>bool</td><td><span class="opt">= False</span></td><td>When <code>True</code>, return the URL without downloading.</td></tr>
+        </table>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>str</code> — the chart image URL.</div>
+      </div>
+    </div>
+    <pre><code><span class="tok-kw">from</span> finvizfinance.crypto <span class="tok-kw">import</span> Crypto
+
+fcrypto = Crypto()
+df  = fcrypto.performance()
+url = fcrypto.chart(<span class="tok-str">'BTCUSD'</span>, timeframe=<span class="tok-str">'5M'</span>)</code></pre>
+
+    <!-- ============ Future ============ -->
+    <h2 id="future">class <code>Future</code></h2>
+    <p class="subtitle"><code>finvizfinance.future</code></p>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-class">class</span><span class="name">Future</span><span class="params">()</span></div>
+      <div class="api-body"><p>Futures performance.</p></div>
+    </div>
+    <div class="api">
+      <div class="api-sig"><span class="obj-kind kind-method">method</span><span class="name">performance</span><span class="params">(timeframe='D')</span></div>
+      <div class="api-body">
+        <p>Performance table across all futures contracts for the given timeframe.</p>
+        <table class="params">
+          <tr><th>Parameter</th><th>Type</th><th></th><th>Description</th></tr>
+          <tr><td>timeframe</td><td>str</td><td><span class="opt">= 'D'</span></td><td>One of <code>'D'</code> (day), <code>'W'</code> (week), <code>'M'</code> (month), <code>'Q'</code> (quarter), <code>'HY'</code> (half year), <code>'Y'</code> (year). Other values raise <code>ValueError</code>.</td></tr>
+        </table>
+        <div class="return-block"><span class="label">Returns</span> &nbsp; <code>pandas.DataFrame</code> — one row per futures contract.</div>
+      </div>
+    </div>
+    <pre><code><span class="tok-kw">from</span> finvizfinance.future <span class="tok-kw">import</span> Future
+
+ffuture = Future()
+df = ffuture.performance(timeframe=<span class="tok-str">'W'</span>)</code></pre>
+
+    <div class="footer">
+      finvizfinance v1.3.0 · <a href="index.html">Home</a> · Modules <code>forex</code>, <code>crypto</code>, <code>future</code>
+    </div>
+  </main>
+</div>
+</body>
+</html>
