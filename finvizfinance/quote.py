@@ -141,12 +141,20 @@ class finvizfinance:
         fundament_info["Company"] = self.soup.find(
             "h2", class_="quote-header_ticker-wrapper_company"
         ).text.strip()
-        quote_links = self.soup.find("div", class_="quote-links")
+        quote_links = self.soup.find("div", class_="quote-header_categories")
         links = quote_links.find_all("a")
         fundament_info["Sector"] = links[0].text
         fundament_info["Industry"] = links[1].text
         fundament_info["Country"] = links[2].text
-        fundament_info["Exchange"] = links[3].text
+        #if fundament_info["Industry"] == "Exchange Traded Fund":             
+        if len(links) < 5:
+            fundament_info["Cap"] = ""
+            fundament_info["Exchange"] = links[3].text
+        else:
+            fundament_info["Cap"] = links[3].text
+            fundament_info["Exchange"] = links[4].text
+  
+
 
         fundament_table = self.soup.find("table", class_="snapshot-table2")
         rows = fundament_table.find_all("tr")
