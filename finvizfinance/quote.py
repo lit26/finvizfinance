@@ -145,8 +145,7 @@ class finvizfinance:
         links = quote_links.find_all("a")
         fundament_info["Sector"] = links[0].text
         fundament_info["Industry"] = links[1].text
-        fundament_info["Country"] = links[2].text
-        #if fundament_info["Industry"] == "Exchange Traded Fund":             
+        fundament_info["Country"] = links[2].text          
         if len(links) < 5:
             fundament_info["Cap"] = ""
             fundament_info["Exchange"] = links[3].text
@@ -156,7 +155,7 @@ class finvizfinance:
   
 
 
-        fundament_table = self.soup.find("table", class_="snapshot-table2")
+        fundament_table = self.soup.find("div", class_="screener_snapshot-table-wrapper")
         rows = fundament_table.find_all("tr")
 
         for row in rows:
