@@ -118,12 +118,25 @@ class Base:
             rows = rows[0:limit]
 
         frame = []
+        ticker_col = table_header.index("Ticker") if "Ticker" in table_header else -1
         for row in rows:
             cols = row.findAll("td")[1:]
             info_dict = {}
             for i, col in enumerate(cols):
-                # check if the col is number
-                if i not in num_col_index:
+                # Finviz wraps the ticker in two <a> tags (company-ticker with
+                # logo + tab-link), so col.text returns the ticker doubled.
+                # Extract the real ticker from the href query parameter instead.
+                if i == ticker_col:
+                    a_tag = col.find("a", class_="company-ticker")
+                    if a_tag:
+                        href = a_tag.get("href", "")
+                        if "t=" in href:
+                            info_dict[table_header[i]] = href.split("t=")[1].split("&")[0]
+                        else:
+                            info_dict[table_header[i]] = a_tag.get_text(strip=True)
+                    else:
+                        info_dict[table_header[i]] = col.text
+                elif i not in num_col_index:
                     info_dict[table_header[i]] = col.text
                 else:
                     info_dict[table_header[i]] = number_covert(col.text)
