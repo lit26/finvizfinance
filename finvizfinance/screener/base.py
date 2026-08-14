@@ -124,7 +124,10 @@ class Base:
             for i, col in enumerate(cols):
                 # check if the col is number
                 if i not in num_col_index:
-                    info_dict[table_header[i]] = col.text
+                    if table_header[i] == "Ticker" and col.has_attr("data-boxover-ticker"):
+                        info_dict[table_header[i]] = col["data-boxover-ticker"]
+                    else:
+                        info_dict[table_header[i]] = col.text
                 else:
                     info_dict[table_header[i]] = number_covert(col.text)
             frame.append(info_dict)
