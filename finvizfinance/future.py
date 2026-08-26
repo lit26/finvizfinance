@@ -6,6 +6,7 @@
 """
 
 import json
+import re
 import pandas as pd
 from finvizfinance.util import web_scrap
 from finvizfinance.exceptions import FinvizParseError
@@ -13,24 +14,35 @@ from finvizfinance.exceptions import FinvizParseError
 FUTURES_URL = "https://finviz.com/futures_performance.ashx"
 
 
+def _extract_rows(soup):
+    """Extract rows from either the legacy or current init call."""
+    html = soup.prettify()
+    patterns = [
+        r"var\s+rows\s*=\s*",
+        r"(?:window\.)?FinvizInitFuturesPerformance\s*\(\s*",
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, html)
+        if match is None:
+            continue
+        try:
+            data, _ = json.JSONDecoder().raw_decode(html[match.end():].lstrip())
+        except json.JSONDecodeError:
+            raise FinvizParseError(url=FUTURES_URL, selector="futures performance JSON")
+        if pattern.startswith("var"):
+            return data
+        return data
+    raise FinvizParseError(url=FUTURES_URL, selector="futures performance JSON")
+
+
 class Future:
-    """Future
-    Getting information from the finviz future page.
-    """
+    """Getting information from the finviz future page."""
 
     def __init__(self):
-        """initiate module"""
         pass
 
     def performance(self, timeframe="D"):
-        """Get forex performance table.
-
-        Args:
-            timeframe (str): choice of timeframe(D, W, M, Q, HY, Y)
-
-        Returns:
-            df(pandas.DataFrame): forex performance table
-        """
+        """Get futures performance table."""
         timeframe_dict = {"W": 12, "M": 13, "Q": 14, "HY": 15, "Y": 16}
         params = {}
         if timeframe in timeframe_dict:
@@ -39,16 +51,4 @@ class Future:
             raise ValueError("Invalid timeframe '{}'".format(timeframe))
 
         soup = web_scrap(FUTURES_URL, params)
-
-        html = soup.prettify()
-        start_marker = "var rows = "
-        end_marker = "FinvizInitFuturesPerformance(rows);"
-        if start_marker not in html or end_marker not in html:
-            raise FinvizParseError(
-                url=FUTURES_URL,
-                selector="script: var rows = ... FinvizInitFuturesPerformance",
-            )
-        data = html[html.find(start_marker) + len(start_marker) : html.find(end_marker)]
-        data = json.loads(data.strip()[:-1])
-        df = pd.DataFrame(data)
-        return df
+        return pd.DataFrame(_extract_rows(soup))
