@@ -6,7 +6,7 @@
 """
 
 import pandas as pd
-from finvizfinance.util import web_scrap, number_covert
+from finvizfinance.util import web_scrap, number_convert, require
 from finvizfinance.constants import group_dict, group_order_dict
 
 
@@ -61,7 +61,11 @@ class Base:
         self._parse_columns(columns)
 
         soup = web_scrap(self.url, self.request_params)
-        table = soup.find("table", class_="groups_table")
+        table = require(
+            soup.find("table", class_="groups_table"),
+            self.url,
+            "table.groups_table",
+        )
         rows = table.find_all("tr")
         table_header = [i.text.strip() for i in rows[0].find_all("th")][1:]
         frame = []
@@ -75,7 +79,7 @@ class Base:
                 if i not in num_col_index:
                     info_dict[table_header[i]] = col.text
                 else:
-                    info_dict[table_header[i]] = number_covert(col.text)
+                    info_dict[table_header[i]] = number_convert(col.text)
 
             frame.append(info_dict)
         return pd.DataFrame(frame)

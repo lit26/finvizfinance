@@ -8,6 +8,9 @@
 import json
 import pandas as pd
 from finvizfinance.util import web_scrap
+from finvizfinance.exceptions import FinvizParseError
+
+FUTURES_URL = "https://finviz.com/futures_performance.ashx"
 
 
 class Future:
@@ -35,13 +38,17 @@ class Future:
         elif timeframe != "D":
             raise ValueError("Invalid timeframe '{}'".format(timeframe))
 
-        soup = web_scrap("https://finviz.com/futures_performance.ashx", params)
+        soup = web_scrap(FUTURES_URL, params)
 
         html = soup.prettify()
-        data = html[
-            html.find("var rows = ")
-            + 11 : html.find("FinvizInitFuturesPerformance(rows);")
-        ]
+        start_marker = "var rows = "
+        end_marker = "FinvizInitFuturesPerformance(rows);"
+        if start_marker not in html or end_marker not in html:
+            raise FinvizParseError(
+                url=FUTURES_URL,
+                selector="script: var rows = ... FinvizInitFuturesPerformance",
+            )
+        data = html[html.find(start_marker) + len(start_marker) : html.find(end_marker)]
         data = json.loads(data.strip()[:-1])
         df = pd.DataFrame(data)
         return df

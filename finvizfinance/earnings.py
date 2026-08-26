@@ -13,6 +13,7 @@ from finvizfinance.screener.valuation import Valuation
 from finvizfinance.screener.ownership import Ownership
 from finvizfinance.screener.performance import Performance
 from finvizfinance.screener.technical import Technical
+from finvizfinance.exceptions import FinvizParseError
 
 
 class Earnings:
@@ -50,6 +51,13 @@ class Earnings:
         filters_dict = {"Earnings Date": period}
         ffinancial.set_filter(filters_dict=filters_dict)
         self.df = ffinancial.screener_view(order="Earnings Date", verbose=0)
+        if self.df is None:
+            # No data from the underlying screener is a Structural break for
+            # earnings (there should be earnings in the period) — surface it as
+            # a typed error rather than crashing later on ``self.df["Earnings"]``.
+            raise FinvizParseError(
+                url=ffinancial.url, selector="earnings screener results"
+            )
         self.earning_days = list(set(self.df["Earnings"].to_list()))
         self.earning_days.sort()
 

@@ -6,7 +6,8 @@
 """
 
 import pandas as pd
-from finvizfinance.util import web_scrap
+from finvizfinance.util import web_scrap, require
+from finvizfinance.exceptions import FinvizParseError
 
 NEWS_URL = "https://finviz.com/news.ashx"
 
@@ -31,14 +32,20 @@ class News:
             news(dict): news table
 
         """
-        news_content = self.soup.find(id="news").find("table")
-        news_collection = news_content.find_all("tr", recursive=False)[1]
+        news_div = require(self.soup.find(id="news"), NEWS_URL, "#news")
+        news_content = require(news_div.find("table"), NEWS_URL, "#news > table")
+        tr_list = news_content.find_all("tr", recursive=False)
+        if len(tr_list) < 2:
+            raise FinvizParseError(url=NEWS_URL, selector="#news table rows")
+        news_collection = tr_list[1]
         tables = news_collection.find_all("table")
+        if len(tables) < 2:
+            raise FinvizParseError(
+                url=NEWS_URL, selector="#news news/blogs tables"
+            )
 
-        news = tables[0]
-        news_df = self._get_news_helper(news)
-        blog = tables[1]
-        blog_df = self._get_news_helper(blog)
+        news_df = self._get_news_helper(tables[0])
+        blog_df = self._get_news_helper(tables[1])
         self.news = {"news": news_df, "blogs": blog_df}
         return self.news
 
@@ -55,22 +62,21 @@ class News:
         table = []
         rows = rows.find_all("tr")
         for row in rows:
-            try:
-                cols = row.find_all("td")
-                date = cols[1].text
-                title = cols[2].text
-                link = cols[2].a["href"]
-                source = link.split("/")[2]
-                if source == "feedproxy.google.com":
-                    source = link.split("/")[4]
-                info_dict = {
-                    "Date": date,
-                    "Title": title,
-                    "Source": source,
-                    "Link": link,
-                }
-                table.append(info_dict)
-            except TypeError:
-                # Empty news line
-                pass
+            cols = row.find_all("td")
+            if len(cols) < 3 or cols[2].a is None:
+                # Empty / malformed news line; skip explicitly (no silent hide).
+                continue
+            date = cols[1].text
+            title = cols[2].text
+            link = cols[2].a["href"]
+            source = link.split("/")[2]
+            if source == "feedproxy.google.com":
+                source = link.split("/")[4]
+            info_dict = {
+                "Date": date,
+                "Title": title,
+                "Source": source,
+                "Link": link,
+            }
+            table.append(info_dict)
         return pd.DataFrame(table)
