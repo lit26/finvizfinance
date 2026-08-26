@@ -12,8 +12,9 @@ from time import sleep
 from finvizfinance.quote import finvizfinance
 from finvizfinance.util import (
     web_scrap,
-    number_covert,
+    number_convert,
     progress_bar,
+    require,
 )
 from finvizfinance.constants import NUMBER_COL, signal_dict, filter_dict, order_dict
 
@@ -101,11 +102,10 @@ class Base:
 
     def _get_page(self, soup):
         """Check the page number"""
-        try:
-            options = soup.find(id="pageSelect").findAll("option")
-            return len(options)
-        except:
+        select = soup.find(id="pageSelect")
+        if select is None:
             return 0
+        return len(select.find_all("option"))
 
     def _get_table(self, rows, df, num_col_index, table_header, limit=-1):
         """Get screener table helper function.
@@ -126,16 +126,23 @@ class Base:
                 if i not in num_col_index:
                     info_dict[table_header[i]] = col.text
                 else:
-                    info_dict[table_header[i]] = number_covert(col.text)
+                    info_dict[table_header[i]] = number_convert(col.text)
             frame.append(info_dict)
         if len(df) == 0:
             return pd.DataFrame(frame)
         else:
             return pd.concat([df, pd.DataFrame(frame)], ignore_index=True)
 
-    @staticmethod
-    def _parse_table_header(soup):
-        table = soup.find("table", class_="screener_table")
+    def _screener_table(self, soup):
+        """Locate the screener results table, or raise on a Structural break."""
+        return require(
+            soup.find("table", class_="screener_table"),
+            self.url,
+            "table.screener_table",
+        )
+
+    def _parse_table_header(self, soup):
+        table = self._screener_table(soup)
         rows = table.findAll("tr")
         table_headers = [i.text.strip() for i in rows[0].findAll("th")][1:]
         return table_headers
@@ -148,7 +155,7 @@ class Base:
         num_col_index = [
             table_headers.index(i) for i in table_headers if i in NUMBER_COL
         ]
-        table = soup.find("table", class_="screener_table")
+        table = self._screener_table(soup)
         rows = table.find_all("tr")
         df = self._get_table(rows, df, num_col_index, table_headers, limit)
         return df
