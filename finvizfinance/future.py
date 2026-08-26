@@ -29,8 +29,6 @@ def _extract_rows(soup):
             data, _ = json.JSONDecoder().raw_decode(html[match.end():].lstrip())
         except json.JSONDecodeError:
             raise FinvizParseError(url=FUTURES_URL, selector="futures performance JSON")
-        if pattern.startswith("var"):
-            return data
         return data
     raise FinvizParseError(url=FUTURES_URL, selector="futures performance JSON")
 
