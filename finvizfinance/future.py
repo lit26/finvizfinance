@@ -6,28 +6,41 @@
 """
 
 import json
+import re
 import pandas as pd
 from finvizfinance.util import web_scrap
+from finvizfinance.exceptions import FinvizParseError
+
+FUTURES_URL = "https://finviz.com/futures_performance.ashx"
+
+
+def _extract_rows(soup):
+    """Extract rows from either the legacy or current init call."""
+    html = soup.prettify()
+    patterns = [
+        r"var\s+rows\s*=\s*",
+        r"(?:window\.)?FinvizInitFuturesPerformance\s*\(\s*",
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, html)
+        if match is None:
+            continue
+        try:
+            data, _ = json.JSONDecoder().raw_decode(html[match.end():].lstrip())
+        except json.JSONDecodeError:
+            raise FinvizParseError(url=FUTURES_URL, selector="futures performance JSON")
+        return data
+    raise FinvizParseError(url=FUTURES_URL, selector="futures performance JSON")
 
 
 class Future:
-    """Future
-    Getting information from the finviz future page.
-    """
+    """Getting information from the finviz future page."""
 
     def __init__(self):
-        """initiate module"""
         pass
 
     def performance(self, timeframe="D"):
-        """Get forex performance table.
-
-        Args:
-            timeframe (str): choice of timeframe(D, W, M, Q, HY, Y)
-
-        Returns:
-            df(pandas.DataFrame): forex performance table
-        """
+        """Get futures performance table."""
         timeframe_dict = {"W": 12, "M": 13, "Q": 14, "HY": 15, "Y": 16}
         params = {}
         if timeframe in timeframe_dict:
@@ -35,13 +48,5 @@ class Future:
         elif timeframe != "D":
             raise ValueError("Invalid timeframe '{}'".format(timeframe))
 
-        soup = web_scrap("https://finviz.com/futures_performance.ashx", params)
-
-        html = soup.prettify()
-        data = html[
-            html.find("var rows = ")
-            + 11 : html.find("FinvizInitFuturesPerformance(rows);")
-        ]
-        data = json.loads(data.strip()[:-1])
-        df = pd.DataFrame(data)
-        return df
+        soup = web_scrap(FUTURES_URL, params)
+        return pd.DataFrame(_extract_rows(soup))
