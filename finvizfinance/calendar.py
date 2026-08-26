@@ -49,7 +49,13 @@ class Calendar:
         data = _script_json(soup, "FinvizInitCalendar")
         if data is None:
             raise FinvizParseError(url=CALENDAR_URL, selector="table.calendar or FinvizInitCalendar")
-        return pd.DataFrame([self._calendar_row(row) for row in data])
+        rows = [self._calendar_row(row) for row in data if isinstance(row, dict)]
+        # A non-empty payload that yields no readable values means finviz
+        # renamed the JSON fields (Drift). Surface it instead of returning an
+        # all-None table that would silently pass the live smoke check.
+        if data and not any(value is not None for row in rows for value in row.values()):
+            raise FinvizParseError(url=CALENDAR_URL, selector="FinvizInitCalendar fields")
+        return pd.DataFrame(rows)
 
     @staticmethod
     def _calendar_row(row):
