@@ -119,22 +119,32 @@ class Base:
 
         frame = []
         for row in rows:
-            cols = row.findAll("td")[1:]
-            info_dict = {}
+            cols = row.find_all("td")[1:]
+            # Build each row positionally, not keyed by header name: finviz can
+            # return duplicate header labels (e.g. two "Dividend" columns in a
+            # wide custom view). A name-keyed dict silently collapses those,
+            # shrinking the frame's width and raising IndexError on the next
+            # page once the cell count exceeds the (now shorter) header list.
+            row_values = []
             for i, col in enumerate(cols):
-                # check if the col is number
-                if i not in num_col_index:
-                    if table_header[i] == "Ticker" and col.has_attr("data-boxover-ticker"):
-                        info_dict[table_header[i]] = col["data-boxover-ticker"]
-                    else:
-                        info_dict[table_header[i]] = col.text
+                if i >= len(table_header):
+                    break
+                if table_header[i] == "Ticker" and col.has_attr("data-boxover-ticker"):
+                    # The ticker cell nests two anchors (logo/company-ticker +
+                    # a tab-link), so col.text repeats the symbol ("AAPL" ->
+                    # "AAPLAAPL"). The clean value lives in this attribute.
+                    row_values.append(col["data-boxover-ticker"])
+                elif i in num_col_index:
+                    row_values.append(number_convert(col.text))
                 else:
-                    info_dict[table_header[i]] = number_convert(col.text)
-            frame.append(info_dict)
+                    row_values.append(col.text)
+            # Pad short rows so every row matches the header width.
+            row_values.extend([None] * (len(table_header) - len(row_values)))
+            frame.append(row_values)
+        new_df = pd.DataFrame(frame, columns=table_header)
         if len(df) == 0:
-            return pd.DataFrame(frame)
-        else:
-            return pd.concat([df, pd.DataFrame(frame)], ignore_index=True)
+            return new_df
+        return pd.concat([df, new_df], ignore_index=True)
 
     def _screener_table(self, soup):
         """Locate the screener results table, or raise on a Structural break."""
