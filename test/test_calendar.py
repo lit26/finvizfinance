@@ -27,6 +27,23 @@ def test_calendar_current_client_rendered_format():
     }]
 
 
+def test_calendar_current_unknown_keys_raise_parse_error():
+    # finviz keeps the FinvizInitCalendar call but renames every field -> the
+    # normalized rows are all-None. That is Drift, not data; it must raise
+    # instead of returning a table of Nones the live smoke check waves through.
+    use_session(html_response("calendar_current_unknown_keys.html"))
+    with pytest.raises(FinvizParseError) as exc:
+        Calendar().calendar()
+    assert exc.value.selector == "FinvizInitCalendar fields"
+
+
+def test_calendar_current_empty_list_returns_empty_frame():
+    # An empty calendar day is a legitimate empty result, not Drift.
+    use_session(html_response("calendar_current_empty.html"))
+    df = Calendar().calendar()
+    assert df.empty
+
+
 def test_calendar_drift_raises_parse_error_not_silent_empty():
     use_session(html_response("calendar_drift.html"))
     with pytest.raises(FinvizParseError) as exc:
