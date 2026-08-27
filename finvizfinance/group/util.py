@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from finvizfinance.constants import group_dict, group_order_dict
 
 

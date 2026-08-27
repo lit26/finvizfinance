@@ -18,6 +18,8 @@ types that previously propagated from that code path, so existing downstream
   ``raise_for_status`` on a 403). ``FinvizBlockedError`` subclasses that.
 """
 
+from __future__ import annotations
+
 import requests
 
 

@@ -5,13 +5,14 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
-import json
+from __future__ import annotations
+
 import re
 
 import pandas as pd
 
 from finvizfinance.exceptions import FinvizParseError
-from finvizfinance.util import warn_missing, web_scrap
+from finvizfinance.util import decode_json_after, warn_missing, web_scrap
 
 CALENDAR_URL = "https://finviz.com/calendar.ashx"
 
@@ -24,14 +25,9 @@ def _script_json(soup, function_name):
         match = marker.search(text)
         if match is None:
             continue
-        start = match.end()
-        decoder = json.JSONDecoder()
-        try:
-            data, _ = decoder.raw_decode(text[start:].lstrip())
-        except (json.JSONDecodeError, TypeError) as err:
-            raise FinvizParseError(
-                url=CALENDAR_URL, selector=f"script: {function_name}(...)"
-            ) from err
+        data = decode_json_after(
+            text, match.end(), CALENDAR_URL, f"script: {function_name}(...)"
+        )
         if isinstance(data, list):
             return data
     return None

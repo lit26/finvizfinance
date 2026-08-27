@@ -7,10 +7,8 @@
 
 from __future__ import annotations
 
-import pandas as pd
-
 from finvizfinance.constants import group_dict, group_order_dict
-from finvizfinance.util import number_convert, require, web_scrap
+from finvizfinance.util import scrap_group_table, validate_choice, web_scrap
 
 
 class Base:
@@ -41,16 +39,8 @@ class Base:
         Returns:
             df(pandas.DataFrame): group information table.
         """
-        if group not in group_dict:
-            group_keys = list(group_dict.keys())
-            raise ValueError(
-                f"Invalid group parameter '{group}'. Possible parameter input: {group_keys}"
-            )
-        if order not in group_order_dict:
-            order_keys = list(group_order_dict.keys())
-            raise ValueError(
-                f"Invalid order parameter '{order}'. Possible parameter input: {order_keys}"
-            )
+        validate_choice(group, group_dict, "group")
+        validate_choice(order, group_order_dict, "order")
 
         self.request_params = {
             **self.request_params,
@@ -60,25 +50,4 @@ class Base:
         self._parse_columns(columns)
 
         soup = web_scrap(self.url, self.request_params)
-        table = require(
-            soup.find("table", class_="groups_table"),
-            self.url,
-            "table.groups_table",
-        )
-        rows = table.find_all("tr")
-        table_header = [i.text.strip() for i in rows[0].find_all("th")][1:]
-        frame = []
-        rows = rows[1:]
-        num_col_index = list(range(2, len(table_header)))
-        for row in rows:
-            cols = row.find_all("td")[1:]
-            info_dict = {}
-            for i, col in enumerate(cols):
-                # check if the col is number
-                if i not in num_col_index:
-                    info_dict[table_header[i]] = col.text
-                else:
-                    info_dict[table_header[i]] = number_convert(col.text)
-
-            frame.append(info_dict)
-        return pd.DataFrame(frame)
+        return scrap_group_table(soup, self.url)

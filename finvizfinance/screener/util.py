@@ -1,9 +1,12 @@
+from __future__ import annotations
+
 from finvizfinance.constants import (
     CUSTOM_SCREENER_COLUMNS,
     filter_dict,
     order_dict,
     signal_dict,
 )
+from finvizfinance.util import validate_choice
 
 
 def get_signal():
@@ -33,11 +36,7 @@ def get_filter_options(screen_filter):
     Returns:
         filter_options(list): all the available filters
     """
-    if screen_filter not in filter_dict:
-        filter_keys = list(filter_dict.keys())
-        raise ValueError(
-            f"Invalid filter '{screen_filter}'. Possible filter: {filter_keys}"
-        )
+    validate_choice(screen_filter, filter_dict, "filter")
     return list(filter_dict[screen_filter]["option"])
 
 

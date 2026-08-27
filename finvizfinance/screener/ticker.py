@@ -5,6 +5,9 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+from __future__ import annotations
+
+import logging
 from time import sleep
 
 from finvizfinance.constants import order_dict
@@ -12,8 +15,11 @@ from finvizfinance.screener.base import Base
 from finvizfinance.util import (
     progress_bar,
     require,
+    validate_choice,
     web_scrap,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class Ticker(Base):
@@ -53,14 +59,12 @@ class Ticker(Base):
         Returns:
             tickers(list): get all the tickers as list.
         """
-        if order not in order_dict:
-            order_keys = list(order_dict.keys())
-            raise ValueError(f"Invalid order '{order}'. Possible order: {order_keys}")
+        validate_choice(order, order_dict, "order")
         self.request_params["o"] = ("" if ascend else "-") + order_dict[order]
         soup = web_scrap(self.url, self.request_params)
         page = self._get_page(soup)
         if page == 0:
-            print("No ticker found.")
+            logger.warning("No ticker found.")
             return None
 
         if limit != -1 and page > (limit - 1) // 1000 + 1:

@@ -5,6 +5,9 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+from __future__ import annotations
+
+import logging
 import os
 
 import pandas as pd
@@ -16,6 +19,8 @@ from finvizfinance.screener.ownership import Ownership
 from finvizfinance.screener.performance import Performance
 from finvizfinance.screener.technical import Technical
 from finvizfinance.screener.valuation import Valuation
+
+logger = logging.getLogger(__name__)
 
 
 class Earnings:
@@ -123,7 +128,7 @@ class Earnings:
         Args:
             output_file(str): name of the output excel file.
         """
-        print("Print to Excel...")
+        logger.info("Writing earnings to Excel...")
         with pd.ExcelWriter(  # pylint: disable=abstract-class-instantiated
             output_file, datetime_format="YYYY-MM-DD", engine="xlsxwriter"
         ) as writer:
@@ -137,7 +142,7 @@ class Earnings:
         Args:
             output_dir(str): name of the output directory.
         """
-        print("Print to CSV...")
+        logger.info("Writing earnings to CSV...")
         isdir = os.path.isdir(output_dir)
         if not isdir:
             os.mkdir(output_dir)
