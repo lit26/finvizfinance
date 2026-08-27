@@ -5,11 +5,14 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+from __future__ import annotations
+
 import json
 import sys
 import time
 import warnings
 from datetime import date, datetime
+from typing import Any
 
 import pandas as pd
 import requests
@@ -32,8 +35,8 @@ headers = {
 # and the user-facing extension hook (inject proxies / rotating IPs).
 session = requests.Session()
 
-proxy_dict = None
-timeout_value = 10
+proxy_dict: dict | None = None
+timeout_value: float = 10
 
 # Bounded exponential backoff for transient failures and Walls.
 MAX_RETRIES = 3
@@ -43,7 +46,7 @@ BACKOFF_CAP = 8.0
 RETRY_STATUS = {429, 500, 502, 503, 504}
 
 
-def set_proxy(proxies):
+def set_proxy(proxies: dict | None) -> None:
     """Set proxies on the shared session's requests.
 
     Args:
@@ -53,13 +56,13 @@ def set_proxy(proxies):
     proxy_dict = proxies
 
 
-def set_timeout(timeout):
+def set_timeout(timeout: float) -> None:
     """Set the per-request timeout (seconds)."""
     global timeout_value
     timeout_value = timeout
 
 
-def set_session(new_session):
+def set_session(new_session: Any) -> None:
     """Inject a custom session.
 
     Lets high-volume users supply their own ``requests``-compatible session
@@ -75,12 +78,12 @@ def set_session(new_session):
     session = new_session
 
 
-def get_session():
+def get_session() -> Any:
     """Return the session currently used for requests."""
     return session
 
 
-def _is_wall(response):
+def _is_wall(response: Any) -> bool:
     """Detect a Cloudflare Wall (IP-reputation block).
 
     Recognizes the "Just a moment" / ``cf-mitigated: challenge`` 403 response.
@@ -93,7 +96,7 @@ def _is_wall(response):
     return "Just a moment" in body or "cf-chl" in body or "challenge-platform" in body
 
 
-def _retry_after(response, attempt):
+def _retry_after(response: Any, attempt: int) -> float:
     """Seconds to wait before the next attempt, honoring Retry-After."""
     header = response.headers.get("Retry-After") if response is not None else None
     if header and header.replace(".", "", 1).isdigit():
@@ -101,7 +104,7 @@ def _retry_after(response, attempt):
     return min(BACKOFF_BASE * (2**attempt), BACKOFF_CAP)
 
 
-def _request(url, params=None, stream=False):
+def _request(url: str, params: dict | None = None, stream: bool = False) -> Any:
     """Fetch a URL through the shared session with bounded retry.
 
     Retries transient errors (timeouts, 5xx, and Cloudflare Walls) with bounded
@@ -158,7 +161,7 @@ def _request(url, params=None, stream=False):
     raise FinvizBlockedError(url=url)
 
 
-def web_scrap(url, params=None):
+def web_scrap(url: str, params: dict | None = None) -> BeautifulSoup:
     """Scrap website.
 
     Args:
@@ -171,7 +174,7 @@ def web_scrap(url, params=None):
     return BeautifulSoup(response.text, "lxml")
 
 
-def web_scrap_json(url, params=None):
+def web_scrap_json(url: str, params: dict | None = None) -> Any:
     """Scrap a finviz JSON endpoint through the resilient transport.
 
     Args:
@@ -184,7 +187,7 @@ def web_scrap_json(url, params=None):
     return json.loads(response.content)
 
 
-def fetch(url, params=None, stream=False):
+def fetch(url: str, params: dict | None = None, stream: bool = False) -> Any:
     """Fetch a URL through the resilient transport, returning the response.
 
     Public entry point for tooling (e.g. the fixture-refresh script) that needs
@@ -194,7 +197,7 @@ def fetch(url, params=None, stream=False):
     return _request(url, params=params, stream=stream)
 
 
-def image_scrap(url, ticker, out_dir):
+def image_scrap(url: str, ticker: str, out_dir: str) -> None:
     """scrap website and download image
 
     Args:
@@ -209,7 +212,7 @@ def image_scrap(url, ticker, out_dir):
         f.write(response.content)
 
 
-def warn_missing(url, selector):
+def warn_missing(url: str, selector: str) -> None:
     """Emit the standard Missing-field warning for an absent optional datum."""
     warnings.warn(
         f"Optional element '{selector}' not found at {url}",
@@ -217,7 +220,7 @@ def warn_missing(url, selector):
     )
 
 
-def require(node, url, selector):
+def require(node: Any, url: str, selector: str) -> Any:
     """Return ``node``, or raise :class:`FinvizParseError` if it is absent.
 
     Use for a required region whose absence means finviz Drifted.
@@ -232,7 +235,7 @@ def require(node, url, selector):
     return node
 
 
-def optional(node, url, selector, default=None):
+def optional(node: Any, url: str, selector: str, default: Any = None) -> Any:
     """Return ``node``, or warn and return ``default`` if it is absent.
 
     Use for an optional datum whose absence is not an error (e.g. an ETF has no
@@ -245,7 +248,9 @@ def optional(node, url, selector, default=None):
     return node
 
 
-def find_table_by_headers(soup, required_headers, url, selector):
+def find_table_by_headers(
+    soup: Any, required_headers: list[str], url: str, selector: str
+) -> Any:
     """Find the table whose header row contains all ``required_headers``.
 
     Replaces fragile positional table indexing: matches on stable header text
@@ -272,7 +277,7 @@ def find_table_by_headers(soup, required_headers, url, selector):
     raise FinvizParseError(url=url, selector=selector)
 
 
-def scrap_function(url):
+def scrap_function(url: str) -> pd.DataFrame:
     """Scrap forex, crypto information.
 
     Args:
@@ -286,12 +291,12 @@ def scrap_function(url):
     )
     rows = table.find_all("tr")
     table_header = [i.text.strip() for i in rows[0].find_all("th")][1:]
-    frame = []
+    frame: list[dict[str, Any]] = []
     rows = rows[1:]
     num_col_index = list(range(2, len(table_header)))
     for row in rows:
         cols = row.find_all("td")[1:]
-        info_dict = {}
+        info_dict: dict[str, Any] = {}
         for i, col in enumerate(cols):
             if i not in num_col_index:
                 info_dict[table_header[i]] = col.text
@@ -301,7 +306,9 @@ def scrap_function(url):
     return pd.DataFrame(frame)
 
 
-def image_scrap_function(url, chart, timeframe, urlonly):
+def image_scrap_function(
+    url: str, chart: str, timeframe: str, urlonly: bool
+) -> str | None:
     """Scrap forex, crypto information.
 
     Args:
@@ -337,9 +344,10 @@ def image_scrap_function(url, chart, timeframe, urlonly):
             return charturl
         else:
             continue
+    return None
 
 
-def number_convert(num):
+def number_convert(num: str) -> float | None:
     """Convert number(str) to number(float)
 
     Args:
@@ -362,7 +370,7 @@ def number_convert(num):
         return float(num.replace(",", ""))  # Remove commas and convert to float
 
 
-def number_covert(num):
+def number_covert(num: str) -> float | None:
     """Deprecated misspelled alias of :func:`number_convert`.
 
     Kept working for backward compatibility; emits a ``DeprecationWarning``.
@@ -375,7 +383,7 @@ def number_covert(num):
     return number_convert(num)
 
 
-def format_datetime(date_str):
+def format_datetime(date_str: str) -> datetime:
     if date_str.lower().startswith("today"):
         today = date.today()
         time_str = date_str.split()[1]
@@ -390,7 +398,7 @@ def format_datetime(date_str):
         return datetime.strptime(date_str, "%b-%d-%y %I:%M%p")
 
 
-def progress_bar(page, total):
+def progress_bar(page: int, total: int) -> None:
     bar_len = 30
     filled_len = int(round(bar_len * page / float(total)))
     bar = "#" * filled_len + "-" * (bar_len - filled_len)

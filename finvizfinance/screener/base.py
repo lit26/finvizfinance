@@ -6,6 +6,8 @@
 
 """
 
+from __future__ import annotations
+
 import warnings
 from time import sleep
 
@@ -26,10 +28,10 @@ class Base:
     Getting information from the finviz screener page.
     """
 
-    v_page = None
+    v_page: int | None = None
     url = "https://finviz.com/screener.ashx"
     size = 20
-    request_params = {}
+    request_params: dict = {}
 
     def __init__(self):
         """initiate module"""
