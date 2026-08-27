@@ -5,9 +5,11 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+from urllib.parse import urljoin
+
 from finvizfinance.constants import group_dict, group_order_dict
 from finvizfinance.group.base import Base
-from finvizfinance.util import image_scrap, web_scrap
+from finvizfinance.util import image_scrap, require, web_scrap
 
 
 class Spectrum(Base):
@@ -29,15 +31,22 @@ class Spectrum(Base):
             raise ValueError(
                 f"Invalid group parameter '{group}'. Possible parameter input: {group_keys}"
             )
-        if order not in group_order_dict.order_dict:
+        if order not in group_order_dict:
             order_keys = list(group_order_dict.keys())
             raise ValueError(
                 f"Invalid order parameter '{order}'. Possible parameter input: {order_keys}"
             )
 
-        self.request_params = self.request_params.update(group_dict[group])
+        self.request_params.update(group_dict[group])
         self.request_params["o"] = group_order_dict[order]
 
         soup = web_scrap(self.url, self.request_params)
-        url = "https://finviz.com/" + soup.find_all("img")[5]["src"]
+        image = None
+        for candidate in soup.find_all("img"):
+            src = candidate.get("src", "")
+            if "spectrum" in src.lower():
+                image = candidate
+                break
+        image = require(image, self.url, "img[src*=spectrum]")
+        url = urljoin("https://finviz.com/", image["src"])
         image_scrap(url, group, "")

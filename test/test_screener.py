@@ -94,6 +94,15 @@ def test_screener_ticker_wall_raises_blocked_error():
         Ticker().screener_view(verbose=0)
 
 
+def test_screener_ticker_missing_nbsp_no_indexerror():
+    # Regression: a ticker cell span without the "<rank>\xa0<TICKER>" NBSP
+    # layout made ``text.split("\xa0")[1]`` raise IndexError. The parser must
+    # fall back to the span's whole text instead of crashing.
+    use_session(html_response("screener_ticker_no_nbsp.html"))
+    tickers = Ticker().screener_view(verbose=0)
+    assert tickers == ["AAPL", "MSFT"]
+
+
 def test_screener_get_settings():
     assert isinstance(get_signal(), list)
     assert isinstance(get_filters(), list)
