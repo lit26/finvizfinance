@@ -530,4 +530,6 @@ class Statements:
         if "data" not in response:
             raise FinvizParseError(url=url, selector="json:data")
         df = pd.DataFrame.from_dict(response["data"], orient="index")
+        currency = response.get("currency")
+        df.columns.name = f"Currency: {currency}"
         return df
