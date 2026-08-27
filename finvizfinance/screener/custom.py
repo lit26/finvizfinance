@@ -31,7 +31,7 @@ class Custom(Base):
         select_page=None,
         verbose=1,
         ascend=True,
-        columns=[0, 1, 2, 3, 4, 5, 6, 7, 65, 66, 67],
+        columns=None,
         sleep_sec=1,
     ):
         """Get screener table.
@@ -47,6 +47,8 @@ class Custom(Base):
         Returns:
             df(pandas.DataFrame): screener information table
         """
+        if columns is None:
+            columns = [0, 1, 2, 3, 4, 5, 6, 7, 65, 66, 67]
         return Base.screener_view(
             self, order, limit, select_page, verbose, ascend, columns, sleep_sec
         )

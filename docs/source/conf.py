@@ -9,34 +9,33 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath('../../'))
+sys.path.insert(0, os.path.abspath("../../"))
 
-project = 'finvizfinance'
-copyright = '2024, Tianning Li'
-author = 'Tianning Li'
+project = "finvizfinance"
+copyright = "2024, Tianning Li"
+author = "Tianning Li"
 # The full version, including alpha/beta/rc tags
-release = '1.4.0'
+release = "1.4.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx.ext.napoleon']
+extensions = ["sphinx.ext.autodoc", "sphinx.ext.viewcode", "sphinx.ext.napoleon"]
 
 napoleon_google_docstring = True
 napoleon_use_param = False
 napoleon_use_ivar = True
 
 
-templates_path = ['_templates']
-exclude_patterns = ['build', 'Thumbs.db', '.DS_Store']
-
+templates_path = ["_templates"]
+exclude_patterns = ["build", "Thumbs.db", ".DS_Store"]
 
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = "sphinx_rtd_theme"
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = "index"

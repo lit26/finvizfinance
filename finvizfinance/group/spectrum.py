@@ -5,9 +5,9 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
-from finvizfinance.group.base import Base
-from finvizfinance.util import web_scrap, image_scrap
 from finvizfinance.constants import group_dict, group_order_dict
+from finvizfinance.group.base import Base
+from finvizfinance.util import image_scrap, web_scrap
 
 
 class Spectrum(Base):
@@ -27,16 +27,12 @@ class Spectrum(Base):
         if group not in group_dict:
             group_keys = list(group_dict.keys())
             raise ValueError(
-                "Invalid group parameter '{}'. Possible parameter input: {}".format(
-                    group, group_keys
-                )
+                f"Invalid group parameter '{group}'. Possible parameter input: {group_keys}"
             )
         if order not in group_order_dict.order_dict:
             order_keys = list(group_order_dict.keys())
             raise ValueError(
-                "Invalid order parameter '{}'. Possible parameter input: {}".format(
-                    order, order_keys
-                )
+                f"Invalid order parameter '{order}'. Possible parameter input: {order_keys}"
             )
 
         self.request_params = self.request_params.update(group_dict[group])

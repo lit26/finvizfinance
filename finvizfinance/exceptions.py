@@ -38,9 +38,9 @@ class FinvizParseError(FinvizError, AttributeError, IndexError, KeyError, TypeEr
         if message is None:
             message = (
                 "Failed to parse finviz response: required element "
-                "'{selector}' not found at {url}. "
+                f"'{selector}' not found at {url}. "
                 "Finviz markup may have changed (Drift)."
-            ).format(selector=selector, url=url)
+            )
         super().__init__(message)
 
 
@@ -56,9 +56,9 @@ class FinvizBlockedError(FinvizError, requests.exceptions.HTTPError):
         self.url = url
         if message is None:
             message = (
-                "finviz blocked the request at {url} (Cloudflare challenge / 403). "
+                f"finviz blocked the request at {url} (Cloudflare challenge / 403). "
                 "The source IP is being rate-limited. Slow down your request rate, "
                 "or supply your own session/proxy via "
                 "finvizfinance.util.set_session() or set_proxy()."
-            ).format(url=url)
+            )
         super().__init__(message)

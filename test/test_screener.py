@@ -1,14 +1,13 @@
 """Offline fixture tests for the screener views (see test_quote for the pattern)."""
 
 import pytest
+from conftest import blocked_response, html_response, use_session
 
+from finvizfinance.exceptions import FinvizBlockedError, FinvizParseError
+from finvizfinance.screener import get_filter_options, get_filters, get_signal
+from finvizfinance.screener.custom import Custom
 from finvizfinance.screener.overview import Overview
 from finvizfinance.screener.ticker import Ticker
-from finvizfinance.screener.custom import Custom
-from finvizfinance.screener import get_signal, get_filters, get_filter_options
-from finvizfinance.exceptions import FinvizParseError, FinvizBlockedError
-
-from conftest import use_session, html_response, blocked_response
 
 
 def test_screener_overview_real():

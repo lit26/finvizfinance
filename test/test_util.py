@@ -2,28 +2,26 @@ import warnings
 
 import pytest
 import requests
+from bs4 import BeautifulSoup
+from conftest import FakeResponse, blocked_response, use_session
 
 from finvizfinance import util
+from finvizfinance.exceptions import (
+    FinvizBlockedError,
+    FinvizError,
+    FinvizParseError,
+)
 from finvizfinance.util import (
-    web_scrap,
-    web_scrap_json,
-    set_proxy,
-    require,
-    optional,
-    warn_missing,
     find_table_by_headers,
     number_convert,
     number_covert,
+    optional,
+    require,
+    set_proxy,
+    warn_missing,
+    web_scrap,
+    web_scrap_json,
 )
-from finvizfinance.exceptions import (
-    FinvizError,
-    FinvizParseError,
-    FinvizBlockedError,
-)
-from bs4 import BeautifulSoup
-
-from conftest import use_session, html_response, blocked_response, FakeResponse
-
 
 # --- transport: injectable session seam -------------------------------------
 

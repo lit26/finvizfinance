@@ -5,19 +5,20 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+import json
 import sys
 import time
-import json
 import warnings
-import requests
+from datetime import date, datetime
+
 import pandas as pd
+import requests
 from bs4 import BeautifulSoup
-from datetime import datetime, date
 
 from finvizfinance.exceptions import (  # noqa: F401  (re-exported for convenience)
+    FinvizBlockedError,
     FinvizError,
     FinvizParseError,
-    FinvizBlockedError,
 )
 
 # A current browser User-Agent. A trivially-outdated client string (the old
@@ -89,11 +90,7 @@ def _is_wall(response):
     if response.headers.get("cf-mitigated") == "challenge":
         return True
     body = getattr(response, "text", "") or ""
-    return (
-        "Just a moment" in body
-        or "cf-chl" in body
-        or "challenge-platform" in body
-    )
+    return "Just a moment" in body or "cf-chl" in body or "challenge-platform" in body
 
 
 def _retry_after(response, attempt):
@@ -101,7 +98,7 @@ def _retry_after(response, attempt):
     header = response.headers.get("Retry-After") if response is not None else None
     if header and header.replace(".", "", 1).isdigit():
         return min(float(header), BACKOFF_CAP)
-    return min(BACKOFF_BASE * (2 ** attempt), BACKOFF_CAP)
+    return min(BACKOFF_BASE * (2**attempt), BACKOFF_CAP)
 
 
 def _request(url, params=None, stream=False):
@@ -132,14 +129,12 @@ def _request(url, params=None, stream=False):
                 continue
             raise FinvizBlockedError(
                 message=(
-                    "finviz request to {url} timed out after {n} attempts "
-                    "({err}). The source IP may be rate-limited; slow down or "
-                    "supply a proxy/session via set_session()/set_proxy().".format(
-                        url=url, n=MAX_RETRIES + 1, err=err
-                    )
+                    f"finviz request to {url} timed out after {MAX_RETRIES + 1} attempts "
+                    f"({err}). The source IP may be rate-limited; slow down or "
+                    "supply a proxy/session via set_session()/set_proxy()."
                 ),
                 url=url,
-            )
+            ) from err
 
         if _is_wall(response):
             if attempt < MAX_RETRIES:
@@ -155,8 +150,8 @@ def _request(url, params=None, stream=False):
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
             raise requests.exceptions.HTTPError(
-                "HTTP error for URL {}: {}".format(url, err)
-            )
+                f"HTTP error for URL {url}: {err}"
+            ) from err
         return response
 
     # Unreachable: the loop either returns or raises. Guard anyway.
@@ -210,14 +205,14 @@ def image_scrap(url, ticker, out_dir):
     response = _request(url, stream=True)
     if len(out_dir) != 0:
         out_dir += "/"
-    with open("{}{}.jpg".format(out_dir, ticker), "wb") as f:
+    with open(f"{out_dir}{ticker}.jpg", "wb") as f:
         f.write(response.content)
 
 
 def warn_missing(url, selector):
     """Emit the standard Missing-field warning for an absent optional datum."""
     warnings.warn(
-        "Optional element '{}' not found at {}".format(selector, url),
+        f"Optional element '{selector}' not found at {url}",
         stacklevel=2,
     )
 
@@ -286,12 +281,14 @@ def scrap_function(url):
         df(pandas.DataFrame): performance table
     """
     soup = web_scrap(url)
-    table = require(soup.find("table", class_="groups_table"), url, "table.groups_table")
+    table = require(
+        soup.find("table", class_="groups_table"), url, "table.groups_table"
+    )
     rows = table.find_all("tr")
     table_header = [i.text.strip() for i in rows[0].find_all("th")][1:]
     frame = []
     rows = rows[1:]
-    num_col_index = [i for i in range(2, len(table_header))]
+    num_col_index = list(range(2, len(table_header)))
     for row in rows:
         cols = row.find_all("td")[1:]
         info_dict = {}
@@ -397,5 +394,5 @@ def progress_bar(page, total):
     bar_len = 30
     filled_len = int(round(bar_len * page / float(total)))
     bar = "#" * filled_len + "-" * (bar_len - filled_len)
-    sys.stdout.write("[Info] loading page [{}] {}/{} \r".format(bar, page, total))
+    sys.stdout.write(f"[Info] loading page [{bar}] {page}/{total} \r")
     sys.stdout.flush()

@@ -1,8 +1,8 @@
 from finvizfinance.constants import (
-    signal_dict,
+    CUSTOM_SCREENER_COLUMNS,
     filter_dict,
     order_dict,
-    CUSTOM_SCREENER_COLUMNS,
+    signal_dict,
 )
 
 
@@ -36,9 +36,7 @@ def get_filter_options(screen_filter):
     if screen_filter not in filter_dict:
         filter_keys = list(filter_dict.keys())
         raise ValueError(
-            "Invalid filter '{}'. Possible filter: {}".format(
-                screen_filter, filter_keys
-            )
+            f"Invalid filter '{screen_filter}'. Possible filter: {filter_keys}"
         )
     return list(filter_dict[screen_filter]["option"])
 

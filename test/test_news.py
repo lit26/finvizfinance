@@ -1,11 +1,10 @@
 """Offline fixture tests for the news scraper (see test_quote for the pattern)."""
 
 import pytest
+from conftest import blocked_response, html_response, use_session
 
+from finvizfinance.exceptions import FinvizBlockedError, FinvizParseError
 from finvizfinance.news import News
-from finvizfinance.exceptions import FinvizParseError, FinvizBlockedError
-
-from conftest import use_session, html_response, blocked_response
 
 
 def test_news_real():

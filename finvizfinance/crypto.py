@@ -5,7 +5,7 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
-from finvizfinance.util import scrap_function, image_scrap_function
+from finvizfinance.util import image_scrap_function, scrap_function
 
 
 class Crypto:

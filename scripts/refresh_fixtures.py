@@ -52,16 +52,16 @@ def main():
             response = util.fetch(url)
             with open(path, "w", encoding="utf-8") as f:
                 f.write(response.text)
-            print("saved   {:<28} <- {}".format(name, url))
+            print(f"saved   {name:<28} <- {url}")
         except FinvizBlockedError:
             blocked += 1
-            print("BLOCKED {:<28} (Wall — try an allowed IP / proxy)".format(name))
+            print(f"BLOCKED {name:<28} (Wall — try an allowed IP / proxy)")
         except Exception as err:  # noqa: BLE001 - report and continue refreshing
-            print("ERROR   {:<28} {}: {}".format(name, type(err).__name__, err))
+            print(f"ERROR   {name:<28} {type(err).__name__}: {err}")
     if blocked:
         print(
-            "\n{} endpoint(s) Walled. Supply a proxy/session and re-run to "
-            "refresh those.".format(blocked)
+            f"\n{blocked} endpoint(s) Walled. Supply a proxy/session and re-run to "
+            "refresh those."
         )
 
 

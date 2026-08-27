@@ -7,11 +7,10 @@ missing optional field.
 """
 
 import pytest
+from conftest import FakeResponse, blocked_response, html_response, use_session
 
-from finvizfinance.quote import finvizfinance, Statements
-from finvizfinance.exceptions import FinvizParseError, FinvizBlockedError
-
-from conftest import use_session, html_response, blocked_response, FakeResponse
+from finvizfinance.exceptions import FinvizBlockedError, FinvizParseError
+from finvizfinance.quote import Statements, finvizfinance
 
 
 def _stock(fixture):
@@ -154,9 +153,7 @@ def test_ticker_inside_trader():
 
 def test_ticker_full_info():
     info = _stock("quote_aapl.html").ticker_full_info()
-    assert set(["fundament", "ratings_outer", "news", "inside trader"]).issubset(
-        info.keys()
-    )
+    assert {"fundament", "ratings_outer", "news", "inside trader"}.issubset(info.keys())
 
 
 def test_ticker_signal_wall_surfaces_not_silently_dropped():
@@ -178,7 +175,9 @@ def test_ticker_charts_invalid_timeframe():
 
 def test_statements_real():
     use_session(
-        FakeResponse(content=b'{"currency": "USD", "data": {"2023": {"Revenue": "100"}}}')
+        FakeResponse(
+            content=b'{"currency": "USD", "data": {"2023": {"Revenue": "100"}}}'
+        )
     )
     df = Statements().get_statements("AAPL")
     assert df is not None

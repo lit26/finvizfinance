@@ -1,11 +1,10 @@
 """Offline fixture tests for the insider scraper (see test_quote for the pattern)."""
 
 import pytest
+from conftest import FakeResponse, blocked_response, html_response, use_session
 
-from finvizfinance.insider import Insider, INSIDER_URL
-from finvizfinance.exceptions import FinvizParseError, FinvizBlockedError
-
-from conftest import use_session, html_response, blocked_response, FakeResponse
+from finvizfinance.exceptions import FinvizBlockedError, FinvizParseError
+from finvizfinance.insider import INSIDER_URL, Insider
 
 
 def test_insider_real():

@@ -47,6 +47,8 @@ dev = [
     "coverage>=7.5",
     "coveralls>=4.0",
     "pyyaml>=6.0",
+    "ruff>=0.6",
+    "pre-commit>=3.5",
 ]
 
 [project.urls]
@@ -67,3 +69,16 @@ include = [
     "/README.md",
     "/LICENSE",
 ]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+# Ruff also reformats fenced Python in Markdown and cells in notebooks; keep the
+# sweep scoped to Python sources and leave docs/examples alone.
+extend-exclude = ["*.md", "*.ipynb"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "C4"]
+# Line length is enforced by the formatter; E501 only fires on long strings/data
+# (finviz filter tables, URLs) it cannot split, so it is noise here.
+ignore = ["E501"]

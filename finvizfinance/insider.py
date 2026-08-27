@@ -6,7 +6,8 @@
 """
 
 import pandas as pd
-from finvizfinance.util import web_scrap, number_convert, find_table_by_headers
+
+from finvizfinance.util import find_table_by_headers, number_convert, web_scrap
 
 INSIDER_URL = "https://finviz.com/insidertrading"
 

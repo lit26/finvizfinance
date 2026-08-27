@@ -44,7 +44,7 @@ class FakeResponse:
     def raise_for_status(self):
         if self.status_code >= 400:
             raise requests.exceptions.HTTPError(
-                "{} Client Error".format(self.status_code), response=self
+                f"{self.status_code} Client Error", response=self
             )
 
 

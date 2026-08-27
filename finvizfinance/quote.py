@@ -5,20 +5,22 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
-from datetime import datetime, date
 import re
+from datetime import date, datetime
+
 import pandas as pd
+
+from finvizfinance.exceptions import FinvizParseError
 from finvizfinance.util import (
-    web_scrap,
-    web_scrap_json,
+    format_datetime,
     image_scrap,
     number_convert,
-    format_datetime,
-    require,
     optional,
+    require,
     warn_missing,
+    web_scrap,
+    web_scrap_json,
 )
-from finvizfinance.exceptions import FinvizParseError
 
 QUOTE_URL = "https://finviz.com/quote.ashx?t={ticker}"
 NUM_COL = [
@@ -45,7 +47,7 @@ class Quote:
         Returns:
             price(float): price of the ticker
         """
-        soup = web_scrap("https://finviz.com/request_quote.ashx?t={}".format(ticker))
+        soup = web_scrap(f"https://finviz.com/request_quote.ashx?t={ticker}")
         return soup.text
 
 
@@ -97,9 +99,9 @@ class finvizfinance:
             charturl(str): url for the chart
         """
         if timeframe not in ["daily", "weekly", "monthly"]:
-            raise ValueError("Invalid timeframe '{}'".format(timeframe))
+            raise ValueError(f"Invalid timeframe '{timeframe}'")
         if charttype not in ["candle", "line", "advanced"]:
-            raise ValueError("Invalid chart type '{}'".format(charttype))
+            raise ValueError(f"Invalid chart type '{charttype}'")
         url_type = "c"
         url_ta = "0"
         if charttype == "line":
@@ -114,9 +116,7 @@ class finvizfinance:
             url_timeframe = "w"
         elif timeframe == "monthly":
             url_timeframe = "m"
-        chart_url = "https://finviz.com/chart.ashx?t={ticker}&ty={type}&ta={ta}&p={timeframe}".format(
-            ticker=self.ticker, type=url_type, ta=url_ta, timeframe=url_timeframe
-        )
+        chart_url = f"https://finviz.com/chart.ashx?t={self.ticker}&ty={url_type}&ta={url_ta}&p={url_timeframe}"
         if not urlonly:
             image_scrap(chart_url, self.ticker, out_dir)
         return chart_url
@@ -129,7 +129,7 @@ class finvizfinance:
         finally returns ``None`` with a warning for anything genuinely absent.
         """
         keys = ["Sector", "Industry", "Country", "Exchange"]
-        result = {k: None for k in keys}
+        result = dict.fromkeys(keys)
 
         quote_links = self.soup.find("div", class_="quote-links")
         if quote_links is not None:
@@ -155,9 +155,7 @@ class finvizfinance:
         # Missing-field semantics: warn and keep None for anything still absent.
         for key in keys:
             if result[key] is None:
-                warn_missing(
-                    self.quote_url, "quote classification link ({})".format(key)
-                )
+                warn_missing(self.quote_url, f"quote classification link ({key})")
         return result
 
     def ticker_fundament(self, raw=True, output_format="dict"):
@@ -228,7 +226,7 @@ class finvizfinance:
                         fundament_info[header] = False
                 else:
                     # Handle EPS Next Y keys with two different values
-                    if header == "EPS next Y" and header in fundament_info.keys():
+                    if header == "EPS next Y" and header in fundament_info:
                         header += " Percentage"
                     if raw:
                         fundament_info[header] = value
@@ -288,7 +286,7 @@ class finvizfinance:
         link = self.soup.find("a", string=label)
         if not link:
             link = self.soup.find(
-                "a", string=re.compile(r"^\s*{}\s*$".format(label), re.IGNORECASE)
+                "a", string=re.compile(rf"^\s*{label}\s*$", re.IGNORECASE)
             )
         if not link:
             warn_missing(self.quote_url, selector)
@@ -526,8 +524,8 @@ class Statements:
             df(pandas.DataFrame): statements table. The reporting currency (e.g.
                 "USD") is stored in ``df.attrs["currency"]``.
         """
-        url = "https://finviz.com/api/statement.ashx?t={ticker}&s={statement}{timeframe}".format(
-            ticker=ticker, statement=statement, timeframe=timeframe
+        url = (
+            f"https://finviz.com/api/statement.ashx?t={ticker}&s={statement}{timeframe}"
         )
         response = web_scrap_json(url)
         if "data" not in response:

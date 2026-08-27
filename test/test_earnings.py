@@ -1,11 +1,10 @@
 """Offline fixture tests for the earnings exporter (composes the screeners)."""
 
 import pytest
+from conftest import blocked_response, html_response, use_session
 
 from finvizfinance.earnings import Earnings
-from finvizfinance.exceptions import FinvizParseError, FinvizBlockedError
-
-from conftest import use_session, html_response, blocked_response
+from finvizfinance.exceptions import FinvizBlockedError, FinvizParseError
 
 
 def test_earnings_partition_financial():

@@ -6,14 +6,14 @@
 """
 
 from time import sleep
+
+from finvizfinance.constants import order_dict
+from finvizfinance.screener.base import Base
 from finvizfinance.util import (
-    web_scrap,
     progress_bar,
     require,
+    web_scrap,
 )
-from finvizfinance.constants import order_dict
-
-from finvizfinance.screener.base import Base
 
 
 class Ticker(Base):
@@ -51,9 +51,7 @@ class Ticker(Base):
         """
         if order not in order_dict:
             order_keys = list(order_dict.keys())
-            raise ValueError(
-                "Invalid order '{}'. Possible order: {}".format(order, order_keys)
-            )
+            raise ValueError(f"Invalid order '{order}'. Possible order: {order_keys}")
         self.request_params["o"] = ("" if ascend else "-") + order_dict[order]
         soup = web_scrap(self.url, self.request_params)
         page = self._get_page(soup)
@@ -61,9 +59,8 @@ class Ticker(Base):
             print("No ticker found.")
             return None
 
-        if limit != -1:
-            if page > (limit - 1) // 1000 + 1:
-                page = (limit - 1) // 1000 + 1
+        if limit != -1 and page > (limit - 1) // 1000 + 1:
+            page = (limit - 1) // 1000 + 1
 
         if verbose == 1:
             progress_bar(1, page)
