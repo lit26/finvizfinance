@@ -186,17 +186,19 @@ class finvizfinance:
 
         fundament_info.update(self._extract_classification())
 
-        fundament_table = require(
-            self.soup.find("table", class_="snapshot-table2"),
-            self.quote_url,
-            "table.snapshot-table2",
-        )
-        rows = fundament_table.find_all("tr")
+        # finviz splits the fundamentals across several ``snapshot-table2``
+        # tables (all inside a wrapper div); iterate every match so we capture
+        # the full field set rather than only the first table. No table at all
+        # means finviz Drifted -> surface it as a parse error.
+        fundament_tables = self.soup.find_all("table", class_="snapshot-table2")
+        if not fundament_tables:
+            raise FinvizParseError(url=self.quote_url, selector="table.snapshot-table2")
 
-        for row in rows:
-            cols = row.find_all("td")
-            cols = [i.text for i in cols]
-            fundament_info = self._parse_column(cols, raw, fundament_info)
+        for fundament_table in fundament_tables:
+            for row in fundament_table.find_all("tr"):
+                cols = row.find_all("td")
+                cols = [i.text for i in cols]
+                fundament_info = self._parse_column(cols, raw, fundament_info)
         self.info["fundament"] = fundament_info
 
         if output_format == "dict":
