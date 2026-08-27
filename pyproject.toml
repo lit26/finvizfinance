@@ -101,3 +101,13 @@ warn_redundant_casts = true
 [[tool.mypy.overrides]]
 module = ["bs4", "bs4.*"]
 follow_imports = "skip"
+
+[tool.coverage.run]
+source = ["finvizfinance"]
+
+[tool.coverage.report]
+show_missing = true
+# Ratchet-up floor. The measured baseline is ~86.5%; the gate sits just below
+# it so a genuine regression fails CI while cross-interpreter rounding noise
+# does not. Raise this as coverage improves; never lower it.
+fail_under = 86

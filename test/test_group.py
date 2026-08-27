@@ -4,8 +4,12 @@ import pytest
 from conftest import FakeResponse, blocked_response, html_response, use_session
 
 from finvizfinance.exceptions import FinvizBlockedError, FinvizParseError
+from finvizfinance.group.custom import Custom
 from finvizfinance.group.overview import Overview
+from finvizfinance.group.performance import Performance
 from finvizfinance.group.spectrum import Spectrum
+from finvizfinance.group.util import get_group, get_orders
+from finvizfinance.group.valuation import Valuation
 
 
 def test_group_overview_real():
@@ -77,3 +81,30 @@ def test_group_spectrum_wall_raises_blocked_error():
     use_session(blocked_response())
     with pytest.raises(FinvizBlockedError):
         Spectrum().screener_view(group="Sector", order="Name")
+
+
+@pytest.mark.parametrize("view_cls", [Overview, Valuation, Performance, Custom])
+def test_group_views_parse_groups_table(view_cls):
+    # Each group view inherits the shared groups_table parse; exercise them all.
+    use_session(html_response("groups_table.html"))
+    df = view_cls().screener_view(group="Industry")
+    assert list(df["Name"]) == ["Bitcoin", "Ethereum"]
+
+
+def test_group_custom_parse_columns_sets_c_param():
+    view = Custom()
+    view._parse_columns([1, 2, 3])
+    assert view.request_params["c"] == "1,2,3"
+
+
+def test_group_custom_parse_columns_empty_is_noop():
+    view = Custom()
+    view._parse_columns([])
+    assert "c" not in view.request_params
+
+
+def test_group_util_helpers():
+    groups = get_group()
+    orders = get_orders()
+    assert isinstance(groups, list) and "Sector" in groups
+    assert isinstance(orders, list) and len(orders) > 0
