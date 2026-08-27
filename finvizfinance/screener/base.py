@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import logging
 import warnings
 from time import sleep
 
@@ -21,6 +22,8 @@ from finvizfinance.util import (
     require,
     web_scrap,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class Base:
@@ -219,7 +222,7 @@ class Base:
 
         page = self._get_page(soup)
         if page == 0:
-            print("No ticker found.")
+            logger.warning("No ticker found.")
             return None
         df = self._parse_table(None, soup, limit)
         limit -= self.size

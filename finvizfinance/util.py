@@ -8,7 +8,7 @@
 from __future__ import annotations
 
 import json
-import sys
+import logging
 import time
 import warnings
 from datetime import date, datetime
@@ -23,6 +23,8 @@ from finvizfinance.exceptions import (  # noqa: F401  (re-exported for convenien
     FinvizError,
     FinvizParseError,
 )
+
+logger = logging.getLogger(__name__)
 
 # A current browser User-Agent. A trivially-outdated client string (the old
 # 2020 Chrome/81) is an easy flag for anti-bot heuristics.
@@ -399,8 +401,4 @@ def format_datetime(date_str: str) -> datetime:
 
 
 def progress_bar(page: int, total: int) -> None:
-    bar_len = 30
-    filled_len = int(round(bar_len * page / float(total)))
-    bar = "#" * filled_len + "-" * (bar_len - filled_len)
-    sys.stdout.write(f"[Info] loading page [{bar}] {page}/{total} \r")
-    sys.stdout.flush()
+    logger.info("loading page %d/%d", page, total)

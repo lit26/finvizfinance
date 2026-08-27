@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+import logging
 from time import sleep
 
 from finvizfinance.constants import order_dict
@@ -16,6 +17,8 @@ from finvizfinance.util import (
     require,
     web_scrap,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class Ticker(Base):
@@ -62,7 +65,7 @@ class Ticker(Base):
         soup = web_scrap(self.url, self.request_params)
         page = self._get_page(soup)
         if page == 0:
-            print("No ticker found.")
+            logger.warning("No ticker found.")
             return None
 
         if limit != -1 and page > (limit - 1) // 1000 + 1:

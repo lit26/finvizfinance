@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+import logging
 import re
 from datetime import date, datetime
 
@@ -23,6 +24,8 @@ from finvizfinance.util import (
     web_scrap,
     web_scrap_json,
 )
+
+logger = logging.getLogger(__name__)
 
 QUOTE_URL = "https://finviz.com/quote.ashx?t={ticker}"
 NUM_COL = [
@@ -80,10 +83,10 @@ class finvizfinance:
     def _checkexist(self, verbose):
         body = self.soup.find("td", class_="body-text")
         if body is not None and "not found" in body.text:
-            print("Ticker not found.")
+            logger.warning("Ticker not found.")
             return False
         if verbose == 1:
-            print("Ticker exists.")
+            logger.info("Ticker exists.")
         return True
 
     def ticker_charts(
