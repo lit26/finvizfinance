@@ -521,7 +521,8 @@ class Statements:
             statement(str): I(Income Statement), B(Balace Sheet), C(Cash Flow)
             timeframe(str): A(Annual), Q(Quarter)
         Returns:
-            df(pandas.DataFrame): statements table
+            df(pandas.DataFrame): statements table. The reporting currency (e.g.
+                "USD") is stored in ``df.attrs["currency"]``.
         """
         url = "https://finviz.com/api/statement.ashx?t={ticker}&s={statement}{timeframe}".format(
             ticker=ticker, statement=statement, timeframe=timeframe
@@ -530,6 +531,11 @@ class Statements:
         if "data" not in response:
             raise FinvizParseError(url=url, selector="json:data")
         df = pd.DataFrame.from_dict(response["data"], orient="index")
+        # Expose the reporting currency finviz returns (e.g. "USD"). The raw code
+        # lives in df.attrs for programmatic access; when present it is also shown
+        # as the column-axis label so it renders above the statement columns.
         currency = response.get("currency")
-        df.columns.name = f"Currency: {currency}"
+        df.attrs["currency"] = currency
+        if currency:
+            df.columns.name = f"Currency: {currency}"
         return df

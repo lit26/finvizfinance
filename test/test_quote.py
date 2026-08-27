@@ -152,10 +152,23 @@ def test_ticker_charts_invalid_timeframe():
 
 
 def test_statements_real():
-    use_session(FakeResponse(content=b'{"data": {"2023": {"Revenue": "100"}}}'))
+    use_session(
+        FakeResponse(content=b'{"currency": "USD", "data": {"2023": {"Revenue": "100"}}}')
+    )
     df = Statements().get_statements("AAPL")
     assert df is not None
     assert not df.empty
+    # currency is exposed idiomatically in attrs, and labelled on the column axis
+    assert df.attrs["currency"] == "USD"
+    assert df.columns.name == "Currency: USD"
+
+
+def test_statements_currency_missing_is_none_and_unlabelled():
+    # finviz may omit currency; we must not render a misleading "Currency: None".
+    use_session(FakeResponse(content=b'{"data": {"2023": {"Revenue": "100"}}}'))
+    df = Statements().get_statements("AAPL")
+    assert df.attrs["currency"] is None
+    assert df.columns.name is None
 
 
 def test_statements_wall_raises_blocked_error():
