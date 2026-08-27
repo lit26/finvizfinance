@@ -32,7 +32,11 @@ class Ticker(Base):
         page_tickers = td.find_all("span")
         if i == page - 1:
             page_tickers = page_tickers[: ((limit - 1) % 1000 + 1)]
-        tickers = tickers + [i.text.split("\xa0")[1] for i in page_tickers]
+        for span in page_tickers:
+            parts = span.text.split("\xa0")
+            # Cells normally read "<rank>\xa0<TICKER>"; fall back to the whole
+            # text when the NBSP-separated rank is absent (avoids IndexError).
+            tickers.append(parts[1] if len(parts) > 1 else parts[0])
         return tickers
 
     def screener_view(
