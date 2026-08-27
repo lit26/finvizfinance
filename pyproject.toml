@@ -1,0 +1,69 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "finvizfinance"
+dynamic = ["version"]
+description = "Finviz Finance. Information downloader."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Tianning Li", email = "ltianningli@gmail.com" }]
+keywords = ["finviz", "finance", "stock", "screener", "investment"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business :: Financial :: Investment",
+]
+dependencies = [
+    "pandas>=1.5",
+    "requests>=2.25",
+    "beautifulsoup4>=4.9",
+    "lxml>=4.6",
+    "xlsxwriter>=3.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0",
+    "pytest-mock",
+]
+docs = [
+    "sphinx>=7.2",
+    "sphinx-rtd-theme>=2.0",
+    "docutils>=0.20",
+]
+dev = [
+    "finvizfinance[test,docs]",
+    "coverage>=7.5",
+    "coveralls>=4.0",
+    "pyyaml>=6.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/lit26/finvizfinance"
+Documentation = "https://finvizfinance.readthedocs.io/en/latest/"
+Repository = "https://github.com/lit26/finvizfinance"
+Issues = "https://github.com/lit26/finvizfinance/issues"
+
+[tool.hatch.version]
+path = "finvizfinance/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["finvizfinance"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/finvizfinance",
+    "/README.md",
+    "/LICENSE",
+]
