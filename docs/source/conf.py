@@ -11,11 +11,14 @@ import sys
 
 sys.path.insert(0, os.path.abspath("../../"))
 
+import finvizfinance  # noqa: E402  (import after sys.path is configured above)
+
 project = "finvizfinance"
 copyright = "2024, Tianning Li"
 author = "Tianning Li"
-# The full version, including alpha/beta/rc tags
-release = "1.4.0"
+# Read the version from the package so the docs never drift from __version__.
+version = finvizfinance.__version__
+release = finvizfinance.__version__
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
