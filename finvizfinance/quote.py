@@ -20,6 +20,7 @@ from finvizfinance.util import (
     number_convert,
     optional,
     require,
+    row_to_dict,
     validate_choice,
     warn_missing,
     web_scrap,
@@ -423,17 +424,11 @@ class finvizfinance:
         table_header = [i.text for i in rows[0].find_all("th")]
         table_header += ["SEC Form 4 Link", "Insider_id"]
         frame = []
-        rows = rows[1:]
         num_col = ["Cost", "#Shares", "Value ($)", "#Shares Total"]
         num_col_index = [table_header.index(i) for i in table_header if i in num_col]
-        for row in rows:
+        for row in rows[1:]:
             cols = row.find_all("td")
-            info_dict = {}
-            for i, col in enumerate(cols):
-                if i not in num_col_index:
-                    info_dict[table_header[i]] = col.text
-                else:
-                    info_dict[table_header[i]] = number_convert(col.text)
+            info_dict = row_to_dict(cols, table_header, num_col_index)
             info_dict["SEC Form 4 Link"] = cols[-1].find("a").attrs["href"]
             info_dict["Insider_id"] = cols[0].a["href"].split("oc=")[1].split("&tc=")[0]
             frame.append(info_dict)

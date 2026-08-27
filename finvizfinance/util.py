@@ -301,6 +301,49 @@ def find_table_by_headers(
     raise FinvizParseError(url=url, selector=selector)
 
 
+def row_to_dict(
+    cols: Any, table_header: list[str], num_col_index: list[int]
+) -> dict[str, Any]:
+    """Build a header-keyed row dict from a table row's ``<td>`` cells.
+
+    Columns whose index is in ``num_col_index`` are passed through
+    :func:`number_convert`; the rest keep their raw text. Shared by the group,
+    insider, and quote insider-trader parsers.
+
+    Args:
+        cols: the row's ``<td>`` cells.
+        table_header(list): column names, indexed positionally against ``cols``.
+        num_col_index(list): indices of the numeric columns.
+    """
+    info: dict[str, Any] = {}
+    for i, col in enumerate(cols):
+        text = col.text
+        info[table_header[i]] = number_convert(text) if i in num_col_index else text
+    return info
+
+
+def scrap_group_table(soup: Any, url: str) -> pd.DataFrame:
+    """Parse a finviz ``groups_table`` into a DataFrame (header-keyed columns).
+
+    Args:
+        soup(beautiful soup): parsed groups page.
+        url(str): the URL being parsed (for the error message).
+    Returns:
+        df(pandas.DataFrame): group information table.
+    """
+    table = require(
+        soup.find("table", class_="groups_table"), url, "table.groups_table"
+    )
+    rows = table.find_all("tr")
+    table_header = [i.text.strip() for i in rows[0].find_all("th")][1:]
+    num_col_index = list(range(2, len(table_header)))
+    frame = [
+        row_to_dict(row.find_all("td")[1:], table_header, num_col_index)
+        for row in rows[1:]
+    ]
+    return pd.DataFrame(frame)
+
+
 def scrap_function(url: str) -> pd.DataFrame:
     """Scrap forex, crypto information.
 
@@ -309,25 +352,7 @@ def scrap_function(url: str) -> pd.DataFrame:
     Returns:
         df(pandas.DataFrame): performance table
     """
-    soup = web_scrap(url)
-    table = require(
-        soup.find("table", class_="groups_table"), url, "table.groups_table"
-    )
-    rows = table.find_all("tr")
-    table_header = [i.text.strip() for i in rows[0].find_all("th")][1:]
-    frame: list[dict[str, Any]] = []
-    rows = rows[1:]
-    num_col_index = list(range(2, len(table_header)))
-    for row in rows:
-        cols = row.find_all("td")[1:]
-        info_dict: dict[str, Any] = {}
-        for i, col in enumerate(cols):
-            if i not in num_col_index:
-                info_dict[table_header[i]] = col.text
-            else:
-                info_dict[table_header[i]] = number_convert(col.text)
-        frame.append(info_dict)
-    return pd.DataFrame(frame)
+    return scrap_group_table(web_scrap(url), url)
 
 
 def image_scrap_function(
