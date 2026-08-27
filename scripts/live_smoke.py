@@ -19,6 +19,7 @@ Usage::
 
 import os
 import sys
+from collections.abc import Callable
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -28,45 +29,45 @@ from finvizfinance.exceptions import (  # noqa: E402
 )
 
 
-def _checks():
+def _checks() -> list[tuple[str, Callable[[], None]]]:
     """Named callables that each perform one representative live scrape."""
 
-    def quote_fundament():
+    def quote_fundament() -> None:
         from finvizfinance.quote import finvizfinance
 
         finvizfinance("AAPL").ticker_fundament()
 
-    def calendar():
+    def calendar() -> None:
         from finvizfinance.calendar import Calendar
 
         Calendar().calendar()
 
-    def insider():
+    def insider() -> None:
         from finvizfinance.insider import Insider
 
         Insider().get_insider()
 
-    def news():
+    def news() -> None:
         from finvizfinance.news import News
 
         News().get_news()
 
-    def screener():
+    def screener() -> None:
         from finvizfinance.screener.overview import Overview
 
         Overview().screener_view(limit=20, verbose=0)
 
-    def group():
+    def group() -> None:
         from finvizfinance.group.overview import Overview
 
         Overview().screener_view(group="Sector")
 
-    def crypto():
+    def crypto() -> None:
         from finvizfinance.crypto import Crypto
 
         Crypto().performance()
 
-    def futures():
+    def futures() -> None:
         from finvizfinance.future import Future
 
         Future().performance()
@@ -83,7 +84,7 @@ def _checks():
     ]
 
 
-def main():
+def main() -> int:
     drift = []
     errors = []
     blocked = []

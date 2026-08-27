@@ -7,6 +7,8 @@
 
 from __future__ import annotations
 
+import pandas as pd
+
 from finvizfinance.group.base import Base
 
 
@@ -17,13 +19,15 @@ class Custom(Base):
 
     v_page = 152
 
-    def _parse_columns(self, columns):
+    def _parse_columns(self, columns: list | None) -> None:
         if not columns:
             return
         columns = [str(i) for i in columns]
         self.request_params["c"] = ",".join(columns)
 
-    def screener_view(self, group="Sector", order="Name", columns=None):
+    def screener_view(
+        self, group: str = "Sector", order: str = "Name", columns: list | None = None
+    ) -> pd.DataFrame:
         """Get screener table.
 
         Args:

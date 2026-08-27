@@ -36,7 +36,7 @@ class Insider:
                       top owner sales, insider_id)
     """
 
-    def __init__(self, option="latest"):
+    def __init__(self, option: str = "latest") -> None:
         """initiate module"""
         if option in OPTION_QUERY:
             self.url = INSIDER_URL + OPTION_QUERY[option]
@@ -51,7 +51,7 @@ class Insider:
         self.soup = web_scrap(self.url)
         self.df = None
 
-    def get_insider(self):
+    def get_insider(self) -> pd.DataFrame:
         """Get insider information table.
 
         Returns:

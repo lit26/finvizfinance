@@ -13,6 +13,7 @@ import os
 import pandas as pd
 
 from finvizfinance.exceptions import FinvizParseError
+from finvizfinance.screener.base import Base
 from finvizfinance.screener.financial import Financial
 from finvizfinance.screener.overview import Overview
 from finvizfinance.screener.ownership import Ownership
@@ -33,15 +34,15 @@ class Earnings:
                      Previous Week, This Month).
     """
 
-    def __init__(self, period="This Week"):
+    def __init__(self, period: str = "This Week") -> None:
         """initiate module"""
-        self.earning_days = []
-        self.df_days = {}
-        self.df = None
+        self.earning_days: list = []
+        self.df_days: dict = {}
+        self.df: pd.DataFrame = None
         self.period = period
         self._set_period(period)
 
-    def _set_period(self, period):
+    def _set_period(self, period: str) -> None:
         """Set the period.
 
         Args:
@@ -68,7 +69,7 @@ class Earnings:
         self.earning_days = list(set(self.df["Earnings"].to_list()))
         self.earning_days.sort()
 
-    def partition_days(self, mode="financial"):
+    def partition_days(self, mode: str = "financial") -> dict[str, pd.DataFrame]:
         """Partition dataframe to separate dataframes according to the dates.
 
         Args:
@@ -96,7 +97,7 @@ class Earnings:
                     "Ticker"
                 ].to_list()
 
-        fearnings = None
+        fearnings: Base | None = None
         if mode == "financial":
             return self.df_days
         elif mode == "overview":
@@ -111,9 +112,10 @@ class Earnings:
             fearnings = Technical()
 
         filters_dict = {"Earnings Date": self.period}
+        assert fearnings is not None  # a non-financial mode is always set above
         fearnings.set_filter(filters_dict=filters_dict)
         df2 = fearnings.screener_view(order="Earnings Date", verbose=0)
-        df2_days = {}
+        df2_days: dict = {}
         for earning_day in self.earning_days:
             tickers = self.df_days[earning_day]
             df2_days[earning_day] = df2[df2["Ticker"].isin(tickers)].reset_index(
@@ -122,7 +124,7 @@ class Earnings:
         self.df_days = df2_days
         return self.df_days
 
-    def output_excel(self, output_file="earning_days.xlsx"):
+    def output_excel(self, output_file: str = "earning_days.xlsx") -> None:
         """Output dataframes to single Excel file.
 
         Args:
@@ -136,7 +138,7 @@ class Earnings:
                 sheet_name = "_".join(name.split("/"))
                 df.to_excel(writer, sheet_name=sheet_name, index=False)
 
-    def output_csv(self, output_dir="earning_days"):
+    def output_csv(self, output_dir: str = "earning_days") -> None:
         """Output dataframes to csv files.
 
         Args:

@@ -10,6 +10,7 @@ from __future__ import annotations
 import logging
 import re
 from datetime import date, datetime
+from typing import Any
 
 import pandas as pd
 
@@ -48,14 +49,14 @@ class Quote:
 
     """
 
-    def get_current(self, ticker):
+    def get_current(self, ticker: str) -> str:
         """Getting current price of the ticker.
 
         Returns:
             price(float): price of the ticker
         """
         soup = web_scrap(f"https://finviz.com/request_quote.ashx?t={ticker}")
-        return soup.text
+        return str(soup.text)
 
 
 class finvizfinance:
@@ -69,9 +70,9 @@ class finvizfinance:
 
     def __init__(
         self,
-        ticker,
-        verbose=0,
-    ):
+        ticker: str,
+        verbose: int = 0,
+    ) -> None:
         """initiate module"""
 
         self.ticker = ticker
@@ -80,9 +81,9 @@ class finvizfinance:
         self.soup = web_scrap(self.quote_url)
         if self._checkexist(verbose):
             self.flag = True
-        self.info = {}
+        self.info: dict = {}
 
-    def _checkexist(self, verbose):
+    def _checkexist(self, verbose: int) -> bool:
         body = self.soup.find("td", class_="body-text")
         if body is not None and "not found" in body.text:
             logger.warning("Ticker not found.")
@@ -92,8 +93,12 @@ class finvizfinance:
         return True
 
     def ticker_charts(
-        self, timeframe="daily", charttype="advanced", out_dir="", urlonly=False
-    ):
+        self,
+        timeframe: str = "daily",
+        charttype: str = "advanced",
+        out_dir: str = "",
+        urlonly: bool = False,
+    ) -> str:
         """Download ticker charts.
 
         Args:
@@ -128,7 +133,7 @@ class finvizfinance:
             image_scrap(chart_url, self.ticker, out_dir)
         return chart_url
 
-    def _extract_classification(self):
+    def _extract_classification(self) -> dict[str, str | None]:
         """Sector / Industry / Country / Exchange from the quote-links region.
 
         These are optional (an ETF has none). Resilient to the region being
@@ -136,7 +141,7 @@ class finvizfinance:
         finally returns ``None`` with a warning for anything genuinely absent.
         """
         keys = ["Sector", "Industry", "Country", "Exchange"]
-        result = dict.fromkeys(keys)
+        result: dict[str, str | None] = dict.fromkeys(keys)
 
         quote_links = self.soup.find("div", class_="quote-links")
         if quote_links is not None:
@@ -165,7 +170,9 @@ class finvizfinance:
                 warn_missing(self.quote_url, f"quote classification link ({key})")
         return result
 
-    def ticker_fundament(self, raw=True, output_format="dict"):
+    def ticker_fundament(
+        self, raw: bool = True, output_format: str = "dict"
+    ) -> dict | pd.DataFrame:
         """Get ticker fundament.
 
         Args:
@@ -176,7 +183,7 @@ class finvizfinance:
             fundament(dict): ticker fundament.
         """
         validate_choice(output_format, ["dict", "series"], "output format")
-        fundament_info = {}
+        fundament_info: dict = {}
 
         fundament_info["Company"] = require(
             self.soup.find("h2", class_="quote-header_ticker-wrapper_company"),
@@ -205,7 +212,7 @@ class finvizfinance:
             return fundament_info
         return pd.DataFrame.from_dict(fundament_info, orient="index", columns=["Stat"])
 
-    def _parse_column(self, cols, raw, fundament_info):
+    def _parse_column(self, cols: list[str], raw: bool, fundament_info: dict) -> dict:
         header = ""
         for i, value in enumerate(cols):
             if i % 2 == 0:
@@ -239,19 +246,31 @@ class finvizfinance:
                             fundament_info[header] = value
         return fundament_info
 
-    def _parse_52w_range(self, header, fundament_info, value, raw):
+    def _parse_52w_range(
+        self, header: str, fundament_info: dict, value: str, raw: bool
+    ) -> dict:
         info_header = ["52W Range From", "52W Range To"]
         info_value = [0, 2]
         self._parse_value(header, fundament_info, value, raw, info_header, info_value)
         return fundament_info
 
-    def _parse_volatility(self, header, fundament_info, value, raw):
+    def _parse_volatility(
+        self, header: str, fundament_info: dict, value: str, raw: bool
+    ) -> dict:
         info_header = ["Volatility W", "Volatility M"]
         info_value = [0, 1]
         self._parse_value(header, fundament_info, value, raw, info_header, info_value)
         return fundament_info
 
-    def _parse_value(self, header, fundament_info, value, raw, info_header, info_value):
+    def _parse_value(
+        self,
+        header: str,
+        fundament_info: dict,
+        value: Any,
+        raw: bool,
+        info_header: list[str],
+        info_value: list[int],
+    ) -> dict:
         value = value.split()
         if len(value) <= max(info_value):
             # Unexpected shape for this datum; keep the raw split, do not crash.
@@ -265,20 +284,22 @@ class finvizfinance:
                 fundament_info[info_header[i]] = number_convert(value[value_index])
         return fundament_info
 
-    def ticker_description(self):
+    def ticker_description(self) -> str:
         """Get ticker description.
 
         Returns:
             description(str): ticker description.
         """
-        return require(
-            self.soup.find("td", class_="fullview-profile")
-            or self.soup.find(class_="fullview-profile"),
-            self.quote_url,
-            "fullview-profile",
-        ).text
+        return str(
+            require(
+                self.soup.find("td", class_="fullview-profile")
+                or self.soup.find(class_="fullview-profile"),
+                self.quote_url,
+                "fullview-profile",
+            ).text
+        )
 
-    def _ticker_list_from_link(self, label, selector):
+    def _ticker_list_from_link(self, label: str, selector: str) -> list[str]:
         """Extract a comma-separated ticker list from a quote-page link.
 
         Finds an anchor whose visible text is ``label`` (case-insensitive) and
@@ -300,7 +321,7 @@ class finvizfinance:
         tickers_part = href.split("t=")[-1]
         return [t.strip() for t in tickers_part.split(",") if t.strip()]
 
-    def ticker_peer(self):
+    def ticker_peer(self) -> list[str]:
         """Get peer tickers for the given ticker.
 
         Returns:
@@ -308,7 +329,7 @@ class finvizfinance:
         """
         return self._ticker_list_from_link("Peers", "Peers link")
 
-    def ticker_etf_holders(self):
+    def ticker_etf_holders(self) -> list[str]:
         """Get ETFs that hold the given ticker.
 
         Returns:
@@ -317,7 +338,7 @@ class finvizfinance:
         """
         return self._ticker_list_from_link("Held by", "Held by link")
 
-    def ticker_outer_ratings(self):
+    def ticker_outer_ratings(self) -> pd.DataFrame | None:
         """Get outer ratings table.
 
         Returns:
@@ -360,7 +381,7 @@ class finvizfinance:
         self.info["ratings_outer"] = df
         return df
 
-    def ticker_news(self):
+    def ticker_news(self) -> pd.DataFrame | None:
         """Get news information table.
 
         Returns:
@@ -406,7 +427,7 @@ class finvizfinance:
         self.info["news"] = df
         return df
 
-    def ticker_inside_trader(self):
+    def ticker_inside_trader(self) -> pd.DataFrame | None:
         """Get insider information table.
 
         Returns:
@@ -436,7 +457,7 @@ class finvizfinance:
         self.info["inside trader"] = df
         return df
 
-    def ticker_signal(self):
+    def ticker_signal(self) -> list[str]:
         """Get all the trading signals from finviz.
 
         Returns:
@@ -490,7 +511,7 @@ class finvizfinance:
                 ticker_signal.append(signal)
         return ticker_signal
 
-    def ticker_full_info(self):
+    def ticker_full_info(self) -> dict:
         """Get all the ticker information.
 
         Returns:
@@ -509,7 +530,9 @@ class Statements:
 
     """
 
-    def get_statements(self, ticker, statement="I", timeframe="A"):
+    def get_statements(
+        self, ticker: str, statement: str = "I", timeframe: str = "A"
+    ) -> pd.DataFrame:
         """Getting statements of ticker.
 
         Args:

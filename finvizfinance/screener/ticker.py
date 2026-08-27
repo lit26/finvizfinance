@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 from time import sleep
+from typing import Any
 
 from finvizfinance.constants import order_dict
 from finvizfinance.screener.base import Base
@@ -29,7 +30,9 @@ class Ticker(Base):
 
     v_page = 411
 
-    def _screener_helper(self, i, page, soup, tickers, limit):
+    def _screener_helper(
+        self, i: int, page: int, soup: Any, tickers: list[str], limit: int
+    ) -> list[str]:
         td = require(
             soup.find("td", class_="screener-tickers"),
             self.url,
@@ -45,9 +48,14 @@ class Ticker(Base):
             tickers.append(parts[1] if len(parts) > 1 else parts[0])
         return tickers
 
-    def screener_view(
-        self, order="Ticker", limit=-1, verbose=1, ascend=True, sleep_sec=1
-    ):
+    def screener_view(  # type: ignore[override]  # public API intentionally differs from Base
+        self,
+        order: str = "Ticker",
+        limit: int = -1,
+        verbose: int = 1,
+        ascend: bool = True,
+        sleep_sec: int = 1,
+    ) -> list[str] | None:
         """Get screener stocks.
 
         Args:
@@ -73,7 +81,7 @@ class Ticker(Base):
         if verbose == 1:
             progress_bar(1, page)
 
-        tickers = []
+        tickers: list[str] = []
         tickers = self._screener_helper(0, page, soup, tickers, limit)
 
         for i in range(1, page):

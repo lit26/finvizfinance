@@ -103,7 +103,7 @@ def _retry_after(response: Any, attempt: int) -> float:
     header = response.headers.get("Retry-After") if response is not None else None
     if header and header.replace(".", "", 1).isdigit():
         return min(float(header), BACKOFF_CAP)
-    return min(BACKOFF_BASE * (2**attempt), BACKOFF_CAP)
+    return float(min(BACKOFF_BASE * (2**attempt), BACKOFF_CAP))
 
 
 def _request(url: str, params: dict | None = None, stream: bool = False) -> Any:
@@ -408,7 +408,7 @@ def image_scrap_function(
         name = website.split("?")[1].split("&")[0].split(".")[0]
         chart_name = name.split("_")[0]
         if chart.lower() == chart_name:
-            charturl = "https://finviz.com/" + website
+            charturl: str = "https://finviz.com/" + website
             if not urlonly:
                 image_scrap(charturl, name, "")
             return charturl

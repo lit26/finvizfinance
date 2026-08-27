@@ -34,7 +34,12 @@ class FinvizParseError(FinvizError, AttributeError, IndexError, KeyError, TypeEr
     Carries the ``url`` and the failed ``selector`` so Drift can be diagnosed.
     """
 
-    def __init__(self, message=None, url=None, selector=None):
+    def __init__(
+        self,
+        message: str | None = None,
+        url: str | None = None,
+        selector: str | None = None,
+    ) -> None:
         self.url = url
         self.selector = selector
         if message is None:
@@ -54,7 +59,7 @@ class FinvizBlockedError(FinvizError, requests.exceptions.HTTPError):
     ``url``.
     """
 
-    def __init__(self, message=None, url=None):
+    def __init__(self, message: str | None = None, url: str | None = None) -> None:
         self.url = url
         if message is None:
             message = (
