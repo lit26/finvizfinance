@@ -9,7 +9,7 @@ from finvizfinance.constants import (
 from finvizfinance.util import validate_choice
 
 
-def get_signal():
+def get_signal() -> list[str]:
     """Get signals.
 
     Returns:
@@ -18,7 +18,7 @@ def get_signal():
     return list(signal_dict.keys())
 
 
-def get_filters():
+def get_filters() -> list[str]:
     """Get filters.
 
     Returns:
@@ -27,7 +27,7 @@ def get_filters():
     return list(filter_dict.keys())
 
 
-def get_filter_options(screen_filter):
+def get_filter_options(screen_filter: str) -> list[str]:
     """Get filters options.
 
     Args:
@@ -40,7 +40,7 @@ def get_filter_options(screen_filter):
     return list(filter_dict[screen_filter]["option"])
 
 
-def get_orders():
+def get_orders() -> list[str]:
     """Get orders.
 
     Returns:
@@ -49,7 +49,7 @@ def get_orders():
     return list(order_dict.keys())
 
 
-def get_custom_screener_columns():
+def get_custom_screener_columns() -> dict[int, str]:
     """Get information about the columns
 
     Returns:

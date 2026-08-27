@@ -11,6 +11,7 @@ from __future__ import annotations
 import logging
 import warnings
 from time import sleep
+from typing import Any
 
 import pandas as pd
 
@@ -37,11 +38,11 @@ class Base:
     size = 20
     request_params: dict = {}
 
-    def __init__(self):
+    def __init__(self) -> None:
         """initiate module"""
         self.reset()
 
-    def _set_signal(self, signal):
+    def _set_signal(self, signal: str) -> None:
         """set signal.
 
         Args:
@@ -52,7 +53,7 @@ class Base:
         validate_choice(signal, signal_dict, "signal")
         self.request_params["s"] = signal_dict[signal]
 
-    def _set_filters(self, filters_dict):
+    def _set_filters(self, filters_dict: dict[str, str]) -> None:
         """Set filters.
 
         Args:
@@ -72,7 +73,7 @@ class Base:
         if len(filters) != 0:
             self.request_params["f"] = ",".join(filters)
 
-    def _set_ticker(self, ticker):
+    def _set_ticker(self, ticker: str) -> None:
         """Set ticker.
 
         Args:
@@ -82,7 +83,12 @@ class Base:
             return
         self.request_params["t"] = ticker
 
-    def set_filter(self, signal="", filters_dict=None, ticker=""):
+    def set_filter(
+        self,
+        signal: str = "",
+        filters_dict: dict[str, str] | None = None,
+        ticker: str = "",
+    ) -> None:
         """Update the settings.
 
         Args:
@@ -96,14 +102,21 @@ class Base:
         self._set_ticker(ticker)
         self._set_filters(filters_dict)
 
-    def _get_page(self, soup):
+    def _get_page(self, soup: Any) -> int:
         """Check the page number"""
         select = soup.find(id="pageSelect")
         if select is None:
             return 0
         return len(select.find_all("option"))
 
-    def _get_table(self, rows, df, num_col_index, table_header, limit=-1):
+    def _get_table(
+        self,
+        rows: Any,
+        df: pd.DataFrame,
+        num_col_index: list[int],
+        table_header: list[str],
+        limit: int = -1,
+    ) -> pd.DataFrame:
         """Get screener table helper function.
 
         Returns:
@@ -142,7 +155,7 @@ class Base:
             return new_df
         return pd.concat([df, new_df], ignore_index=True)
 
-    def _screener_table(self, soup):
+    def _screener_table(self, soup: Any) -> Any:
         """Locate the screener results table, or raise on a Structural break."""
         return require(
             soup.find("table", class_="screener_table"),
@@ -150,13 +163,15 @@ class Base:
             "table.screener_table",
         )
 
-    def _parse_table_header(self, soup):
+    def _parse_table_header(self, soup: Any) -> list[str]:
         table = self._screener_table(soup)
         rows = table.findAll("tr")
         table_headers = [i.text.strip() for i in rows[0].findAll("th")][1:]
         return table_headers
 
-    def _parse_table(self, df, soup, limit):
+    def _parse_table(
+        self, df: pd.DataFrame | None, soup: Any, limit: int
+    ) -> pd.DataFrame:
         if df is None:
             table_headers = self._parse_table_header(soup)
             df = pd.DataFrame([], columns=table_headers)
@@ -169,22 +184,22 @@ class Base:
         df = self._get_table(rows, df, num_col_index, table_headers, limit)
         return df
 
-    def _parse_columns(self, columns):
+    def _parse_columns(self, columns: list | None) -> None:
         return
 
-    def reset(self):
+    def reset(self) -> None:
         self.request_params = {"v": self.v_page}
 
     def screener_view(
         self,
-        order="Ticker",
-        limit=100000,
-        select_page=None,
-        verbose=1,
-        ascend=True,
-        columns=None,
-        sleep_sec=1,
-    ):
+        order: str = "Ticker",
+        limit: int = 100000,
+        select_page: int | None = None,
+        verbose: int = 1,
+        ascend: bool = True,
+        columns: list | None = None,
+        sleep_sec: int = 1,
+    ) -> pd.DataFrame:
         """Get screener table.
 
         Args:
@@ -234,7 +249,13 @@ class Base:
         self.reset()
         return df
 
-    def compare(self, ticker, compare_list, order="ticker", verbose=1):
+    def compare(
+        self,
+        ticker: str,
+        compare_list: list[str],
+        order: str = "ticker",
+        verbose: int = 1,
+    ) -> pd.DataFrame:
         """Get screener table of similar property (Sector, Industry, Country)
 
         Args:

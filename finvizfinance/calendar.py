@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import re
+from typing import Any
 
 import pandas as pd
 
@@ -17,7 +18,7 @@ from finvizfinance.util import decode_json_after, warn_missing, web_scrap
 CALENDAR_URL = "https://finviz.com/calendar.ashx"
 
 
-def _script_json(soup, function_name):
+def _script_json(soup: Any, function_name: str) -> list[Any] | None:
     """Extract the JSON argument passed to a client-side init function."""
     marker = re.compile(rf"(?:window\.)?{re.escape(function_name)}\s*\(")
     for script in soup.find_all("script"):
@@ -36,10 +37,10 @@ def _script_json(soup, function_name):
 class Calendar:
     """Getting information from the finviz calendar page."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def calendar(self):
+    def calendar(self) -> pd.DataFrame:
         """Get economic calendar table."""
         soup = web_scrap(CALENDAR_URL)
         tables = soup.find_all("table", class_="calendar")
@@ -64,10 +65,10 @@ class Calendar:
         return pd.DataFrame(rows)
 
     @staticmethod
-    def _calendar_row(row):
+    def _calendar_row(row: Any) -> dict[str, Any]:
         """Normalize a client-rendered calendar object to the public columns."""
 
-        def value(*keys):
+        def value(*keys: str) -> Any:
             for key in keys:
                 if key in row:
                     return row[key]
@@ -88,7 +89,7 @@ class Calendar:
         }
 
     @staticmethod
-    def _calendar_tables(tables):
+    def _calendar_tables(tables: Any) -> pd.DataFrame:
         frame = []
         for table in tables:
             rows = table.find_all("tr")

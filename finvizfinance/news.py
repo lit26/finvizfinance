@@ -7,6 +7,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import pandas as pd
 
 from finvizfinance.exceptions import FinvizParseError
@@ -20,13 +22,13 @@ class News:
     Getting information from the finviz news page.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """initiate module"""
-        self.all_news = {}
+        self.all_news: dict = {}
         self.soup = web_scrap(NEWS_URL)
-        self.news = {}
+        self.news: dict[str, pd.DataFrame] = {}
 
-    def get_news(self):
+    def get_news(self) -> dict[str, pd.DataFrame]:
         """Get insider information table.
 
         Retrieves table information from finviz finance news.
@@ -50,7 +52,7 @@ class News:
         self.news = {"news": news_df, "blogs": blog_df}
         return self.news
 
-    def _get_news_helper(self, rows):
+    def _get_news_helper(self, rows: Any) -> pd.DataFrame:
         """Get insider information table helper function.
 
         Args:

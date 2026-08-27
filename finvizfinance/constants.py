@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Any
+
 NUMBER_COL = [
     "Market Cap",
     "P/E",
@@ -185,7 +189,7 @@ CUSTOM_GROUP_COLUMNS = {
 }
 
 
-util_dict = {
+util_dict: dict[str, Any] = {
     "signal": {
         "Top Gainers": "ta_topgainers",
         "Top Losers": "ta_toplosers",
@@ -2325,7 +2329,7 @@ signal_dict = util_dict["signal"]
 filter_dict = util_dict["filter"]
 order_dict = util_dict["order"]
 
-group_util_dict = {
+group_util_dict: dict[str, Any] = {
     "group": {
         "Sector": {"g": "sector"},
         "Industry": {"g": "industry"},

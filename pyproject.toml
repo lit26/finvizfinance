@@ -87,4 +87,17 @@ ignore = ["E501"]
 python_version = "3.10"
 ignore_missing_imports = true
 disable_error_code = ["import-untyped"]
-files = ["finvizfinance"]
+files = ["finvizfinance", "scripts"]
+disallow_untyped_defs = true
+warn_return_any = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+
+# beautifulsoup4's published type stubs (4.13+) are strict about attribute
+# access (``str | AttributeValueList | None``) and ResultSet element types,
+# which is noise for a scraper that treats parsed nodes dynamically. Treat bs4
+# as untyped so the ratchet covers our own logic rather than bs4's shape, and
+# so results do not depend on the installed bs4/mypy version.
+[[tool.mypy.overrides]]
+module = ["bs4", "bs4.*"]
+follow_imports = "skip"

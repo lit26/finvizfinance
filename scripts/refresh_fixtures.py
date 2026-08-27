@@ -42,7 +42,7 @@ TARGETS = {
 }
 
 
-def main():
+def main() -> None:
     os.makedirs(LIVE_DIR, exist_ok=True)
     blocked = 0
     for name, url in TARGETS.items():

@@ -7,6 +7,8 @@
 
 from __future__ import annotations
 
+import pandas as pd
+
 from finvizfinance.constants import group_dict, group_order_dict
 from finvizfinance.util import scrap_group_table, validate_choice, web_scrap
 
@@ -20,16 +22,18 @@ class Base:
     url = "https://finviz.com/groups.ashx"
     request_params: dict = {}
 
-    def __init__(self):
+    def __init__(self) -> None:
         """initiate module"""
         self.request_params = {
             "v": self.v_page,
         }
 
-    def _parse_columns(self, columns):
+    def _parse_columns(self, columns: list | None) -> None:
         return
 
-    def screener_view(self, group="Sector", order="Name", columns=None):
+    def screener_view(
+        self, group: str = "Sector", order: str = "Name", columns: list | None = None
+    ) -> pd.DataFrame:
         """Get screener table.
 
         Args:
