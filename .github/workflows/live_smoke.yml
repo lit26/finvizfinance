@@ -1,0 +1,25 @@
+name: live_smoke
+
+# Scheduled, non-blocking Drift watch against real finviz. It never runs on
+# pull requests, so a Walled CI IP can never redden PR CI. scripts/live_smoke.py
+# treats a Wall/403 as expected and fails only on a parse Drift (or an
+# unexpected error). Scheduled runs fire from the default branch.
+on:
+  schedule:
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+
+jobs:
+  live_smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+      - name: Live smoke against finviz (Wall = expected, Drift = fail)
+        run: python scripts/live_smoke.py
