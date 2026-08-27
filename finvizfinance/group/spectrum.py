@@ -24,7 +24,7 @@ class Spectrum(Base):
     def screener_view(  # type: ignore[override]  # public API intentionally differs from Base
         self, group: str = "Sector", order: str = "Name", out_dir: str = ""
     ) -> None:
-        """Get screener table.
+        """Download the group spectrum image.
 
         Args:
             group(str): choice of group option.

@@ -73,8 +73,8 @@ class Earnings:
         """Partition dataframe to separate dataframes according to the dates.
 
         Args:
-            mode(str): choose an option of period(financial, overview, valuation, ownership,
-                       performance, technical).
+            mode(str): choose an option of mode (financial, overview, valuation,
+                       ownership, performance, technical).
         """
         check_list = [
             "financial",

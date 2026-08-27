@@ -176,6 +176,49 @@ df.head()
 
 Getting list of tickers according to the filters.
 
+### Calendar
+
+Getting the economic calendar (release datetime, impact, actual/expected/prior).
+
+```python
+from finvizfinance.calendar import Calendar
+
+fcalendar = Calendar()
+df = fcalendar.calendar()
+df.head()
+```
+
+### Earnings
+
+Partitioning tickers by their earnings dates for a period.
+
+```python
+from finvizfinance.earnings import Earnings
+
+# period: This Week (default), Next Week, Previous Week, This Month
+fearnings = Earnings(period='This Week')
+
+# mode: financial (default), overview, valuation, ownership, performance, technical
+days = fearnings.partition_days(mode='financial')
+
+# optionally export the partitioned tables
+fearnings.output_excel('earning_days.xlsx')
+fearnings.output_csv('earning_days')
+```
+
+### Future
+
+Getting futures performance.
+
+```python
+from finvizfinance.future import Future
+
+ffuture = Future()
+# timeframe: D (default), W, M, Q, HY, Y
+df = ffuture.performance(timeframe='D')
+df.head()
+```
+
 ### Misc (Proxy)
 
 Optional proxy can be used for getting information from FinViz website. Accessible from finvizfinance
