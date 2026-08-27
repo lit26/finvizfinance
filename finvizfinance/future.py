@@ -7,13 +7,12 @@
 
 from __future__ import annotations
 
-import json
 import re
 
 import pandas as pd
 
 from finvizfinance.exceptions import FinvizParseError
-from finvizfinance.util import web_scrap
+from finvizfinance.util import decode_json_after, web_scrap
 
 FUTURES_URL = "https://finviz.com/futures_performance.ashx"
 
@@ -29,13 +28,9 @@ def _extract_rows(soup):
         match = re.search(pattern, html)
         if match is None:
             continue
-        try:
-            data, _ = json.JSONDecoder().raw_decode(html[match.end() :].lstrip())
-        except json.JSONDecodeError as err:
-            raise FinvizParseError(
-                url=FUTURES_URL, selector="futures performance JSON"
-            ) from err
-        return data
+        return decode_json_after(
+            html, match.end(), FUTURES_URL, "futures performance JSON"
+        )
     raise FinvizParseError(url=FUTURES_URL, selector="futures performance JSON")
 
 

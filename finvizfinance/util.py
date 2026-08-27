@@ -301,6 +301,27 @@ def find_table_by_headers(
     raise FinvizParseError(url=url, selector=selector)
 
 
+def decode_json_after(text: str, start: int, url: str, selector: str) -> Any:
+    """Raw-decode a JSON value embedded in ``text`` starting at ``start``.
+
+    Shared by the calendar and futures parsers to pull the JSON argument out
+    of a finviz client-side init script (e.g. ``FinvizInit...([...])``). Raises
+    :class:`FinvizParseError` when the slice does not begin with valid JSON (a
+    finviz Drift).
+
+    Args:
+        text(str): the surrounding text (a script body or prettified HTML).
+        start(int): offset in ``text`` at which the JSON value begins.
+        url(str): the URL being parsed (for the error message).
+        selector(str): a human-readable description for the error message.
+    """
+    try:
+        data, _ = json.JSONDecoder().raw_decode(text[start:].lstrip())
+    except (json.JSONDecodeError, TypeError) as err:
+        raise FinvizParseError(url=url, selector=selector) from err
+    return data
+
+
 def row_to_dict(
     cols: Any, table_header: list[str], num_col_index: list[int]
 ) -> dict[str, Any]:
