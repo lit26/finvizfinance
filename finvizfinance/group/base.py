@@ -5,6 +5,8 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+from __future__ import annotations
+
 import pandas as pd
 
 from finvizfinance.constants import group_dict, group_order_dict
@@ -16,9 +18,9 @@ class Base:
     Getting information from the finviz group page.
     """
 
-    v_page = None
+    v_page: int | None = None
     url = "https://finviz.com/groups.ashx"
-    request_params = {}
+    request_params: dict = {}
 
     def __init__(self):
         """initiate module"""
