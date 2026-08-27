@@ -75,6 +75,31 @@ def test_fundament_renamed_links_recovered_via_fallback():
     assert fundament["Exchange"] == "NASDAQ"
 
 
+def test_fundament_spans_multiple_snapshot_tables():
+    # Regression for issue #156: finviz now splits the fundamentals across
+    # several ``snapshot-table2`` tables inside a wrapper div. The parser must
+    # read every table, not just the first, so fields in later tables are kept.
+    fundament = _stock("quote_multi_table.html").ticker_fundament()
+    # classification still resolves (via the screener-filter href fallback)
+    assert fundament["Company"] == "International Business Machines Corp"
+    assert fundament["Sector"] == "Technology"
+    assert fundament["Exchange"] == "NYSE"
+    # first table
+    assert fundament["P/E"] == "20.40"
+    assert fundament["Market Cap"] == "216.57B"
+    # second table (missed entirely before the fix)
+    assert fundament["ROE"] == "34.55%"
+    assert fundament["Shs Outstand"] == "942.00M"
+    assert fundament["Volatility W"] == "2.10%"
+    assert fundament["Volatility M"] == "2.62%"
+    # third table (also missed before the fix), incl. the EPS-next-Y dup split
+    assert fundament["Perf YTD"] == "-22.40%"
+    assert fundament["Target Price"] == "245.29"
+    assert fundament["Price"] == "229.87"
+    assert fundament["EPS next Y"] == "13.15"
+    assert fundament["EPS next Y Percentage"] == "6.79%"
+
+
 def test_fundament_series_output_format():
     df = _stock("quote_aapl.html").ticker_fundament(output_format="series")
     assert df.loc["Company", "Stat"] == "Apple Inc."
