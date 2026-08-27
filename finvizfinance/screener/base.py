@@ -20,6 +20,7 @@ from finvizfinance.util import (
     number_convert,
     progress_bar,
     require,
+    validate_choice,
     web_scrap,
 )
 
@@ -48,11 +49,7 @@ class Base:
         """
         if not signal:
             return
-        if signal not in signal_dict:
-            signal_keys = list(signal_dict.keys())
-            raise ValueError(
-                f"Invalid signal '{signal}'. Possible signal: {signal_keys}"
-            )
+        validate_choice(signal, signal_dict, "signal")
         self.request_params["s"] = signal_dict[signal]
 
     def _set_filters(self, filters_dict):
@@ -66,16 +63,8 @@ class Base:
         """
         filters = []
         for key, value in filters_dict.items():
-            if key not in filter_dict:
-                filter_keys = list(filter_dict.keys())
-                raise ValueError(
-                    f"Invalid filter '{key}'. Possible filter: {filter_keys}"
-                )
-            if value not in filter_dict[key]["option"]:
-                filter_options = list(filter_dict[key]["option"].keys())
-                raise ValueError(
-                    f"Invalid filter option '{value}'. Possible filter options: {filter_options}"
-                )
+            validate_choice(key, filter_dict, "filter")
+            validate_choice(value, filter_dict[key]["option"], "filter option")
             prefix = filter_dict[key]["prefix"]
             urlcode = filter_dict[key]["option"][value]
             if urlcode != "":
@@ -208,9 +197,7 @@ class Base:
         Returns:
             df(pandas.DataFrame): screener information table
         """
-        if order not in order_dict:
-            order_keys = list(order_dict.keys())
-            raise ValueError(f"Invalid order '{order}'. Possible order: {order_keys}")
+        validate_choice(order, order_dict, "order")
         self.request_params["o"] = ("" if ascend else "-") + order_dict[order]
 
         if select_page:

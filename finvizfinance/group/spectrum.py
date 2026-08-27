@@ -11,7 +11,7 @@ from urllib.parse import urljoin
 
 from finvizfinance.constants import group_dict, group_order_dict
 from finvizfinance.group.base import Base
-from finvizfinance.util import image_scrap, require, web_scrap
+from finvizfinance.util import image_scrap, require, validate_choice, web_scrap
 
 
 class Spectrum(Base):
@@ -28,16 +28,8 @@ class Spectrum(Base):
             group(str): choice of group option.
             order(str): sort the table by the choice of order.
         """
-        if group not in group_dict:
-            group_keys = list(group_dict.keys())
-            raise ValueError(
-                f"Invalid group parameter '{group}'. Possible parameter input: {group_keys}"
-            )
-        if order not in group_order_dict:
-            order_keys = list(group_order_dict.keys())
-            raise ValueError(
-                f"Invalid order parameter '{order}'. Possible parameter input: {order_keys}"
-            )
+        validate_choice(group, group_dict, "group")
+        validate_choice(order, group_order_dict, "order")
 
         self.request_params.update(group_dict[group])
         self.request_params["o"] = group_order_dict[order]

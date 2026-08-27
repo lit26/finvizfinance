@@ -250,6 +250,28 @@ def optional(node: Any, url: str, selector: str, default: Any = None) -> Any:
     return node
 
 
+def validate_choice(value: Any, options: Any, label: str) -> Any:
+    """Return ``value`` if it is a valid choice, else raise :class:`ValueError`.
+
+    Centralizes the "invalid parameter" guard duplicated across the screener
+    and group modules: it checks membership in ``options`` and, on failure,
+    raises a ``ValueError`` naming the offending value and listing the valid
+    keys.
+
+    Args:
+        value: the user-supplied choice.
+        options: the valid choices — a mapping whose keys are valid, or any
+            membership-testable container.
+        label(str): human-readable noun for the message, e.g. ``"order"``.
+    Returns:
+        the validated ``value`` (for optional chaining).
+    """
+    if value not in options:
+        valid = list(options)
+        raise ValueError(f"Invalid {label} '{value}'. Possible {label}: {valid}")
+    return value
+
+
 def find_table_by_headers(
     soup: Any, required_headers: list[str], url: str, selector: str
 ) -> Any:

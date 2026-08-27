@@ -20,6 +20,7 @@ from finvizfinance.util import (
     number_convert,
     optional,
     require,
+    validate_choice,
     warn_missing,
     web_scrap,
     web_scrap_json,
@@ -173,12 +174,7 @@ class finvizfinance:
         Returns:
             fundament(dict): ticker fundament.
         """
-        if output_format not in ["dict", "series"]:
-            raise ValueError(
-                "Invalid output format '{}'. Possible choice: {}".format(
-                    output_format, ["dict", "series"]
-                )
-            )
+        validate_choice(output_format, ["dict", "series"], "output format")
         fundament_info = {}
 
         fundament_info["Company"] = require(

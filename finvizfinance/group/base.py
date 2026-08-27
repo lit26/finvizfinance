@@ -10,7 +10,7 @@ from __future__ import annotations
 import pandas as pd
 
 from finvizfinance.constants import group_dict, group_order_dict
-from finvizfinance.util import number_convert, require, web_scrap
+from finvizfinance.util import number_convert, require, validate_choice, web_scrap
 
 
 class Base:
@@ -41,16 +41,8 @@ class Base:
         Returns:
             df(pandas.DataFrame): group information table.
         """
-        if group not in group_dict:
-            group_keys = list(group_dict.keys())
-            raise ValueError(
-                f"Invalid group parameter '{group}'. Possible parameter input: {group_keys}"
-            )
-        if order not in group_order_dict:
-            order_keys = list(group_order_dict.keys())
-            raise ValueError(
-                f"Invalid order parameter '{order}'. Possible parameter input: {order_keys}"
-            )
+        validate_choice(group, group_dict, "group")
+        validate_choice(order, group_order_dict, "order")
 
         self.request_params = {
             **self.request_params,
