@@ -6,9 +6,21 @@
 """
 
 import pandas as pd
-from finvizfinance.util import web_scrap, number_covert
+from finvizfinance.util import web_scrap, number_convert, find_table_by_headers
 
 INSIDER_URL = "https://finviz.com/insidertrading"
+
+OPTION_QUERY = {
+    "latest": "",
+    "latest buys": "?tc=1",
+    "latest sales": "?tc=2",
+    "top week": "?or=-10&tv=100000&tc=7&o=-transactionValue",
+    "top week buys": "?or=-10&tv=100000&tc=1&o=-transactionValue",
+    "top week sales": "?or=-10&tv=100000&tc=2&o=-transactionValue",
+    "top owner trade": "?or=10&tv=1000000&tc=7&o=-transactionValue",
+    "top owner buys": "?or=10&tv=1000000&tc=1&o=-transactionValue",
+    "top owner sales": "?or=10&tv=1000000&tc=2&o=-transactionValue",
+}
 
 
 class Insider:
@@ -23,38 +35,17 @@ class Insider:
 
     def __init__(self, option="latest"):
         """initiate module"""
-        if option == "latest":
-            self.soup = web_scrap(INSIDER_URL)
-        elif option == "latest buys":
-            self.soup = web_scrap(INSIDER_URL + "?tc=1")
-        elif option == "latest sales":
-            self.soup = web_scrap(INSIDER_URL + "?tc=2")
-        elif option == "top week":
-            self.soup = web_scrap(
-                INSIDER_URL + "?or=-10&tv=100000&tc=7&o=-transactionValue"
-            )
-        elif option == "top week buys":
-            self.soup = web_scrap(
-                INSIDER_URL + "?or=-10&tv=100000&tc=1&o=-transactionValue"
-            )
-        elif option == "top week sales":
-            self.soup = web_scrap(
-                INSIDER_URL + "?or=-10&tv=100000&tc=2&o=-transactionValue"
-            )
-        elif option == "top owner trade":
-            self.soup = web_scrap(
-                INSIDER_URL + "?or=10&tv=1000000&tc=7&o=-transactionValue"
-            )
-        elif option == "top owner buys":
-            self.soup = web_scrap(
-                INSIDER_URL + "?or=10&tv=1000000&tc=1&o=-transactionValue"
-            )
-        elif option == "top owner sales":
-            self.soup = web_scrap(
-                INSIDER_URL + "?or=10&tv=1000000&tc=2&o=-transactionValue"
-            )
+        if option in OPTION_QUERY:
+            self.url = INSIDER_URL + OPTION_QUERY[option]
         elif option.isdigit():
-            self.soup = web_scrap(INSIDER_URL + "?oc=" + option + "&tc=7")
+            self.url = INSIDER_URL + "?oc=" + option + "&tc=7"
+        else:
+            raise ValueError(
+                "Invalid option '{}'. Possible options: {}".format(
+                    option, list(OPTION_QUERY.keys()) + ["insider_id (digits)"]
+                )
+            )
+        self.soup = web_scrap(self.url)
         self.df = None
 
     def get_insider(self):
@@ -63,10 +54,16 @@ class Insider:
         Returns:
             df(pandas.DataFrame): insider information table
         """
-        # print(self.soup.prettify())
-        insider_trader = self.soup.find_all("table")[6]
+        # Match the insider table by its header text rather than a fixed
+        # positional index, so it survives finviz reordering tables. A missing
+        # table raises FinvizParseError, never a cryptic IndexError.
+        insider_trader = find_table_by_headers(
+            self.soup,
+            ["Ticker", "Owner", "Transaction"],
+            self.url,
+            "insider trading table",
+        )
         rows = insider_trader.find_all("tr")
-        # print(rows)
         table_header = [i.text.strip() for i in rows[0].find_all("th")] + [
             "SEC Form 4 Link"
         ]
@@ -82,11 +79,10 @@ class Insider:
             for i, col in enumerate(cols):
                 if i not in num_col_index:
                     info_dict[table_header[i]] = col.text
-                    if i == len(cols) - 1:
-                        info_dict["SEC Form 4 Link"] = col.find("a").attrs["href"]
                 else:
-                    info_dict[table_header[i]] = number_covert(col.text)
-                info_dict["SEC Form 4 Link"] = cols[-1].find("a").attrs["href"]
+                    info_dict[table_header[i]] = number_convert(col.text)
+            link = cols[-1].find("a")
+            info_dict["SEC Form 4 Link"] = link.attrs["href"] if link else None
             frame.append(info_dict)
         df = pd.DataFrame(frame)
         self.df = df

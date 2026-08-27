@@ -9,6 +9,7 @@ from time import sleep
 from finvizfinance.util import (
     web_scrap,
     progress_bar,
+    require,
 )
 from finvizfinance.constants import order_dict
 
@@ -23,7 +24,11 @@ class Ticker(Base):
     v_page = 411
 
     def _screener_helper(self, i, page, soup, tickers, limit):
-        td = soup.find("td", class_="screener-tickers")
+        td = require(
+            soup.find("td", class_="screener-tickers"),
+            self.url,
+            "td.screener-tickers",
+        )
         page_tickers = td.find_all("span")
         if i == page - 1:
             page_tickers = page_tickers[: ((limit - 1) % 1000 + 1)]

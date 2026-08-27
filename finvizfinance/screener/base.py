@@ -12,8 +12,9 @@ from time import sleep
 from finvizfinance.quote import finvizfinance
 from finvizfinance.util import (
     web_scrap,
-    number_covert,
+    number_convert,
     progress_bar,
+    require,
 )
 from finvizfinance.constants import NUMBER_COL, signal_dict, filter_dict, order_dict
 
@@ -101,11 +102,10 @@ class Base:
 
     def _get_page(self, soup):
         """Check the page number"""
-        try:
-            options = soup.find(id="pageSelect").findAll("option")
-            return len(options)
-        except:
+        select = soup.find(id="pageSelect")
+        if select is None:
             return 0
+        return len(select.find_all("option"))
 
     def _get_table(self, rows, df, num_col_index, table_header, limit=-1):
         """Get screener table helper function.
@@ -119,23 +119,43 @@ class Base:
 
         frame = []
         for row in rows:
-            cols = row.findAll("td")[1:]
-            info_dict = {}
+            cols = row.find_all("td")[1:]
+            # Build each row positionally, not keyed by header name: finviz can
+            # return duplicate header labels (e.g. two "Dividend" columns in a
+            # wide custom view). A name-keyed dict silently collapses those,
+            # shrinking the frame's width and raising IndexError on the next
+            # page once the cell count exceeds the (now shorter) header list.
+            row_values = []
             for i, col in enumerate(cols):
-                # check if the col is number
-                if i not in num_col_index:
-                    info_dict[table_header[i]] = col.text
+                if i >= len(table_header):
+                    break
+                if table_header[i] == "Ticker" and col.has_attr("data-boxover-ticker"):
+                    # The ticker cell nests two anchors (logo/company-ticker +
+                    # a tab-link), so col.text repeats the symbol ("AAPL" ->
+                    # "AAPLAAPL"). The clean value lives in this attribute.
+                    row_values.append(col["data-boxover-ticker"])
+                elif i in num_col_index:
+                    row_values.append(number_convert(col.text))
                 else:
-                    info_dict[table_header[i]] = number_covert(col.text)
-            frame.append(info_dict)
+                    row_values.append(col.text)
+            # Pad short rows so every row matches the header width.
+            row_values.extend([None] * (len(table_header) - len(row_values)))
+            frame.append(row_values)
+        new_df = pd.DataFrame(frame, columns=table_header)
         if len(df) == 0:
-            return pd.DataFrame(frame)
-        else:
-            return pd.concat([df, pd.DataFrame(frame)], ignore_index=True)
+            return new_df
+        return pd.concat([df, new_df], ignore_index=True)
 
-    @staticmethod
-    def _parse_table_header(soup):
-        table = soup.find("table", class_="screener_table")
+    def _screener_table(self, soup):
+        """Locate the screener results table, or raise on a Structural break."""
+        return require(
+            soup.find("table", class_="screener_table"),
+            self.url,
+            "table.screener_table",
+        )
+
+    def _parse_table_header(self, soup):
+        table = self._screener_table(soup)
         rows = table.findAll("tr")
         table_headers = [i.text.strip() for i in rows[0].findAll("th")][1:]
         return table_headers
@@ -148,7 +168,7 @@ class Base:
         num_col_index = [
             table_headers.index(i) for i in table_headers if i in NUMBER_COL
         ]
-        table = soup.find("table", class_="screener_table")
+        table = self._screener_table(soup)
         rows = table.find_all("tr")
         df = self._get_table(rows, df, num_col_index, table_headers, limit)
         return df

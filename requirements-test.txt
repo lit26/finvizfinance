@@ -1,4 +1,4 @@
 -r requirements.txt
 
-pytest
+pytest>=7.0
 pytest-mock
