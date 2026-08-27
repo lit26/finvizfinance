@@ -5,6 +5,8 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+from __future__ import annotations
+
 from time import sleep
 
 from finvizfinance.constants import order_dict

@@ -5,6 +5,8 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+from __future__ import annotations
+
 from urllib.parse import urljoin
 
 from finvizfinance.constants import group_dict, group_order_dict

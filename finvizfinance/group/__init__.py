@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from finvizfinance.group.custom import Custom
 from finvizfinance.group.overview import Overview
 from finvizfinance.group.performance import Performance

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from finvizfinance.constants import (
     CUSTOM_SCREENER_COLUMNS,
     filter_dict,

@@ -5,6 +5,8 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+from __future__ import annotations
+
 import os
 
 import pandas as pd

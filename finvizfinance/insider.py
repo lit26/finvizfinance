@@ -5,6 +5,8 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+from __future__ import annotations
+
 import pandas as pd
 
 from finvizfinance.util import find_table_by_headers, number_convert, web_scrap

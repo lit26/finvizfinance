@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from finvizfinance.screener.custom import Custom
 from finvizfinance.screener.financial import Financial
 from finvizfinance.screener.overview import Overview
