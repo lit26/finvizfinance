@@ -7,16 +7,18 @@
 """
 
 import warnings
-import pandas as pd
 from time import sleep
+
+import pandas as pd
+
+from finvizfinance.constants import NUMBER_COL, filter_dict, order_dict, signal_dict
 from finvizfinance.quote import finvizfinance
 from finvizfinance.util import (
-    web_scrap,
     number_convert,
     progress_bar,
     require,
+    web_scrap,
 )
-from finvizfinance.constants import NUMBER_COL, signal_dict, filter_dict, order_dict
 
 
 class Base:
@@ -44,7 +46,7 @@ class Base:
         if signal not in signal_dict:
             signal_keys = list(signal_dict.keys())
             raise ValueError(
-                "Invalid signal '{}'. Possible signal: {}".format(signal, signal_keys)
+                f"Invalid signal '{signal}'. Possible signal: {signal_keys}"
             )
         self.request_params["s"] = signal_dict[signal]
 
@@ -62,19 +64,17 @@ class Base:
             if key not in filter_dict:
                 filter_keys = list(filter_dict.keys())
                 raise ValueError(
-                    "Invalid filter '{}'. Possible filter: {}".format(key, filter_keys)
+                    f"Invalid filter '{key}'. Possible filter: {filter_keys}"
                 )
             if value not in filter_dict[key]["option"]:
                 filter_options = list(filter_dict[key]["option"].keys())
                 raise ValueError(
-                    "Invalid filter option '{}'. Possible filter options: {}".format(
-                        value, filter_options
-                    )
+                    f"Invalid filter option '{value}'. Possible filter options: {filter_options}"
                 )
             prefix = filter_dict[key]["prefix"]
             urlcode = filter_dict[key]["option"][value]
             if urlcode != "":
-                filters.append("{}_{}".format(prefix, urlcode))
+                filters.append(f"{prefix}_{urlcode}")
         if len(filters) != 0:
             self.request_params["f"] = ",".join(filters)
 
@@ -88,7 +88,7 @@ class Base:
             return
         self.request_params["t"] = ticker
 
-    def set_filter(self, signal="", filters_dict={}, ticker=""):
+    def set_filter(self, signal="", filters_dict=None, ticker=""):
         """Update the settings.
 
         Args:
@@ -96,6 +96,8 @@ class Base:
             filters_dict(dict): dictionary of filters
             ticker(str): ticker string
         """
+        if filters_dict is None:
+            filters_dict = {}
         self._set_signal(signal)
         self._set_ticker(ticker)
         self._set_filters(filters_dict)
@@ -203,9 +205,7 @@ class Base:
         """
         if order not in order_dict:
             order_keys = list(order_dict.keys())
-            raise ValueError(
-                "Invalid order '{}'. Possible order: {}".format(order, order_keys)
-            )
+            raise ValueError(f"Invalid order '{order}'. Possible order: {order_keys}")
         self.request_params["o"] = ("" if ascend else "-") + order_dict[order]
 
         if select_page:
@@ -224,7 +224,9 @@ class Base:
         if select_page:
             if select_page > page:
                 return None
-            warnings.warn("Limit parameter is ignored when page is selected.")
+            warnings.warn(
+                "Limit parameter is ignored when page is selected.", stacklevel=2
+            )
             return df
 
         for i in range(1, page):
@@ -254,7 +256,7 @@ class Base:
         check_list = ["Sector", "Industry", "Country"]
         error_list = [i for i in compare_list if i not in check_list]
         if len(error_list) != 0:
-            raise ValueError("Please check: {}".format(error_list))
+            raise ValueError(f"Please check: {error_list}")
 
         stock = finvizfinance(ticker)
         stock_fundament = stock.ticker_fundament()

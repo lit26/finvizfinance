@@ -93,21 +93,19 @@ def main():
         try:
             check()
             ok.append(name)
-            print("OK      {}".format(name))
+            print(f"OK      {name}")
         except FinvizBlockedError:
             blocked.append(name)
-            print("BLOCKED {} (Wall — expected from a datacenter IP)".format(name))
+            print(f"BLOCKED {name} (Wall — expected from a datacenter IP)")
         except FinvizParseError as err:
             drift.append(name)
-            print("DRIFT   {} -> {}".format(name, err))
+            print(f"DRIFT   {name} -> {err}")
         except Exception as err:  # noqa: BLE001
             errors.append(name)
-            print("ERROR   {} -> {}: {}".format(name, type(err).__name__, err))
+            print(f"ERROR   {name} -> {type(err).__name__}: {err}")
 
     print(
-        "\nSummary: {} ok, {} blocked (expected), {} DRIFT, {} error".format(
-            len(ok), len(blocked), len(drift), len(errors)
-        )
+        f"\nSummary: {len(ok)} ok, {len(blocked)} blocked (expected), {len(drift)} DRIFT, {len(errors)} error"
     )
     if drift:
         print("Drift detected (finviz markup changed): {}".format(", ".join(drift)))

@@ -6,8 +6,9 @@
 """
 
 import pandas as pd
-from finvizfinance.util import web_scrap, number_convert, require
+
 from finvizfinance.constants import group_dict, group_order_dict
+from finvizfinance.util import number_convert, require, web_scrap
 
 
 class Base:
@@ -41,16 +42,12 @@ class Base:
         if group not in group_dict:
             group_keys = list(group_dict.keys())
             raise ValueError(
-                "Invalid group parameter '{}'. Possible parameter input: {}".format(
-                    group, group_keys
-                )
+                f"Invalid group parameter '{group}'. Possible parameter input: {group_keys}"
             )
         if order not in group_order_dict:
             order_keys = list(group_order_dict.keys())
             raise ValueError(
-                "Invalid order parameter '{}'. Possible parameter input: {}".format(
-                    order, order_keys
-                )
+                f"Invalid order parameter '{order}'. Possible parameter input: {order_keys}"
             )
 
         self.request_params = {

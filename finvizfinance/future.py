@@ -7,9 +7,11 @@
 
 import json
 import re
+
 import pandas as pd
-from finvizfinance.util import web_scrap
+
 from finvizfinance.exceptions import FinvizParseError
+from finvizfinance.util import web_scrap
 
 FUTURES_URL = "https://finviz.com/futures_performance.ashx"
 
@@ -26,9 +28,11 @@ def _extract_rows(soup):
         if match is None:
             continue
         try:
-            data, _ = json.JSONDecoder().raw_decode(html[match.end():].lstrip())
-        except json.JSONDecodeError:
-            raise FinvizParseError(url=FUTURES_URL, selector="futures performance JSON")
+            data, _ = json.JSONDecoder().raw_decode(html[match.end() :].lstrip())
+        except json.JSONDecodeError as err:
+            raise FinvizParseError(
+                url=FUTURES_URL, selector="futures performance JSON"
+            ) from err
         return data
     raise FinvizParseError(url=FUTURES_URL, selector="futures performance JSON")
 
@@ -46,7 +50,7 @@ class Future:
         if timeframe in timeframe_dict:
             params["v"] = timeframe_dict[timeframe]
         elif timeframe != "D":
-            raise ValueError("Invalid timeframe '{}'".format(timeframe))
+            raise ValueError(f"Invalid timeframe '{timeframe}'")
 
         soup = web_scrap(FUTURES_URL, params)
         return pd.DataFrame(_extract_rows(soup))

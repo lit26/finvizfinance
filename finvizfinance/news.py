@@ -6,8 +6,9 @@
 """
 
 import pandas as pd
-from finvizfinance.util import web_scrap, require
+
 from finvizfinance.exceptions import FinvizParseError
+from finvizfinance.util import require, web_scrap
 
 NEWS_URL = "https://finviz.com/news.ashx"
 
@@ -40,9 +41,7 @@ class News:
         news_collection = tr_list[1]
         tables = news_collection.find_all("table")
         if len(tables) < 2:
-            raise FinvizParseError(
-                url=NEWS_URL, selector="#news news/blogs tables"
-            )
+            raise FinvizParseError(url=NEWS_URL, selector="#news news/blogs tables")
 
         news_df = self._get_news_helper(tables[0])
         blog_df = self._get_news_helper(tables[1])

@@ -1,11 +1,10 @@
 """Offline fixture tests for the future scraper."""
 
 import pytest
+from conftest import blocked_response, html_response, use_session
 
+from finvizfinance.exceptions import FinvizBlockedError, FinvizParseError
 from finvizfinance.future import Future
-from finvizfinance.exceptions import FinvizParseError, FinvizBlockedError
-
-from conftest import use_session, html_response, blocked_response
 
 
 def test_future_real():

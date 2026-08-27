@@ -21,9 +21,7 @@ class Custom(Base):
         columns = [str(i) for i in columns]
         self.request_params["c"] = ",".join(columns)
 
-    def screener_view(
-        self, group="Sector", order="Name", columns=[0, 1, 2, 3, 10, 22, 24, 25, 26]
-    ):
+    def screener_view(self, group="Sector", order="Name", columns=None):
         """Get screener table.
 
         Args:
@@ -33,4 +31,6 @@ class Custom(Base):
         Returns:
             df(pandas.DataFrame): group information table.
         """
+        if columns is None:
+            columns = [0, 1, 2, 3, 10, 22, 24, 25, 26]
         return Base.screener_view(self, group, order, columns)

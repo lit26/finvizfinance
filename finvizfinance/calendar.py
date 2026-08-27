@@ -7,16 +7,18 @@
 
 import json
 import re
+
 import pandas as pd
-from finvizfinance.util import web_scrap, warn_missing
+
 from finvizfinance.exceptions import FinvizParseError
+from finvizfinance.util import warn_missing, web_scrap
 
 CALENDAR_URL = "https://finviz.com/calendar.ashx"
 
 
 def _script_json(soup, function_name):
     """Extract the JSON argument passed to a client-side init function."""
-    marker = re.compile(r"(?:window\.)?{}\s*\(".format(re.escape(function_name)))
+    marker = re.compile(rf"(?:window\.)?{re.escape(function_name)}\s*\(")
     for script in soup.find_all("script"):
         text = script.string or script.get_text()
         match = marker.search(text)
@@ -26,8 +28,10 @@ def _script_json(soup, function_name):
         decoder = json.JSONDecoder()
         try:
             data, _ = decoder.raw_decode(text[start:].lstrip())
-        except (json.JSONDecodeError, TypeError):
-            raise FinvizParseError(url=CALENDAR_URL, selector="script: {}(...)".format(function_name))
+        except (json.JSONDecodeError, TypeError) as err:
+            raise FinvizParseError(
+                url=CALENDAR_URL, selector=f"script: {function_name}(...)"
+            ) from err
         if isinstance(data, list):
             return data
     return None
@@ -48,18 +52,25 @@ class Calendar:
 
         data = _script_json(soup, "FinvizInitCalendar")
         if data is None:
-            raise FinvizParseError(url=CALENDAR_URL, selector="table.calendar or FinvizInitCalendar")
+            raise FinvizParseError(
+                url=CALENDAR_URL, selector="table.calendar or FinvizInitCalendar"
+            )
         rows = [self._calendar_row(row) for row in data if isinstance(row, dict)]
         # A non-empty payload that yields no readable values means finviz
         # renamed the JSON fields (Drift). Surface it instead of returning an
         # all-None table that would silently pass the live smoke check.
-        if data and not any(value is not None for row in rows for value in row.values()):
-            raise FinvizParseError(url=CALENDAR_URL, selector="FinvizInitCalendar fields")
+        if data and not any(
+            value is not None for row in rows for value in row.values()
+        ):
+            raise FinvizParseError(
+                url=CALENDAR_URL, selector="FinvizInitCalendar fields"
+            )
         return pd.DataFrame(rows)
 
     @staticmethod
     def _calendar_row(row):
         """Normalize a client-rendered calendar object to the public columns."""
+
         def value(*keys):
             for key in keys:
                 if key in row:
@@ -69,7 +80,7 @@ class Calendar:
         day = value("date", "day")
         time = value("time", "datetime")
         if time is not None and day is not None and time != day:
-            day = "{}, {}".format(day, time)
+            day = f"{day}, {time}"
         return {
             "Datetime": day,
             "Release": value("release", "event", "title"),
@@ -102,7 +113,15 @@ class Calendar:
                     impact = match[0] if match else None
                 if impact is None:
                     warn_missing(CALENDAR_URL, "calendar impact icon")
-                frame.append({"Datetime": "{}, {}".format(date, cols[0].text), "Release": cols[2].text,
-                              "Impact": impact, "For": cols[4].text, "Actual": cols[5].text,
-                              "Expected": cols[6].text, "Prior": cols[7].text})
+                frame.append(
+                    {
+                        "Datetime": f"{date}, {cols[0].text}",
+                        "Release": cols[2].text,
+                        "Impact": impact,
+                        "For": cols[4].text,
+                        "Actual": cols[5].text,
+                        "Expected": cols[6].text,
+                        "Prior": cols[7].text,
+                    }
+                )
         return pd.DataFrame(frame)

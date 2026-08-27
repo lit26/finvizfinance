@@ -1,11 +1,10 @@
 """Offline fixture tests for the calendar scraper (see test_quote for the pattern)."""
 
 import pytest
+from conftest import blocked_response, html_response, use_session
 
 from finvizfinance.calendar import Calendar
-from finvizfinance.exceptions import FinvizParseError, FinvizBlockedError
-
-from conftest import use_session, html_response, blocked_response
+from finvizfinance.exceptions import FinvizBlockedError, FinvizParseError
 
 
 def test_calendar_real():
@@ -20,11 +19,17 @@ def test_calendar_real():
 def test_calendar_current_client_rendered_format():
     use_session(html_response("calendar_current.html"))
     df = Calendar().calendar()
-    assert df.to_dict("records") == [{
-        "Datetime": "Mon Aug 26, 08:30 AM", "Release": "GDP Growth Rate",
-        "Impact": "3", "For": "Q2", "Actual": "3.0%",
-        "Expected": "2.8%", "Prior": "2.5%",
-    }]
+    assert df.to_dict("records") == [
+        {
+            "Datetime": "Mon Aug 26, 08:30 AM",
+            "Release": "GDP Growth Rate",
+            "Impact": "3",
+            "For": "Q2",
+            "Actual": "3.0%",
+            "Expected": "2.8%",
+            "Prior": "2.5%",
+        }
+    ]
 
 
 def test_calendar_current_unknown_keys_raise_parse_error():

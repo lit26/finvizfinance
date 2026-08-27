@@ -6,14 +6,16 @@
 """
 
 import os
+
 import pandas as pd
+
+from finvizfinance.exceptions import FinvizParseError
 from finvizfinance.screener.financial import Financial
 from finvizfinance.screener.overview import Overview
-from finvizfinance.screener.valuation import Valuation
 from finvizfinance.screener.ownership import Ownership
 from finvizfinance.screener.performance import Performance
 from finvizfinance.screener.technical import Technical
-from finvizfinance.exceptions import FinvizParseError
+from finvizfinance.screener.valuation import Valuation
 
 
 class Earnings:
@@ -44,7 +46,7 @@ class Earnings:
         check_list = ["This Week", "Next Week", "Previous Week", "This Month"]
         if period not in check_list:
             raise ValueError(
-                "Invalid period '{}'. Available period: {}".format(period, check_list)
+                f"Invalid period '{period}'. Available period: {check_list}"
             )
         self.period = period
         ffinancial = Financial()
@@ -77,9 +79,7 @@ class Earnings:
             "technical",
         ]
         if mode not in check_list:
-            raise ValueError(
-                "Invalid mode '{}'. Available mode: {}".format(mode, check_list)
-            )
+            raise ValueError(f"Invalid mode '{mode}'. Available mode: {check_list}")
 
         for earning_day in self.earning_days:
             if mode == "financial":
