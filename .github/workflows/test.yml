@@ -52,10 +52,11 @@ jobs:
       - name: Run coverage
         run: |
           coverage run -m pytest test
-          coverage report -m
           coverage lcov -o coverage.lcov
+          coverage report -m
       - name: Upload to Coveralls
         uses: coverallsapp/github-action@v2
+        if: always()
         continue-on-error: true
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}

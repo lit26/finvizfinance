@@ -173,3 +173,75 @@ def test_number_covert_is_deprecated_alias():
         warnings.simplefilter("always")
         assert number_covert("3M") == 3000000
     assert any(issubclass(w.category, DeprecationWarning) for w in caught)
+
+
+# --- resilience core: Wall detection + backoff ------------------------------
+
+
+def test_is_wall_true_on_cf_mitigated_challenge():
+    resp = FakeResponse(status_code=403, headers={"cf-mitigated": "challenge"})
+    assert util._is_wall(resp) is True
+
+
+def test_is_wall_true_on_body_markers():
+    for marker in ("...Just a moment...", "cf-chl_abc", "challenge-platform"):
+        assert util._is_wall(FakeResponse(text=marker, status_code=403)) is True
+
+
+def test_is_wall_false_on_ok_plain_403_and_5xx():
+    assert util._is_wall(FakeResponse(text="ok", status_code=200)) is False
+    # a 403 with no challenge markers is a real error, not a Wall
+    assert util._is_wall(FakeResponse(text="denied", status_code=403)) is False
+    # 500 is not a Wall status at all (it is a transient-retry status instead)
+    assert util._is_wall(FakeResponse(text="boom", status_code=500)) is False
+
+
+def test_retry_after_honors_numeric_header():
+    resp = FakeResponse(status_code=503, headers={"Retry-After": "2"})
+    assert util._retry_after(resp, attempt=0) == 2.0
+
+
+def test_retry_after_caps_large_header():
+    resp = FakeResponse(status_code=503, headers={"Retry-After": "999"})
+    assert util._retry_after(resp, attempt=0) == util.BACKOFF_CAP
+
+
+def test_retry_after_exponential_backoff_when_no_usable_header():
+    # None response and a non-numeric header both fall back to capped backoff.
+    assert util._retry_after(None, attempt=0) == min(
+        util.BACKOFF_BASE * (2**0), util.BACKOFF_CAP
+    )
+    resp = FakeResponse(status_code=503, headers={"Retry-After": "soon"})
+    assert util._retry_after(resp, attempt=2) == min(
+        util.BACKOFF_BASE * (2**2), util.BACKOFF_CAP
+    )
+    assert util._retry_after(None, attempt=99) == util.BACKOFF_CAP
+
+
+def test_retry_after_header_path_retries_then_succeeds():
+    fake = use_session(
+        [
+            FakeResponse(status_code=503, headers={"Retry-After": "1"}),
+            FakeResponse(text="<html>ok</html>"),
+        ]
+    )
+    soup = web_scrap("https://finviz.com/x")
+    assert "ok" in soup.text
+    assert len(fake.calls) == 2
+
+
+def test_wall_detected_by_body_marker_without_header():
+    fake = use_session(
+        FakeResponse(text="<html>Just a moment...</html>", status_code=403)
+    )
+    with pytest.raises(FinvizBlockedError):
+        web_scrap("https://finviz.com/x")
+    assert len(fake.calls) == util.MAX_RETRIES + 1
+
+
+def test_non_retry_http_error_is_reraised_without_retry():
+    # A 404 is neither transient nor a Wall: surfaced as HTTPError, no retry.
+    fake = use_session(FakeResponse(status_code=404))
+    with pytest.raises(requests.exceptions.HTTPError):
+        web_scrap("https://finviz.com/x")
+    assert len(fake.calls) == 1
