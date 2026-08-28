@@ -1,10 +1,27 @@
 """Offline fixture tests for the calendar scraper (see test_quote for the pattern)."""
 
+from typing import Any
+
+import pandas as pd
 import pytest
 from conftest import blocked_response, html_response, use_session
 
 from finvizfinance.calendar import Calendar
 from finvizfinance.exceptions import FinvizBlockedError, FinvizParseError
+
+
+def _records(frame: pd.DataFrame) -> list[dict[str, Any]]:
+    """``to_dict("records")`` with missing values normalized to ``None``.
+
+    pandas renders a missing object cell as ``nan`` (>=2.1) or ``None`` (older)
+    depending on the version installed, so compare on the normalized form to
+    keep the assertion stable across the CI matrix's unpinned ``pandas>=1.5``.
+    """
+    return [
+        {key: (None if pd.isna(value) else value) for key, value in row.items()}
+        for row in frame.to_dict("records")
+    ]
+
 
 # --- current shape: <script id="route-init-data" type="application/json"> ------
 
@@ -12,7 +29,7 @@ from finvizfinance.exceptions import FinvizBlockedError, FinvizParseError
 def test_calendar_route_init_data():
     use_session(html_response("calendar_route_init.html"))
     df = Calendar().calendar()
-    assert df.to_dict("records") == [
+    assert _records(df) == [
         {
             "Datetime": "Wed Aug 26, 08:30 AM",
             "Release": "Core PCE Price Index MoM",
