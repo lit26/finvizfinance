@@ -1,0 +1,46 @@
+name: live-smoke
+
+# Scheduled early-warning that finviz's markup has Drifted. Never gates PRs.
+# A Cloudflare Wall (403) from the runner's datacenter IP is EXPECTED and does
+# not fail the job; only a parse failure on a 200 (a Drift) or an unexpected
+# error does — see scripts/live_smoke.py.
+on:
+  schedule:
+    - cron: "0 6 * * 1" # weekly, Mondays 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  live-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+      - name: Live smoke
+        id: smoke
+        run: python scripts/live_smoke.py
+      - name: File drift issue
+        if: always() && steps.smoke.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create live-smoke-drift --color FBCA04 \
+            --description "finviz markup drift caught by scheduled live-smoke" --force
+          run_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          body=$(printf 'Scheduled **live-smoke** failed on a 200 response — a finviz **Drift** (markup change) or an unexpected error. A Cloudflare Wall (403) does NOT trigger this.\n\nRun: %s\n\nInspect the failing check(s) in the run log, update the affected parser + fixture, then close this issue.' "$run_url")
+          existing=$(gh issue list --state open --label live-smoke-drift --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "Live-smoke: finviz Drift detected" \
+              --label live-smoke-drift --body "$body"
+          fi
