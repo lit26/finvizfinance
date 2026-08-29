@@ -8,6 +8,7 @@ from finvizfinance.screener.performance import Performance
 from finvizfinance.screener.technical import Technical
 from finvizfinance.screener.ticker import Ticker
 from finvizfinance.screener.util import (
+    from_url,
     get_custom_screener_columns,
     get_filter_options,
     get_filters,
@@ -25,6 +26,7 @@ __all__ = [
     "Technical",
     "Ticker",
     "Valuation",
+    "from_url",
     "get_custom_screener_columns",
     "get_filter_options",
     "get_filters",

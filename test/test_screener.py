@@ -4,7 +4,12 @@ import pytest
 from conftest import blocked_response, html_response, use_session
 
 from finvizfinance.exceptions import FinvizBlockedError, FinvizParseError
-from finvizfinance.screener import get_filter_options, get_filters, get_signal
+from finvizfinance.screener import (
+    from_url,
+    get_filter_options,
+    get_filters,
+    get_signal,
+)
 from finvizfinance.screener.custom import Custom
 from finvizfinance.screener.financial import Financial
 from finvizfinance.screener.overview import Overview
@@ -149,3 +154,103 @@ def test_screener_util_get_orders_and_columns():
     assert isinstance(get_orders(), list) and len(get_orders()) > 0
     columns = get_custom_screener_columns()
     assert isinstance(columns, dict) and len(columns) > 0
+
+
+# --- from_url: paste a finviz screener URL instead of building a filters dict ---
+
+
+def test_from_url_returns_overview_with_filters():
+    # The issue #80 example: a finviz screener URL round-trips into the same
+    # request params the equivalent set_filter() call would produce.
+    url = "https://finviz.com/screener.ashx?v=111&f=idx_sp500,sh_avgvol_o500"
+    screener = from_url(url)
+    assert isinstance(screener, Overview)
+    assert screener.request_params["v"] == 111
+    # Filters round-trip exactly (same codes, same order) back to the URL string.
+    assert screener.request_params["f"] == "idx_sp500,sh_avgvol_o500"
+
+
+@pytest.mark.parametrize(
+    "v_code, view_cls",
+    [
+        (111, Overview),
+        (121, Valuation),
+        (131, Ownership),
+        (141, Performance),
+        (151, Custom),
+        (161, Financial),
+        (171, Technical),
+        (411, Ticker),
+    ],
+)
+def test_from_url_selects_view_by_v_code(v_code, view_cls):
+    screener = from_url(f"https://finviz.com/screener.ashx?v={v_code}&f=idx_sp500")
+    assert isinstance(screener, view_cls)
+    assert screener.request_params["v"] == v_code
+
+
+def test_from_url_defaults_to_overview_when_v_absent():
+    # finviz serves the Overview view when ``v`` is omitted.
+    screener = from_url("https://finviz.com/screener.ashx?f=idx_sp500")
+    assert isinstance(screener, Overview)
+    assert screener.request_params["v"] == 111
+
+
+def test_from_url_accepts_bare_query_string():
+    screener = from_url("v=121&f=idx_sp500")
+    assert isinstance(screener, Valuation)
+    assert screener.request_params["f"] == "idx_sp500"
+
+
+def test_from_url_parses_signal():
+    screener = from_url("https://finviz.com/screener.ashx?v=111&s=ta_topgainers")
+    assert screener.request_params["s"] == "ta_topgainers"
+
+
+def test_from_url_parses_ticker():
+    screener = from_url("https://finviz.com/screener.ashx?v=411&t=AAPL,MSFT")
+    assert isinstance(screener, Ticker)
+    assert screener.request_params["t"] == "AAPL,MSFT"
+
+
+def test_from_url_ignores_order_and_pagination_params():
+    # ``o`` (sort) and ``r`` (page offset) are screener_view() concerns, not
+    # filter state; from_url ignores them without raising.
+    screener = from_url(
+        "https://finviz.com/screener.ashx?v=111&f=idx_sp500&o=-marketcap&r=21"
+    )
+    assert screener.request_params["f"] == "idx_sp500"
+    assert "o" not in screener.request_params
+    assert "r" not in screener.request_params
+
+
+def test_from_url_unknown_filter_code_raises():
+    # Fail-loud: an unmappable filter code is named and raised, never silently
+    # dropped (which would return the wrong stocks).
+    with pytest.raises(ValueError, match="totally_bogus"):
+        from_url("https://finviz.com/screener.ashx?v=111&f=idx_sp500,totally_bogus")
+
+
+def test_from_url_unknown_signal_code_raises():
+    with pytest.raises(ValueError, match="signal code"):
+        from_url("https://finviz.com/screener.ashx?v=111&s=not_a_signal")
+
+
+def test_from_url_unknown_view_code_raises():
+    with pytest.raises(ValueError, match="view code"):
+        from_url("https://finviz.com/screener.ashx?v=999&f=idx_sp500")
+
+
+def test_from_url_non_integer_view_raises():
+    with pytest.raises(ValueError, match="Invalid view code"):
+        from_url("https://finviz.com/screener.ashx?v=abc")
+
+
+def test_from_url_no_params_raises():
+    with pytest.raises(ValueError, match="No screener parameters"):
+        from_url("https://finviz.com/screener.ashx")
+
+
+def test_from_url_non_string_raises():
+    with pytest.raises(TypeError):
+        from_url(None)  # type: ignore[arg-type]

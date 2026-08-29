@@ -172,6 +172,28 @@ df.head()
 
 ![insider example](asset/screen_overview.png)
 
+#### Example: From a finviz URL
+
+Instead of translating each criterion into a filters dict by hand, paste the URL
+finviz puts in your address bar as you click filters in its UI. `screener.from_url`
+reads the view (`v`) and reconstructs the filters (`f`), signal (`s`) and ticker
+(`t`), returning the matching screener object:
+
+```python
+from finvizfinance import screener
+
+foverview = screener.from_url(
+    "https://finviz.com/screener.ashx?v=111&f=idx_sp500,sh_avgvol_o500"
+)
+df = foverview.screener_view()
+df.head()
+```
+
+Sort order, pagination and custom columns are `screener_view()` arguments, so
+they are ignored in the URL. Any filter/signal/view code that finvizfinance does
+not recognize raises a `ValueError` naming the code, rather than silently
+dropping it and returning the wrong stocks.
+
 ### Screener (Ticker)
 
 Getting list of tickers according to the filters.
