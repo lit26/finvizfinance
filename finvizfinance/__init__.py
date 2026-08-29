@@ -13,5 +13,5 @@ import logging
 # finvizfinance never emits log output unless the application configures logging.
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
-__version__ = "1.4.0"
+__version__ = "1.5.0"
 __author__ = "Tianning Li"
