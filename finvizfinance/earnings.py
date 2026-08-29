@@ -5,15 +5,23 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+from __future__ import annotations
+
+import logging
 import os
+
 import pandas as pd
+
+from finvizfinance.exceptions import FinvizParseError
+from finvizfinance.screener.base import Base
 from finvizfinance.screener.financial import Financial
 from finvizfinance.screener.overview import Overview
-from finvizfinance.screener.valuation import Valuation
 from finvizfinance.screener.ownership import Ownership
 from finvizfinance.screener.performance import Performance
 from finvizfinance.screener.technical import Technical
-from finvizfinance.exceptions import FinvizParseError
+from finvizfinance.screener.valuation import Valuation
+
+logger = logging.getLogger(__name__)
 
 
 class Earnings:
@@ -26,15 +34,15 @@ class Earnings:
                      Previous Week, This Month).
     """
 
-    def __init__(self, period="This Week"):
+    def __init__(self, period: str = "This Week") -> None:
         """initiate module"""
-        self.earning_days = []
-        self.df_days = {}
-        self.df = None
+        self.earning_days: list = []
+        self.df_days: dict = {}
+        self.df: pd.DataFrame = None
         self.period = period
         self._set_period(period)
 
-    def _set_period(self, period):
+    def _set_period(self, period: str) -> None:
         """Set the period.
 
         Args:
@@ -44,7 +52,7 @@ class Earnings:
         check_list = ["This Week", "Next Week", "Previous Week", "This Month"]
         if period not in check_list:
             raise ValueError(
-                "Invalid period '{}'. Available period: {}".format(period, check_list)
+                f"Invalid period '{period}'. Available period: {check_list}"
             )
         self.period = period
         ffinancial = Financial()
@@ -61,12 +69,12 @@ class Earnings:
         self.earning_days = list(set(self.df["Earnings"].to_list()))
         self.earning_days.sort()
 
-    def partition_days(self, mode="financial"):
+    def partition_days(self, mode: str = "financial") -> dict[str, pd.DataFrame]:
         """Partition dataframe to separate dataframes according to the dates.
 
         Args:
-            mode(str): choose an option of period(financial, overview, valuation, ownership,
-                       performance, technical).
+            mode(str): choose an option of mode (financial, overview, valuation,
+                       ownership, performance, technical).
         """
         check_list = [
             "financial",
@@ -77,9 +85,7 @@ class Earnings:
             "technical",
         ]
         if mode not in check_list:
-            raise ValueError(
-                "Invalid mode '{}'. Available mode: {}".format(mode, check_list)
-            )
+            raise ValueError(f"Invalid mode '{mode}'. Available mode: {check_list}")
 
         for earning_day in self.earning_days:
             if mode == "financial":
@@ -91,7 +97,7 @@ class Earnings:
                     "Ticker"
                 ].to_list()
 
-        fearnings = None
+        fearnings: Base | None = None
         if mode == "financial":
             return self.df_days
         elif mode == "overview":
@@ -106,9 +112,10 @@ class Earnings:
             fearnings = Technical()
 
         filters_dict = {"Earnings Date": self.period}
+        assert fearnings is not None  # a non-financial mode is always set above
         fearnings.set_filter(filters_dict=filters_dict)
         df2 = fearnings.screener_view(order="Earnings Date", verbose=0)
-        df2_days = {}
+        df2_days: dict = {}
         for earning_day in self.earning_days:
             tickers = self.df_days[earning_day]
             df2_days[earning_day] = df2[df2["Ticker"].isin(tickers)].reset_index(
@@ -117,13 +124,13 @@ class Earnings:
         self.df_days = df2_days
         return self.df_days
 
-    def output_excel(self, output_file="earning_days.xlsx"):
+    def output_excel(self, output_file: str = "earning_days.xlsx") -> None:
         """Output dataframes to single Excel file.
 
         Args:
             output_file(str): name of the output excel file.
         """
-        print("Print to Excel...")
+        logger.info("Writing earnings to Excel...")
         with pd.ExcelWriter(  # pylint: disable=abstract-class-instantiated
             output_file, datetime_format="YYYY-MM-DD", engine="xlsxwriter"
         ) as writer:
@@ -131,13 +138,13 @@ class Earnings:
                 sheet_name = "_".join(name.split("/"))
                 df.to_excel(writer, sheet_name=sheet_name, index=False)
 
-    def output_csv(self, output_dir="earning_days"):
+    def output_csv(self, output_dir: str = "earning_days") -> None:
         """Output dataframes to csv files.
 
         Args:
             output_dir(str): name of the output directory.
         """
-        print("Print to CSV...")
+        logger.info("Writing earnings to CSV...")
         isdir = os.path.isdir(output_dir)
         if not isdir:
             os.mkdir(output_dir)

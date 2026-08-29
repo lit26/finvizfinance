@@ -5,20 +5,26 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
-import sys
-import time
+from __future__ import annotations
+
 import json
+import logging
+import time
 import warnings
-import requests
+from datetime import date, datetime
+from typing import Any
+
 import pandas as pd
+import requests
 from bs4 import BeautifulSoup
-from datetime import datetime, date
 
 from finvizfinance.exceptions import (  # noqa: F401  (re-exported for convenience)
+    FinvizBlockedError,
     FinvizError,
     FinvizParseError,
-    FinvizBlockedError,
 )
+
+logger = logging.getLogger(__name__)
 
 # A current browser User-Agent. A trivially-outdated client string (the old
 # 2020 Chrome/81) is an easy flag for anti-bot heuristics.
@@ -31,8 +37,8 @@ headers = {
 # and the user-facing extension hook (inject proxies / rotating IPs).
 session = requests.Session()
 
-proxy_dict = None
-timeout_value = 10
+proxy_dict: dict | None = None
+timeout_value: float = 10
 
 # Bounded exponential backoff for transient failures and Walls.
 MAX_RETRIES = 3
@@ -42,7 +48,7 @@ BACKOFF_CAP = 8.0
 RETRY_STATUS = {429, 500, 502, 503, 504}
 
 
-def set_proxy(proxies):
+def set_proxy(proxies: dict | None) -> None:
     """Set proxies on the shared session's requests.
 
     Args:
@@ -52,13 +58,13 @@ def set_proxy(proxies):
     proxy_dict = proxies
 
 
-def set_timeout(timeout):
+def set_timeout(timeout: float) -> None:
     """Set the per-request timeout (seconds)."""
     global timeout_value
     timeout_value = timeout
 
 
-def set_session(new_session):
+def set_session(new_session: Any) -> None:
     """Inject a custom session.
 
     Lets high-volume users supply their own ``requests``-compatible session
@@ -74,12 +80,12 @@ def set_session(new_session):
     session = new_session
 
 
-def get_session():
+def get_session() -> Any:
     """Return the session currently used for requests."""
     return session
 
 
-def _is_wall(response):
+def _is_wall(response: Any) -> bool:
     """Detect a Cloudflare Wall (IP-reputation block).
 
     Recognizes the "Just a moment" / ``cf-mitigated: challenge`` 403 response.
@@ -89,22 +95,18 @@ def _is_wall(response):
     if response.headers.get("cf-mitigated") == "challenge":
         return True
     body = getattr(response, "text", "") or ""
-    return (
-        "Just a moment" in body
-        or "cf-chl" in body
-        or "challenge-platform" in body
-    )
+    return "Just a moment" in body or "cf-chl" in body or "challenge-platform" in body
 
 
-def _retry_after(response, attempt):
+def _retry_after(response: Any, attempt: int) -> float:
     """Seconds to wait before the next attempt, honoring Retry-After."""
     header = response.headers.get("Retry-After") if response is not None else None
     if header and header.replace(".", "", 1).isdigit():
         return min(float(header), BACKOFF_CAP)
-    return min(BACKOFF_BASE * (2 ** attempt), BACKOFF_CAP)
+    return float(min(BACKOFF_BASE * (2**attempt), BACKOFF_CAP))
 
 
-def _request(url, params=None, stream=False):
+def _request(url: str, params: dict | None = None, stream: bool = False) -> Any:
     """Fetch a URL through the shared session with bounded retry.
 
     Retries transient errors (timeouts, 5xx, and Cloudflare Walls) with bounded
@@ -132,14 +134,12 @@ def _request(url, params=None, stream=False):
                 continue
             raise FinvizBlockedError(
                 message=(
-                    "finviz request to {url} timed out after {n} attempts "
-                    "({err}). The source IP may be rate-limited; slow down or "
-                    "supply a proxy/session via set_session()/set_proxy().".format(
-                        url=url, n=MAX_RETRIES + 1, err=err
-                    )
+                    f"finviz request to {url} timed out after {MAX_RETRIES + 1} attempts "
+                    f"({err}). The source IP may be rate-limited; slow down or "
+                    "supply a proxy/session via set_session()/set_proxy()."
                 ),
                 url=url,
-            )
+            ) from err
 
         if _is_wall(response):
             if attempt < MAX_RETRIES:
@@ -155,15 +155,15 @@ def _request(url, params=None, stream=False):
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
             raise requests.exceptions.HTTPError(
-                "HTTP error for URL {}: {}".format(url, err)
-            )
+                f"HTTP error for URL {url}: {err}"
+            ) from err
         return response
 
     # Unreachable: the loop either returns or raises. Guard anyway.
     raise FinvizBlockedError(url=url)
 
 
-def web_scrap(url, params=None):
+def web_scrap(url: str, params: dict | None = None) -> BeautifulSoup:
     """Scrap website.
 
     Args:
@@ -176,7 +176,7 @@ def web_scrap(url, params=None):
     return BeautifulSoup(response.text, "lxml")
 
 
-def web_scrap_json(url, params=None):
+def web_scrap_json(url: str, params: dict | None = None) -> Any:
     """Scrap a finviz JSON endpoint through the resilient transport.
 
     Args:
@@ -189,7 +189,7 @@ def web_scrap_json(url, params=None):
     return json.loads(response.content)
 
 
-def fetch(url, params=None, stream=False):
+def fetch(url: str, params: dict | None = None, stream: bool = False) -> Any:
     """Fetch a URL through the resilient transport, returning the response.
 
     Public entry point for tooling (e.g. the fixture-refresh script) that needs
@@ -199,7 +199,7 @@ def fetch(url, params=None, stream=False):
     return _request(url, params=params, stream=stream)
 
 
-def image_scrap(url, ticker, out_dir):
+def image_scrap(url: str, ticker: str, out_dir: str) -> None:
     """scrap website and download image
 
     Args:
@@ -210,19 +210,19 @@ def image_scrap(url, ticker, out_dir):
     response = _request(url, stream=True)
     if len(out_dir) != 0:
         out_dir += "/"
-    with open("{}{}.jpg".format(out_dir, ticker), "wb") as f:
+    with open(f"{out_dir}{ticker}.jpg", "wb") as f:
         f.write(response.content)
 
 
-def warn_missing(url, selector):
+def warn_missing(url: str, selector: str) -> None:
     """Emit the standard Missing-field warning for an absent optional datum."""
     warnings.warn(
-        "Optional element '{}' not found at {}".format(selector, url),
+        f"Optional element '{selector}' not found at {url}",
         stacklevel=2,
     )
 
 
-def require(node, url, selector):
+def require(node: Any, url: str, selector: str) -> Any:
     """Return ``node``, or raise :class:`FinvizParseError` if it is absent.
 
     Use for a required region whose absence means finviz Drifted.
@@ -237,7 +237,7 @@ def require(node, url, selector):
     return node
 
 
-def optional(node, url, selector, default=None):
+def optional(node: Any, url: str, selector: str, default: Any = None) -> Any:
     """Return ``node``, or warn and return ``default`` if it is absent.
 
     Use for an optional datum whose absence is not an error (e.g. an ETF has no
@@ -250,7 +250,31 @@ def optional(node, url, selector, default=None):
     return node
 
 
-def find_table_by_headers(soup, required_headers, url, selector):
+def validate_choice(value: Any, options: Any, label: str) -> Any:
+    """Return ``value`` if it is a valid choice, else raise :class:`ValueError`.
+
+    Centralizes the "invalid parameter" guard duplicated across the screener
+    and group modules: it checks membership in ``options`` and, on failure,
+    raises a ``ValueError`` naming the offending value and listing the valid
+    keys.
+
+    Args:
+        value: the user-supplied choice.
+        options: the valid choices — a mapping whose keys are valid, or any
+            membership-testable container.
+        label(str): human-readable noun for the message, e.g. ``"order"``.
+    Returns:
+        the validated ``value`` (for optional chaining).
+    """
+    if value not in options:
+        valid = list(options)
+        raise ValueError(f"Invalid {label} '{value}'. Possible {label}: {valid}")
+    return value
+
+
+def find_table_by_headers(
+    soup: Any, required_headers: list[str], url: str, selector: str
+) -> Any:
     """Find the table whose header row contains all ``required_headers``.
 
     Replaces fragile positional table indexing: matches on stable header text
@@ -277,7 +301,71 @@ def find_table_by_headers(soup, required_headers, url, selector):
     raise FinvizParseError(url=url, selector=selector)
 
 
-def scrap_function(url):
+def decode_json_after(text: str, start: int, url: str, selector: str) -> Any:
+    """Raw-decode a JSON value embedded in ``text`` starting at ``start``.
+
+    Shared by the calendar and futures parsers to pull the JSON argument out
+    of a finviz client-side init script (e.g. ``FinvizInit...([...])``). Raises
+    :class:`FinvizParseError` when the slice does not begin with valid JSON (a
+    finviz Drift).
+
+    Args:
+        text(str): the surrounding text (a script body or prettified HTML).
+        start(int): offset in ``text`` at which the JSON value begins.
+        url(str): the URL being parsed (for the error message).
+        selector(str): a human-readable description for the error message.
+    """
+    try:
+        data, _ = json.JSONDecoder().raw_decode(text[start:].lstrip())
+    except (json.JSONDecodeError, TypeError) as err:
+        raise FinvizParseError(url=url, selector=selector) from err
+    return data
+
+
+def row_to_dict(
+    cols: Any, table_header: list[str], num_col_index: list[int]
+) -> dict[str, Any]:
+    """Build a header-keyed row dict from a table row's ``<td>`` cells.
+
+    Columns whose index is in ``num_col_index`` are passed through
+    :func:`number_convert`; the rest keep their raw text. Shared by the group,
+    insider, and quote insider-trader parsers.
+
+    Args:
+        cols: the row's ``<td>`` cells.
+        table_header(list): column names, indexed positionally against ``cols``.
+        num_col_index(list): indices of the numeric columns.
+    """
+    info: dict[str, Any] = {}
+    for i, col in enumerate(cols):
+        text = col.text
+        info[table_header[i]] = number_convert(text) if i in num_col_index else text
+    return info
+
+
+def scrap_group_table(soup: Any, url: str) -> pd.DataFrame:
+    """Parse a finviz ``groups_table`` into a DataFrame (header-keyed columns).
+
+    Args:
+        soup(beautiful soup): parsed groups page.
+        url(str): the URL being parsed (for the error message).
+    Returns:
+        df(pandas.DataFrame): group information table.
+    """
+    table = require(
+        soup.find("table", class_="groups_table"), url, "table.groups_table"
+    )
+    rows = table.find_all("tr")
+    table_header = [i.text.strip() for i in rows[0].find_all("th")][1:]
+    num_col_index = list(range(2, len(table_header)))
+    frame = [
+        row_to_dict(row.find_all("td")[1:], table_header, num_col_index)
+        for row in rows[1:]
+    ]
+    return pd.DataFrame(frame)
+
+
+def scrap_function(url: str) -> pd.DataFrame:
     """Scrap forex, crypto information.
 
     Args:
@@ -285,26 +373,12 @@ def scrap_function(url):
     Returns:
         df(pandas.DataFrame): performance table
     """
-    soup = web_scrap(url)
-    table = require(soup.find("table", class_="groups_table"), url, "table.groups_table")
-    rows = table.find_all("tr")
-    table_header = [i.text.strip() for i in rows[0].find_all("th")][1:]
-    frame = []
-    rows = rows[1:]
-    num_col_index = [i for i in range(2, len(table_header))]
-    for row in rows:
-        cols = row.find_all("td")[1:]
-        info_dict = {}
-        for i, col in enumerate(cols):
-            if i not in num_col_index:
-                info_dict[table_header[i]] = col.text
-            else:
-                info_dict[table_header[i]] = number_convert(col.text)
-        frame.append(info_dict)
-    return pd.DataFrame(frame)
+    return scrap_group_table(web_scrap(url), url)
 
 
-def image_scrap_function(url, chart, timeframe, urlonly):
+def image_scrap_function(
+    url: str, chart: str, timeframe: str, urlonly: bool
+) -> str | None:
     """Scrap forex, crypto information.
 
     Args:
@@ -334,15 +408,16 @@ def image_scrap_function(url, chart, timeframe, urlonly):
         name = website.split("?")[1].split("&")[0].split(".")[0]
         chart_name = name.split("_")[0]
         if chart.lower() == chart_name:
-            charturl = "https://finviz.com/" + website
+            charturl: str = "https://finviz.com/" + website
             if not urlonly:
                 image_scrap(charturl, name, "")
             return charturl
         else:
             continue
+    return None
 
 
-def number_convert(num):
+def number_convert(num: str) -> float | None:
     """Convert number(str) to number(float)
 
     Args:
@@ -365,7 +440,7 @@ def number_convert(num):
         return float(num.replace(",", ""))  # Remove commas and convert to float
 
 
-def number_covert(num):
+def number_covert(num: str) -> float | None:
     """Deprecated misspelled alias of :func:`number_convert`.
 
     Kept working for backward compatibility; emits a ``DeprecationWarning``.
@@ -378,7 +453,7 @@ def number_covert(num):
     return number_convert(num)
 
 
-def format_datetime(date_str):
+def format_datetime(date_str: str) -> datetime:
     if date_str.lower().startswith("today"):
         today = date.today()
         time_str = date_str.split()[1]
@@ -393,9 +468,5 @@ def format_datetime(date_str):
         return datetime.strptime(date_str, "%b-%d-%y %I:%M%p")
 
 
-def progress_bar(page, total):
-    bar_len = 30
-    filled_len = int(round(bar_len * page / float(total)))
-    bar = "#" * filled_len + "-" * (bar_len - filled_len)
-    sys.stdout.write("[Info] loading page [{}] {}/{} \r".format(bar, page, total))
-    sys.stdout.flush()
+def progress_bar(page: int, total: int) -> None:
+    logger.info("loading page %d/%d", page, total)

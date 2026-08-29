@@ -5,20 +5,30 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
-from datetime import datetime, date
+from __future__ import annotations
+
+import logging
 import re
+from datetime import date, datetime
+from typing import Any
+
 import pandas as pd
+
+from finvizfinance.exceptions import FinvizParseError
 from finvizfinance.util import (
-    web_scrap,
-    web_scrap_json,
+    format_datetime,
     image_scrap,
     number_convert,
-    format_datetime,
-    require,
     optional,
+    require,
+    row_to_dict,
+    validate_choice,
     warn_missing,
+    web_scrap,
+    web_scrap_json,
 )
-from finvizfinance.exceptions import FinvizParseError
+
+logger = logging.getLogger(__name__)
 
 QUOTE_URL = "https://finviz.com/quote.ashx?t={ticker}"
 NUM_COL = [
@@ -39,14 +49,14 @@ class Quote:
 
     """
 
-    def get_current(self, ticker):
+    def get_current(self, ticker: str) -> str:
         """Getting current price of the ticker.
 
         Returns:
             price(float): price of the ticker
         """
-        soup = web_scrap("https://finviz.com/request_quote.ashx?t={}".format(ticker))
-        return soup.text
+        soup = web_scrap(f"https://finviz.com/request_quote.ashx?t={ticker}")
+        return str(soup.text)
 
 
 class finvizfinance:
@@ -60,9 +70,9 @@ class finvizfinance:
 
     def __init__(
         self,
-        ticker,
-        verbose=0,
-    ):
+        ticker: str,
+        verbose: int = 0,
+    ) -> None:
         """initiate module"""
 
         self.ticker = ticker
@@ -71,20 +81,24 @@ class finvizfinance:
         self.soup = web_scrap(self.quote_url)
         if self._checkexist(verbose):
             self.flag = True
-        self.info = {}
+        self.info: dict = {}
 
-    def _checkexist(self, verbose):
+    def _checkexist(self, verbose: int) -> bool:
         body = self.soup.find("td", class_="body-text")
         if body is not None and "not found" in body.text:
-            print("Ticker not found.")
+            logger.warning("Ticker not found.")
             return False
         if verbose == 1:
-            print("Ticker exists.")
+            logger.info("Ticker exists.")
         return True
 
     def ticker_charts(
-        self, timeframe="daily", charttype="advanced", out_dir="", urlonly=False
-    ):
+        self,
+        timeframe: str = "daily",
+        charttype: str = "advanced",
+        out_dir: str = "",
+        urlonly: bool = False,
+    ) -> str:
         """Download ticker charts.
 
         Args:
@@ -97,9 +111,9 @@ class finvizfinance:
             charturl(str): url for the chart
         """
         if timeframe not in ["daily", "weekly", "monthly"]:
-            raise ValueError("Invalid timeframe '{}'".format(timeframe))
+            raise ValueError(f"Invalid timeframe '{timeframe}'")
         if charttype not in ["candle", "line", "advanced"]:
-            raise ValueError("Invalid chart type '{}'".format(charttype))
+            raise ValueError(f"Invalid chart type '{charttype}'")
         url_type = "c"
         url_ta = "0"
         if charttype == "line":
@@ -114,14 +128,12 @@ class finvizfinance:
             url_timeframe = "w"
         elif timeframe == "monthly":
             url_timeframe = "m"
-        chart_url = "https://finviz.com/chart.ashx?t={ticker}&ty={type}&ta={ta}&p={timeframe}".format(
-            ticker=self.ticker, type=url_type, ta=url_ta, timeframe=url_timeframe
-        )
+        chart_url = f"https://finviz.com/chart.ashx?t={self.ticker}&ty={url_type}&ta={url_ta}&p={url_timeframe}"
         if not urlonly:
             image_scrap(chart_url, self.ticker, out_dir)
         return chart_url
 
-    def _extract_classification(self):
+    def _extract_classification(self) -> dict[str, str | None]:
         """Sector / Industry / Country / Exchange from the quote-links region.
 
         These are optional (an ETF has none). Resilient to the region being
@@ -129,7 +141,7 @@ class finvizfinance:
         finally returns ``None`` with a warning for anything genuinely absent.
         """
         keys = ["Sector", "Industry", "Country", "Exchange"]
-        result = {k: None for k in keys}
+        result: dict[str, str | None] = dict.fromkeys(keys)
 
         quote_links = self.soup.find("div", class_="quote-links")
         if quote_links is not None:
@@ -155,12 +167,12 @@ class finvizfinance:
         # Missing-field semantics: warn and keep None for anything still absent.
         for key in keys:
             if result[key] is None:
-                warn_missing(
-                    self.quote_url, "quote classification link ({})".format(key)
-                )
+                warn_missing(self.quote_url, f"quote classification link ({key})")
         return result
 
-    def ticker_fundament(self, raw=True, output_format="dict"):
+    def ticker_fundament(
+        self, raw: bool = True, output_format: str = "dict"
+    ) -> dict | pd.DataFrame:
         """Get ticker fundament.
 
         Args:
@@ -170,13 +182,8 @@ class finvizfinance:
         Returns:
             fundament(dict): ticker fundament.
         """
-        if output_format not in ["dict", "series"]:
-            raise ValueError(
-                "Invalid output format '{}'. Possible choice: {}".format(
-                    output_format, ["dict", "series"]
-                )
-            )
-        fundament_info = {}
+        validate_choice(output_format, ["dict", "series"], "output format")
+        fundament_info: dict = {}
 
         fundament_info["Company"] = require(
             self.soup.find("h2", class_="quote-header_ticker-wrapper_company"),
@@ -186,24 +193,26 @@ class finvizfinance:
 
         fundament_info.update(self._extract_classification())
 
-        fundament_table = require(
-            self.soup.find("table", class_="snapshot-table2"),
-            self.quote_url,
-            "table.snapshot-table2",
-        )
-        rows = fundament_table.find_all("tr")
+        # finviz splits the fundamentals across several ``snapshot-table2``
+        # tables (all inside a wrapper div); iterate every match so we capture
+        # the full field set rather than only the first table. No table at all
+        # means finviz Drifted -> surface it as a parse error.
+        fundament_tables = self.soup.find_all("table", class_="snapshot-table2")
+        if not fundament_tables:
+            raise FinvizParseError(url=self.quote_url, selector="table.snapshot-table2")
 
-        for row in rows:
-            cols = row.find_all("td")
-            cols = [i.text for i in cols]
-            fundament_info = self._parse_column(cols, raw, fundament_info)
+        for fundament_table in fundament_tables:
+            for row in fundament_table.find_all("tr"):
+                cols = row.find_all("td")
+                cols = [i.text for i in cols]
+                fundament_info = self._parse_column(cols, raw, fundament_info)
         self.info["fundament"] = fundament_info
 
         if output_format == "dict":
             return fundament_info
         return pd.DataFrame.from_dict(fundament_info, orient="index", columns=["Stat"])
 
-    def _parse_column(self, cols, raw, fundament_info):
+    def _parse_column(self, cols: list[str], raw: bool, fundament_info: dict) -> dict:
         header = ""
         for i, value in enumerate(cols):
             if i % 2 == 0:
@@ -226,7 +235,7 @@ class finvizfinance:
                         fundament_info[header] = False
                 else:
                     # Handle EPS Next Y keys with two different values
-                    if header == "EPS next Y" and header in fundament_info.keys():
+                    if header == "EPS next Y" and header in fundament_info:
                         header += " Percentage"
                     if raw:
                         fundament_info[header] = value
@@ -237,19 +246,31 @@ class finvizfinance:
                             fundament_info[header] = value
         return fundament_info
 
-    def _parse_52w_range(self, header, fundament_info, value, raw):
+    def _parse_52w_range(
+        self, header: str, fundament_info: dict, value: str, raw: bool
+    ) -> dict:
         info_header = ["52W Range From", "52W Range To"]
         info_value = [0, 2]
         self._parse_value(header, fundament_info, value, raw, info_header, info_value)
         return fundament_info
 
-    def _parse_volatility(self, header, fundament_info, value, raw):
+    def _parse_volatility(
+        self, header: str, fundament_info: dict, value: str, raw: bool
+    ) -> dict:
         info_header = ["Volatility W", "Volatility M"]
         info_value = [0, 1]
         self._parse_value(header, fundament_info, value, raw, info_header, info_value)
         return fundament_info
 
-    def _parse_value(self, header, fundament_info, value, raw, info_header, info_value):
+    def _parse_value(
+        self,
+        header: str,
+        fundament_info: dict,
+        value: Any,
+        raw: bool,
+        info_header: list[str],
+        info_value: list[int],
+    ) -> dict:
         value = value.split()
         if len(value) <= max(info_value):
             # Unexpected shape for this datum; keep the raw split, do not crash.
@@ -263,20 +284,22 @@ class finvizfinance:
                 fundament_info[info_header[i]] = number_convert(value[value_index])
         return fundament_info
 
-    def ticker_description(self):
+    def ticker_description(self) -> str:
         """Get ticker description.
 
         Returns:
             description(str): ticker description.
         """
-        return require(
-            self.soup.find("td", class_="fullview-profile")
-            or self.soup.find(class_="fullview-profile"),
-            self.quote_url,
-            "fullview-profile",
-        ).text
+        return str(
+            require(
+                self.soup.find("td", class_="fullview-profile")
+                or self.soup.find(class_="fullview-profile"),
+                self.quote_url,
+                "fullview-profile",
+            ).text
+        )
 
-    def _ticker_list_from_link(self, label, selector):
+    def _ticker_list_from_link(self, label: str, selector: str) -> list[str]:
         """Extract a comma-separated ticker list from a quote-page link.
 
         Finds an anchor whose visible text is ``label`` (case-insensitive) and
@@ -286,7 +309,7 @@ class finvizfinance:
         link = self.soup.find("a", string=label)
         if not link:
             link = self.soup.find(
-                "a", string=re.compile(r"^\s*{}\s*$".format(label), re.IGNORECASE)
+                "a", string=re.compile(rf"^\s*{label}\s*$", re.IGNORECASE)
             )
         if not link:
             warn_missing(self.quote_url, selector)
@@ -298,7 +321,7 @@ class finvizfinance:
         tickers_part = href.split("t=")[-1]
         return [t.strip() for t in tickers_part.split(",") if t.strip()]
 
-    def ticker_peer(self):
+    def ticker_peer(self) -> list[str]:
         """Get peer tickers for the given ticker.
 
         Returns:
@@ -306,7 +329,7 @@ class finvizfinance:
         """
         return self._ticker_list_from_link("Peers", "Peers link")
 
-    def ticker_etf_holders(self):
+    def ticker_etf_holders(self) -> list[str]:
         """Get ETFs that hold the given ticker.
 
         Returns:
@@ -315,7 +338,7 @@ class finvizfinance:
         """
         return self._ticker_list_from_link("Held by", "Held by link")
 
-    def ticker_outer_ratings(self):
+    def ticker_outer_ratings(self) -> pd.DataFrame | None:
         """Get outer ratings table.
 
         Returns:
@@ -358,7 +381,7 @@ class finvizfinance:
         self.info["ratings_outer"] = df
         return df
 
-    def ticker_news(self):
+    def ticker_news(self) -> pd.DataFrame | None:
         """Get news information table.
 
         Returns:
@@ -404,7 +427,7 @@ class finvizfinance:
         self.info["news"] = df
         return df
 
-    def ticker_inside_trader(self):
+    def ticker_inside_trader(self) -> pd.DataFrame | None:
         """Get insider information table.
 
         Returns:
@@ -422,17 +445,11 @@ class finvizfinance:
         table_header = [i.text for i in rows[0].find_all("th")]
         table_header += ["SEC Form 4 Link", "Insider_id"]
         frame = []
-        rows = rows[1:]
         num_col = ["Cost", "#Shares", "Value ($)", "#Shares Total"]
         num_col_index = [table_header.index(i) for i in table_header if i in num_col]
-        for row in rows:
+        for row in rows[1:]:
             cols = row.find_all("td")
-            info_dict = {}
-            for i, col in enumerate(cols):
-                if i not in num_col_index:
-                    info_dict[table_header[i]] = col.text
-                else:
-                    info_dict[table_header[i]] = number_convert(col.text)
+            info_dict = row_to_dict(cols, table_header, num_col_index)
             info_dict["SEC Form 4 Link"] = cols[-1].find("a").attrs["href"]
             info_dict["Insider_id"] = cols[0].a["href"].split("oc=")[1].split("&tc=")[0]
             frame.append(info_dict)
@@ -440,7 +457,7 @@ class finvizfinance:
         self.info["inside trader"] = df
         return df
 
-    def ticker_signal(self):
+    def ticker_signal(self) -> list[str]:
         """Get all the trading signals from finviz.
 
         Returns:
@@ -494,7 +511,7 @@ class finvizfinance:
                 ticker_signal.append(signal)
         return ticker_signal
 
-    def ticker_full_info(self):
+    def ticker_full_info(self) -> dict:
         """Get all the ticker information.
 
         Returns:
@@ -513,7 +530,9 @@ class Statements:
 
     """
 
-    def get_statements(self, ticker, statement="I", timeframe="A"):
+    def get_statements(
+        self, ticker: str, statement: str = "I", timeframe: str = "A"
+    ) -> pd.DataFrame:
         """Getting statements of ticker.
 
         Args:
@@ -521,13 +540,21 @@ class Statements:
             statement(str): I(Income Statement), B(Balace Sheet), C(Cash Flow)
             timeframe(str): A(Annual), Q(Quarter)
         Returns:
-            df(pandas.DataFrame): statements table
+            df(pandas.DataFrame): statements table. The reporting currency (e.g.
+                "USD") is stored in ``df.attrs["currency"]``.
         """
-        url = "https://finviz.com/api/statement.ashx?t={ticker}&s={statement}{timeframe}".format(
-            ticker=ticker, statement=statement, timeframe=timeframe
+        url = (
+            f"https://finviz.com/api/statement.ashx?t={ticker}&s={statement}{timeframe}"
         )
         response = web_scrap_json(url)
         if "data" not in response:
             raise FinvizParseError(url=url, selector="json:data")
         df = pd.DataFrame.from_dict(response["data"], orient="index")
+        # Expose the reporting currency finviz returns (e.g. "USD"). The raw code
+        # lives in df.attrs for programmatic access; when present it is also shown
+        # as the column-axis label so it renders above the statement columns.
+        currency = response.get("currency")
+        df.attrs["currency"] = currency
+        if currency:
+            df.columns.name = f"Currency: {currency}"
         return df

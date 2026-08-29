@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 from finvizfinance.constants import group_dict, group_order_dict
 
 
-def get_group():
+def get_group() -> list[str]:
     """Get groups.
 
     Returns:
@@ -10,7 +12,7 @@ def get_group():
     return list(group_dict.keys())
 
 
-def get_orders():
+def get_orders() -> list[str]:
     """Get orders.
 
     Returns:

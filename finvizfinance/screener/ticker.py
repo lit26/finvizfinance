@@ -5,15 +5,22 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+from __future__ import annotations
+
+import logging
 from time import sleep
+from typing import Any
+
+from finvizfinance.constants import order_dict
+from finvizfinance.screener.base import Base
 from finvizfinance.util import (
-    web_scrap,
     progress_bar,
     require,
+    validate_choice,
+    web_scrap,
 )
-from finvizfinance.constants import order_dict
 
-from finvizfinance.screener.base import Base
+logger = logging.getLogger(__name__)
 
 
 class Ticker(Base):
@@ -23,7 +30,9 @@ class Ticker(Base):
 
     v_page = 411
 
-    def _screener_helper(self, i, page, soup, tickers, limit):
+    def _screener_helper(
+        self, i: int, page: int, soup: Any, tickers: list[str], limit: int
+    ) -> list[str]:
         td = require(
             soup.find("td", class_="screener-tickers"),
             self.url,
@@ -32,12 +41,21 @@ class Ticker(Base):
         page_tickers = td.find_all("span")
         if i == page - 1:
             page_tickers = page_tickers[: ((limit - 1) % 1000 + 1)]
-        tickers = tickers + [i.text.split("\xa0")[1] for i in page_tickers]
+        for span in page_tickers:
+            parts = span.text.split("\xa0")
+            # Cells normally read "<rank>\xa0<TICKER>"; fall back to the whole
+            # text when the NBSP-separated rank is absent (avoids IndexError).
+            tickers.append(parts[1] if len(parts) > 1 else parts[0])
         return tickers
 
-    def screener_view(
-        self, order="Ticker", limit=-1, verbose=1, ascend=True, sleep_sec=1
-    ):
+    def screener_view(  # type: ignore[override]  # public API intentionally differs from Base
+        self,
+        order: str = "Ticker",
+        limit: int = -1,
+        verbose: int = 1,
+        ascend: bool = True,
+        sleep_sec: int = 1,
+    ) -> list[str] | None:
         """Get screener stocks.
 
         Args:
@@ -49,26 +67,21 @@ class Ticker(Base):
         Returns:
             tickers(list): get all the tickers as list.
         """
-        if order not in order_dict:
-            order_keys = list(order_dict.keys())
-            raise ValueError(
-                "Invalid order '{}'. Possible order: {}".format(order, order_keys)
-            )
+        validate_choice(order, order_dict, "order")
         self.request_params["o"] = ("" if ascend else "-") + order_dict[order]
         soup = web_scrap(self.url, self.request_params)
         page = self._get_page(soup)
         if page == 0:
-            print("No ticker found.")
+            logger.warning("No ticker found.")
             return None
 
-        if limit != -1:
-            if page > (limit - 1) // 1000 + 1:
-                page = (limit - 1) // 1000 + 1
+        if limit != -1 and page > (limit - 1) // 1000 + 1:
+            page = (limit - 1) // 1000 + 1
 
         if verbose == 1:
             progress_bar(1, page)
 
-        tickers = []
+        tickers: list[str] = []
         tickers = self._screener_helper(0, page, soup, tickers, limit)
 
         for i in range(1, page):

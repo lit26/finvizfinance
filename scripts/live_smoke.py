@@ -19,6 +19,7 @@ Usage::
 
 import os
 import sys
+from collections.abc import Callable
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -28,45 +29,45 @@ from finvizfinance.exceptions import (  # noqa: E402
 )
 
 
-def _checks():
+def _checks() -> list[tuple[str, Callable[[], None]]]:
     """Named callables that each perform one representative live scrape."""
 
-    def quote_fundament():
+    def quote_fundament() -> None:
         from finvizfinance.quote import finvizfinance
 
         finvizfinance("AAPL").ticker_fundament()
 
-    def calendar():
+    def calendar() -> None:
         from finvizfinance.calendar import Calendar
 
         Calendar().calendar()
 
-    def insider():
+    def insider() -> None:
         from finvizfinance.insider import Insider
 
         Insider().get_insider()
 
-    def news():
+    def news() -> None:
         from finvizfinance.news import News
 
         News().get_news()
 
-    def screener():
+    def screener() -> None:
         from finvizfinance.screener.overview import Overview
 
         Overview().screener_view(limit=20, verbose=0)
 
-    def group():
+    def group() -> None:
         from finvizfinance.group.overview import Overview
 
         Overview().screener_view(group="Sector")
 
-    def crypto():
+    def crypto() -> None:
         from finvizfinance.crypto import Crypto
 
         Crypto().performance()
 
-    def futures():
+    def futures() -> None:
         from finvizfinance.future import Future
 
         Future().performance()
@@ -83,7 +84,7 @@ def _checks():
     ]
 
 
-def main():
+def main() -> int:
     drift = []
     errors = []
     blocked = []
@@ -93,21 +94,19 @@ def main():
         try:
             check()
             ok.append(name)
-            print("OK      {}".format(name))
+            print(f"OK      {name}")
         except FinvizBlockedError:
             blocked.append(name)
-            print("BLOCKED {} (Wall — expected from a datacenter IP)".format(name))
+            print(f"BLOCKED {name} (Wall — expected from a datacenter IP)")
         except FinvizParseError as err:
             drift.append(name)
-            print("DRIFT   {} -> {}".format(name, err))
+            print(f"DRIFT   {name} -> {err}")
         except Exception as err:  # noqa: BLE001
             errors.append(name)
-            print("ERROR   {} -> {}: {}".format(name, type(err).__name__, err))
+            print(f"ERROR   {name} -> {type(err).__name__}: {err}")
 
     print(
-        "\nSummary: {} ok, {} blocked (expected), {} DRIFT, {} error".format(
-            len(ok), len(blocked), len(drift), len(errors)
-        )
+        f"\nSummary: {len(ok)} ok, {len(blocked)} blocked (expected), {len(drift)} DRIFT, {len(errors)} error"
     )
     if drift:
         print("Drift detected (finviz markup changed): {}".format(", ".join(drift)))

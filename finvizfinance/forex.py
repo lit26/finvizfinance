@@ -5,7 +5,11 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
-from finvizfinance.util import scrap_function, image_scrap_function
+from __future__ import annotations
+
+import pandas as pd
+
+from finvizfinance.util import image_scrap_function, scrap_function
 
 
 class Forex:
@@ -13,11 +17,11 @@ class Forex:
     Getting information from the finviz forex page.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """initiate module"""
         pass
 
-    def performance(self, change="percent"):
+    def performance(self, change: str = "percent") -> pd.DataFrame:
         """Get forex performance table.
 
         Args:
@@ -36,7 +40,9 @@ class Forex:
         df = scrap_function(url)
         return df
 
-    def chart(self, forex, timeframe="D", urlonly=False):
+    def chart(
+        self, forex: str, timeframe: str = "D", urlonly: bool = False
+    ) -> str | None:
         """Get forex chart.
 
         Args:

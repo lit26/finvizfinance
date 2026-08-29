@@ -7,11 +7,10 @@ missing optional field.
 """
 
 import pytest
+from conftest import FakeResponse, blocked_response, html_response, use_session
 
-from finvizfinance.quote import finvizfinance, Statements
-from finvizfinance.exceptions import FinvizParseError, FinvizBlockedError
-
-from conftest import use_session, html_response, blocked_response, FakeResponse
+from finvizfinance.exceptions import FinvizBlockedError, FinvizParseError
+from finvizfinance.quote import Statements, finvizfinance
 
 
 def _stock(fixture):
@@ -75,6 +74,31 @@ def test_fundament_renamed_links_recovered_via_fallback():
     assert fundament["Exchange"] == "NASDAQ"
 
 
+def test_fundament_spans_multiple_snapshot_tables():
+    # Regression for issue #156: finviz now splits the fundamentals across
+    # several ``snapshot-table2`` tables inside a wrapper div. The parser must
+    # read every table, not just the first, so fields in later tables are kept.
+    fundament = _stock("quote_multi_table.html").ticker_fundament()
+    # classification still resolves (via the screener-filter href fallback)
+    assert fundament["Company"] == "International Business Machines Corp"
+    assert fundament["Sector"] == "Technology"
+    assert fundament["Exchange"] == "NYSE"
+    # first table
+    assert fundament["P/E"] == "20.40"
+    assert fundament["Market Cap"] == "216.57B"
+    # second table (missed entirely before the fix)
+    assert fundament["ROE"] == "34.55%"
+    assert fundament["Shs Outstand"] == "942.00M"
+    assert fundament["Volatility W"] == "2.10%"
+    assert fundament["Volatility M"] == "2.62%"
+    # third table (also missed before the fix), incl. the EPS-next-Y dup split
+    assert fundament["Perf YTD"] == "-22.40%"
+    assert fundament["Target Price"] == "245.29"
+    assert fundament["Price"] == "229.87"
+    assert fundament["EPS next Y"] == "13.15"
+    assert fundament["EPS next Y Percentage"] == "6.79%"
+
+
 def test_fundament_series_output_format():
     df = _stock("quote_aapl.html").ticker_fundament(output_format="series")
     assert df.loc["Company", "Stat"] == "Apple Inc."
@@ -129,9 +153,7 @@ def test_ticker_inside_trader():
 
 def test_ticker_full_info():
     info = _stock("quote_aapl.html").ticker_full_info()
-    assert set(["fundament", "ratings_outer", "news", "inside trader"]).issubset(
-        info.keys()
-    )
+    assert {"fundament", "ratings_outer", "news", "inside trader"}.issubset(info.keys())
 
 
 def test_ticker_signal_wall_surfaces_not_silently_dropped():
@@ -152,10 +174,25 @@ def test_ticker_charts_invalid_timeframe():
 
 
 def test_statements_real():
-    use_session(FakeResponse(content=b'{"data": {"2023": {"Revenue": "100"}}}'))
+    use_session(
+        FakeResponse(
+            content=b'{"currency": "USD", "data": {"2023": {"Revenue": "100"}}}'
+        )
+    )
     df = Statements().get_statements("AAPL")
     assert df is not None
     assert not df.empty
+    # currency is exposed idiomatically in attrs, and labelled on the column axis
+    assert df.attrs["currency"] == "USD"
+    assert df.columns.name == "Currency: USD"
+
+
+def test_statements_currency_missing_is_none_and_unlabelled():
+    # finviz may omit currency; we must not render a misleading "Currency: None".
+    use_session(FakeResponse(content=b'{"data": {"2023": {"Revenue": "100"}}}'))
+    df = Statements().get_statements("AAPL")
+    assert df.attrs["currency"] is None
+    assert df.columns.name is None
 
 
 def test_statements_wall_raises_blocked_error():

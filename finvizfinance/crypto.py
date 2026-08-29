@@ -5,7 +5,11 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
-from finvizfinance.util import scrap_function, image_scrap_function
+from __future__ import annotations
+
+import pandas as pd
+
+from finvizfinance.util import image_scrap_function, scrap_function
 
 
 class Crypto:
@@ -13,11 +17,11 @@ class Crypto:
     Getting information from the finviz crypto page.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """initiate module"""
         pass
 
-    def performance(self):
+    def performance(self) -> pd.DataFrame:
         """Get crypto performance table.
 
         Returns:
@@ -27,7 +31,9 @@ class Crypto:
         df = scrap_function(url)
         return df
 
-    def chart(self, crypto, timeframe="D", urlonly=False):
+    def chart(
+        self, crypto: str, timeframe: str = "D", urlonly: bool = False
+    ) -> str | None:
         """Get crypto chart.
 
         Args:

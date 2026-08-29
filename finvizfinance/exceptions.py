@@ -18,6 +18,8 @@ types that previously propagated from that code path, so existing downstream
   ``raise_for_status`` on a 403). ``FinvizBlockedError`` subclasses that.
 """
 
+from __future__ import annotations
+
 import requests
 
 
@@ -32,15 +34,20 @@ class FinvizParseError(FinvizError, AttributeError, IndexError, KeyError, TypeEr
     Carries the ``url`` and the failed ``selector`` so Drift can be diagnosed.
     """
 
-    def __init__(self, message=None, url=None, selector=None):
+    def __init__(
+        self,
+        message: str | None = None,
+        url: str | None = None,
+        selector: str | None = None,
+    ) -> None:
         self.url = url
         self.selector = selector
         if message is None:
             message = (
                 "Failed to parse finviz response: required element "
-                "'{selector}' not found at {url}. "
+                f"'{selector}' not found at {url}. "
                 "Finviz markup may have changed (Drift)."
-            ).format(selector=selector, url=url)
+            )
         super().__init__(message)
 
 
@@ -52,13 +59,13 @@ class FinvizBlockedError(FinvizError, requests.exceptions.HTTPError):
     ``url``.
     """
 
-    def __init__(self, message=None, url=None):
+    def __init__(self, message: str | None = None, url: str | None = None) -> None:
         self.url = url
         if message is None:
             message = (
-                "finviz blocked the request at {url} (Cloudflare challenge / 403). "
+                f"finviz blocked the request at {url} (Cloudflare challenge / 403). "
                 "The source IP is being rate-limited. Slow down your request rate, "
                 "or supply your own session/proxy via "
                 "finvizfinance.util.set_session() or set_proxy()."
-            ).format(url=url)
+            )
         super().__init__(message)

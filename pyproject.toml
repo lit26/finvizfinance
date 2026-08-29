@@ -1,0 +1,113 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "finvizfinance"
+dynamic = ["version"]
+description = "Finviz Finance. Information downloader."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Tianning Li", email = "ltianningli@gmail.com" }]
+keywords = ["finviz", "finance", "stock", "screener", "investment"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business :: Financial :: Investment",
+]
+dependencies = [
+    "pandas>=1.5",
+    "requests>=2.32.0",
+    "beautifulsoup4>=4.9",
+    "lxml>=4.6",
+    "xlsxwriter>=3.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0",
+    "pytest-mock",
+]
+docs = [
+    "sphinx>=7.2",
+    "sphinx-rtd-theme>=2.0",
+    "docutils>=0.20",
+]
+dev = [
+    "finvizfinance[test,docs]",
+    "coverage>=7.5",
+    "coveralls>=4.0",
+    "ruff>=0.6",
+    "pre-commit>=3.5",
+    "mypy>=1.8",
+]
+
+[project.urls]
+Homepage = "https://github.com/lit26/finvizfinance"
+Documentation = "https://finvizfinance.readthedocs.io/en/latest/"
+Repository = "https://github.com/lit26/finvizfinance"
+Issues = "https://github.com/lit26/finvizfinance/issues"
+
+[tool.hatch.version]
+path = "finvizfinance/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["finvizfinance"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/finvizfinance",
+    "/README.md",
+    "/LICENSE",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+# Ruff also reformats fenced Python in Markdown and cells in notebooks; keep the
+# sweep scoped to Python sources and leave docs/examples alone.
+extend-exclude = ["*.md", "*.ipynb"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "C4"]
+# Line length is enforced by the formatter; E501 only fires on long strings/data
+# (finviz filter tables, URLs) it cannot split, so it is noise here.
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+disable_error_code = ["import-untyped"]
+files = ["finvizfinance", "scripts"]
+disallow_untyped_defs = true
+warn_return_any = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+
+# beautifulsoup4's published type stubs (4.13+) are strict about attribute
+# access (``str | AttributeValueList | None``) and ResultSet element types,
+# which is noise for a scraper that treats parsed nodes dynamically. Treat bs4
+# as untyped so the ratchet covers our own logic rather than bs4's shape, and
+# so results do not depend on the installed bs4/mypy version.
+[[tool.mypy.overrides]]
+module = ["bs4", "bs4.*"]
+follow_imports = "skip"
+
+[tool.coverage.run]
+source = ["finvizfinance"]
+
+[tool.coverage.report]
+show_missing = true
+# Ratchet-up floor. The measured baseline is ~86.5%; the gate sits just below
+# it so a genuine regression fails CI while cross-interpreter rounding noise
+# does not. Raise this as coverage improves; never lower it.
+fail_under = 86

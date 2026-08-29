@@ -5,8 +5,11 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+from __future__ import annotations
+
 import pandas as pd
-from finvizfinance.util import web_scrap, number_convert, find_table_by_headers
+
+from finvizfinance.util import find_table_by_headers, row_to_dict, web_scrap
 
 INSIDER_URL = "https://finviz.com/insidertrading"
 
@@ -33,7 +36,7 @@ class Insider:
                       top owner sales, insider_id)
     """
 
-    def __init__(self, option="latest"):
+    def __init__(self, option: str = "latest") -> None:
         """initiate module"""
         if option in OPTION_QUERY:
             self.url = INSIDER_URL + OPTION_QUERY[option]
@@ -48,7 +51,7 @@ class Insider:
         self.soup = web_scrap(self.url)
         self.df = None
 
-    def get_insider(self):
+    def get_insider(self) -> pd.DataFrame:
         """Get insider information table.
 
         Returns:
@@ -68,19 +71,13 @@ class Insider:
             "SEC Form 4 Link"
         ]
         frame = []
-        rows = rows[1:]
         num_col = ["Cost", "#Shares", "Value ($)", "#Shares Total"]
         num_col_index = [table_header.index(i) for i in table_header if i in num_col]
-        for row in rows:
+        for row in rows[1:]:
             cols = row.find_all("td")
             if len(cols) < 5:
                 continue
-            info_dict = {}
-            for i, col in enumerate(cols):
-                if i not in num_col_index:
-                    info_dict[table_header[i]] = col.text
-                else:
-                    info_dict[table_header[i]] = number_convert(col.text)
+            info_dict = row_to_dict(cols, table_header, num_col_index)
             link = cols[-1].find("a")
             info_dict["SEC Form 4 Link"] = link.attrs["href"] if link else None
             frame.append(info_dict)

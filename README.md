@@ -7,7 +7,7 @@
 [![Downloads](https://pepy.tech/badge/finvizfinance)](https://pepy.tech/project/finvizfinance)
 [![CodeFactor](https://www.codefactor.io/repository/github/lit26/finvizfinance/badge/master)](https://www.codefactor.io/repository/github/lit26/finvizfinance/overview/master)
 [![Donate PayPal](https://img.shields.io/badge/Donate%20%24-PayPal-brightgreen.svg)](https://www.paypal.me/TIANNINGL/)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 # finvizfinance
 
@@ -175,6 +175,49 @@ df.head()
 ### Screener (Ticker)
 
 Getting list of tickers according to the filters.
+
+### Calendar
+
+Getting the economic calendar (release datetime, impact, actual/expected/prior).
+
+```python
+from finvizfinance.calendar import Calendar
+
+fcalendar = Calendar()
+df = fcalendar.calendar()
+df.head()
+```
+
+### Earnings
+
+Partitioning tickers by their earnings dates for a period.
+
+```python
+from finvizfinance.earnings import Earnings
+
+# period: This Week (default), Next Week, Previous Week, This Month
+fearnings = Earnings(period='This Week')
+
+# mode: financial (default), overview, valuation, ownership, performance, technical
+days = fearnings.partition_days(mode='financial')
+
+# optionally export the partitioned tables
+fearnings.output_excel('earning_days.xlsx')
+fearnings.output_csv('earning_days')
+```
+
+### Future
+
+Getting futures performance.
+
+```python
+from finvizfinance.future import Future
+
+ffuture = Future()
+# timeframe: D (default), W, M, Q, HY, Y
+df = ffuture.performance(timeframe='D')
+df.head()
+```
 
 ### Misc (Proxy)
 

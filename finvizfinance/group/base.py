@@ -5,9 +5,12 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+from __future__ import annotations
+
 import pandas as pd
-from finvizfinance.util import web_scrap, number_convert, require
+
 from finvizfinance.constants import group_dict, group_order_dict
+from finvizfinance.util import scrap_group_table, validate_choice, web_scrap
 
 
 class Base:
@@ -15,20 +18,22 @@ class Base:
     Getting information from the finviz group page.
     """
 
-    v_page = None
+    v_page: int | None = None
     url = "https://finviz.com/groups.ashx"
-    request_params = {}
+    request_params: dict = {}
 
-    def __init__(self):
+    def __init__(self) -> None:
         """initiate module"""
         self.request_params = {
             "v": self.v_page,
         }
 
-    def _parse_columns(self, columns):
+    def _parse_columns(self, columns: list | None) -> None:
         return
 
-    def screener_view(self, group="Sector", order="Name", columns=None):
+    def screener_view(
+        self, group: str = "Sector", order: str = "Name", columns: list | None = None
+    ) -> pd.DataFrame:
         """Get screener table.
 
         Args:
@@ -38,20 +43,8 @@ class Base:
         Returns:
             df(pandas.DataFrame): group information table.
         """
-        if group not in group_dict:
-            group_keys = list(group_dict.keys())
-            raise ValueError(
-                "Invalid group parameter '{}'. Possible parameter input: {}".format(
-                    group, group_keys
-                )
-            )
-        if order not in group_order_dict:
-            order_keys = list(group_order_dict.keys())
-            raise ValueError(
-                "Invalid order parameter '{}'. Possible parameter input: {}".format(
-                    order, order_keys
-                )
-            )
+        validate_choice(group, group_dict, "group")
+        validate_choice(order, group_order_dict, "order")
 
         self.request_params = {
             **self.request_params,
@@ -61,25 +54,4 @@ class Base:
         self._parse_columns(columns)
 
         soup = web_scrap(self.url, self.request_params)
-        table = require(
-            soup.find("table", class_="groups_table"),
-            self.url,
-            "table.groups_table",
-        )
-        rows = table.find_all("tr")
-        table_header = [i.text.strip() for i in rows[0].find_all("th")][1:]
-        frame = []
-        rows = rows[1:]
-        num_col_index = list(range(2, len(table_header)))
-        for row in rows:
-            cols = row.find_all("td")[1:]
-            info_dict = {}
-            for i, col in enumerate(cols):
-                # check if the col is number
-                if i not in num_col_index:
-                    info_dict[table_header[i]] = col.text
-                else:
-                    info_dict[table_header[i]] = number_convert(col.text)
-
-            frame.append(info_dict)
-        return pd.DataFrame(frame)
+        return scrap_group_table(soup, self.url)

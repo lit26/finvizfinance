@@ -5,6 +5,10 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+from __future__ import annotations
+
+import pandas as pd
+
 from finvizfinance.screener.base import Base
 
 
@@ -15,7 +19,7 @@ class Custom(Base):
 
     v_page = 151
 
-    def _parse_columns(self, columns):
+    def _parse_columns(self, columns: list | None) -> None:
         if not columns:
             return
         if 0 in columns:
@@ -26,14 +30,14 @@ class Custom(Base):
 
     def screener_view(
         self,
-        order="Ticker",
-        limit=-1,
-        select_page=None,
-        verbose=1,
-        ascend=True,
-        columns=[0, 1, 2, 3, 4, 5, 6, 7, 65, 66, 67],
-        sleep_sec=1,
-    ):
+        order: str = "Ticker",
+        limit: int = -1,
+        select_page: int | None = None,
+        verbose: int = 1,
+        ascend: bool = True,
+        columns: list | None = None,
+        sleep_sec: int = 1,
+    ) -> pd.DataFrame:
         """Get screener table.
 
         Args:
@@ -47,6 +51,8 @@ class Custom(Base):
         Returns:
             df(pandas.DataFrame): screener information table
         """
+        if columns is None:
+            columns = [0, 1, 2, 3, 4, 5, 6, 7, 65, 66, 67]
         return Base.screener_view(
             self, order, limit, select_page, verbose, ascend, columns, sleep_sec
         )

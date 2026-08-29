@@ -1,6 +1,0 @@
--r requirements-test.txt
-
-# coverage test code
-PyYAML==6.0.1
-coverage==7.5.3
-coveralls==4.0.1

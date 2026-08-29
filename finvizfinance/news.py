@@ -5,9 +5,14 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
+from __future__ import annotations
+
+from typing import Any
+
 import pandas as pd
-from finvizfinance.util import web_scrap, require
+
 from finvizfinance.exceptions import FinvizParseError
+from finvizfinance.util import require, web_scrap
 
 NEWS_URL = "https://finviz.com/news.ashx"
 
@@ -17,13 +22,13 @@ class News:
     Getting information from the finviz news page.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """initiate module"""
-        self.all_news = {}
+        self.all_news: dict = {}
         self.soup = web_scrap(NEWS_URL)
-        self.news = {}
+        self.news: dict[str, pd.DataFrame] = {}
 
-    def get_news(self):
+    def get_news(self) -> dict[str, pd.DataFrame]:
         """Get insider information table.
 
         Retrieves table information from finviz finance news.
@@ -40,16 +45,14 @@ class News:
         news_collection = tr_list[1]
         tables = news_collection.find_all("table")
         if len(tables) < 2:
-            raise FinvizParseError(
-                url=NEWS_URL, selector="#news news/blogs tables"
-            )
+            raise FinvizParseError(url=NEWS_URL, selector="#news news/blogs tables")
 
         news_df = self._get_news_helper(tables[0])
         blog_df = self._get_news_helper(tables[1])
         self.news = {"news": news_df, "blogs": blog_df}
         return self.news
 
-    def _get_news_helper(self, rows):
+    def _get_news_helper(self, rows: Any) -> pd.DataFrame:
         """Get insider information table helper function.
 
         Args:

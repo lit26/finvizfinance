@@ -5,9 +5,13 @@
 .. moduleauthor:: Tianning Li <ltianningli@gmail.com>
 """
 
-from finvizfinance.group.base import Base
-from finvizfinance.util import web_scrap, image_scrap
+from __future__ import annotations
+
+from urllib.parse import urljoin
+
 from finvizfinance.constants import group_dict, group_order_dict
+from finvizfinance.group.base import Base
+from finvizfinance.util import image_scrap, require, validate_choice, web_scrap
 
 
 class Spectrum(Base):
@@ -17,31 +21,28 @@ class Spectrum(Base):
 
     v_page = 310
 
-    def screener_view(self, group="Sector", order="Name", out_dir=""):
-        """Get screener table.
+    def screener_view(  # type: ignore[override]  # public API intentionally differs from Base
+        self, group: str = "Sector", order: str = "Name", out_dir: str = ""
+    ) -> None:
+        """Download the group spectrum image.
 
         Args:
             group(str): choice of group option.
             order(str): sort the table by the choice of order.
         """
-        if group not in group_dict:
-            group_keys = list(group_dict.keys())
-            raise ValueError(
-                "Invalid group parameter '{}'. Possible parameter input: {}".format(
-                    group, group_keys
-                )
-            )
-        if order not in group_order_dict.order_dict:
-            order_keys = list(group_order_dict.keys())
-            raise ValueError(
-                "Invalid order parameter '{}'. Possible parameter input: {}".format(
-                    order, order_keys
-                )
-            )
+        validate_choice(group, group_dict, "group")
+        validate_choice(order, group_order_dict, "order")
 
-        self.request_params = self.request_params.update(group_dict[group])
+        self.request_params.update(group_dict[group])
         self.request_params["o"] = group_order_dict[order]
 
         soup = web_scrap(self.url, self.request_params)
-        url = "https://finviz.com/" + soup.find_all("img")[5]["src"]
+        image = None
+        for candidate in soup.find_all("img"):
+            src = candidate.get("src", "")
+            if "spectrum" in src.lower():
+                image = candidate
+                break
+        image = require(image, self.url, "img[src*=spectrum]")
+        url = urljoin("https://finviz.com/", image["src"])
         image_scrap(url, group, "")

@@ -16,6 +16,43 @@ from finvizfinance import util
 FIXTURE_DIR = os.path.join(os.path.dirname(__file__), "fixtures")
 
 
+def pytest_addoption(parser):
+    """Add the opt-in switch for the live (real-network) tests."""
+    parser.addoption(
+        "--run-live",
+        action="store_true",
+        default=False,
+        help=(
+            "run @pytest.mark.live tests that hit the real finviz site "
+            "(also enabled by setting RUN_LIVE=1)"
+        ),
+    )
+
+
+def _live_enabled(config):
+    """True when the user opted into live tests via flag or env var."""
+    if config.getoption("--run-live"):
+        return True
+    return os.environ.get("RUN_LIVE", "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def pytest_collection_modifyitems(config, items):
+    """Skip ``@pytest.mark.live`` tests unless explicitly opted in.
+
+    Keeps the default suite (what CI runs via ``pytest test``) fully offline and
+    deterministic: live tests show up as skipped rather than firing real
+    requests — or failing to collect — when nobody asked for them.
+    """
+    if _live_enabled(config):
+        return
+    skip_live = pytest.mark.skip(
+        reason="live test: pass --run-live or set RUN_LIVE=1 to run against finviz"
+    )
+    for item in items:
+        if "live" in item.keywords:
+            item.add_marker(skip_live)
+
+
 def load_fixture(name):
     """Read a committed fixture file as text."""
     with open(os.path.join(FIXTURE_DIR, name), encoding="utf-8") as f:
@@ -44,7 +81,7 @@ class FakeResponse:
     def raise_for_status(self):
         if self.status_code >= 400:
             raise requests.exceptions.HTTPError(
-                "{} Client Error".format(self.status_code), response=self
+                f"{self.status_code} Client Error", response=self
             )
 
 
@@ -112,9 +149,15 @@ def use_session(outcomes):
 
 
 @pytest.fixture(autouse=True)
-def _no_sleep_and_restore(monkeypatch):
-    """Neutralize backoff sleeps and restore the real session after each test."""
-    monkeypatch.setattr(time, "sleep", lambda *a, **k: None)
+def _no_sleep_and_restore(request, monkeypatch):
+    """Neutralize backoff sleeps and restore the real session after each test.
+
+    Live tests (``@pytest.mark.live``) keep the real ``time.sleep`` so their
+    bounded backoff against a genuine Cloudflare Wall stays polite; they still
+    get the session and proxy restored afterward.
+    """
+    if request.node.get_closest_marker("live") is None:
+        monkeypatch.setattr(time, "sleep", lambda *a, **k: None)
     original = util.get_session()
     original_proxy = util.proxy_dict
     yield
