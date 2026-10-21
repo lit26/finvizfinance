@@ -16,3 +16,4 @@ class Valuation(Base):
     """
 
     v_page = 121
+    etf_view = False

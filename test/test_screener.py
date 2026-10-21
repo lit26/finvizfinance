@@ -150,6 +150,57 @@ def test_screener_views_parse_table(view_cls):
     assert list(df["Ticker"]) == ["AAPL", "MSFT"]
 
 
+def test_screener_etf_overview_columns():
+    # An ETF-filtered request is served by finviz's ETF screener, whose
+    # e.-prefixed column ids map to readable DataFrame columns.
+    use_session(html_response("screener_etf_overview.html"))
+    df = Overview().screener_view(verbose=0)
+    assert list(df.columns) == [
+        "Ticker",
+        "Company",
+        "Category",
+        "Tags",
+        "Dividend",
+        "Price",
+        "Change",
+    ]
+    assert list(df["Category"]) == ["U.S. Equity - Large Cap", "Bonds - Broad Market"]
+    assert df["Dividend"].iloc[0] == pytest.approx(0.012)
+
+
+@pytest.mark.parametrize("view_cls", [Financial, Ownership, Valuation])
+def test_screener_stock_only_view_warns_on_etf_fallback(view_cls):
+    # The ETF screener has no Valuation/Financial/Ownership view; finviz
+    # answers with its ETF overview columns, which must not pass silently.
+    use_session(html_response("screener_etf_overview.html"))
+    with pytest.warns(UserWarning, match="ETF screener has no"):
+        df = view_cls().screener_view(verbose=0)
+    assert "Category" in df.columns
+
+
+@pytest.mark.parametrize("view_cls", [Overview, Performance, Technical])
+def test_screener_etf_capable_view_does_not_warn(view_cls, recwarn):
+    use_session(html_response("screener_etf_overview.html"))
+    view_cls().screener_view(verbose=0)
+    assert not [w for w in recwarn if "ETF screener" in str(w.message)]
+
+
+def test_screener_etf_filters():
+    view = Overview()
+    view.set_filter(
+        filters_dict={
+            "Industry": "Exchange Traded Fund",
+            "Single Category": "Bonds - Broad Market",
+            "Net Expense Ratio": "Under 0.1%",
+            "Net Fund Flows": "1 Month - Over 0%",
+        }
+    )
+    assert view.request_params["f"] == (
+        "ind_exchangetradedfund,etf_category_bondsbroadmarket,"
+        "etf_netexpense_u01,etf_fundflows_1mo0"
+    )
+
+
 def test_screener_custom_parse_columns_prepends_zero():
     view = Custom()
     view._parse_columns([2, 1])

@@ -16,3 +16,4 @@ class Financial(Base):
     """
 
     v_page = 161
+    etf_view = False

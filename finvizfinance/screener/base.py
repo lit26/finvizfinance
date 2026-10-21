@@ -18,6 +18,7 @@ from typing import Any
 import pandas as pd
 
 from finvizfinance.constants import (
+    ETF_SCREENER_COLUMNS,
     SCREENER_COLUMNS,
     filter_dict,
     order_dict,
@@ -34,7 +35,10 @@ from finvizfinance.util import (
 
 logger = logging.getLogger(__name__)
 
-_COLUMNS_BY_ID = {cid: (name, kind) for cid, name, kind in SCREENER_COLUMNS.values()}
+_COLUMNS_BY_ID = {
+    **{cid: (name, kind) for cid, name, kind in SCREENER_COLUMNS.values()},
+    **ETF_SCREENER_COLUMNS,
+}
 
 
 def _cell_value(value: Any, kind: str) -> Any:
@@ -70,6 +74,9 @@ class Base:
     """
 
     v_page: int | None = None
+    # False for stock-only views: the ETF screener has no such view and
+    # finviz silently serves its ETF overview columns instead.
+    etf_view = True
     url = "https://finviz.com/screener.ashx"
     size = 20
     request_params: dict = {}
@@ -138,22 +145,40 @@ class Base:
         self._set_ticker(ticker)
         self._set_filters(filters_dict)
 
-    def _screener_data(self, soup: Any) -> dict:
-        """Return the screener's embedded ``data`` payload.
+    def _screener_payload(self, soup: Any) -> dict:
+        """Return the screener's server-side-render JSON island.
 
         The redesigned screener renders rows into a virtualized CSS grid (wide
         custom views only put the visible columns in the DOM), so the complete
-        rows are read from the server-side-render JSON island instead.
+        rows are read from this JSON island instead.
         """
         selector = "script[data-ssr-props] screener data"
         for script in soup.find_all("script", type="application/json"):
             if not script.has_attr("data-ssr-props"):
                 continue
             payload = decode_json_after(script.string or "", 0, self.url, selector)
-            data = payload.get("data") if isinstance(payload, dict) else None
+            if not isinstance(payload, dict):
+                continue
+            data = payload.get("data")
             if isinstance(data, dict) and isinstance(data.get("rows"), list):
-                return data
+                return payload
         raise FinvizParseError(url=self.url, selector=selector)
+
+    def _screener_data(self, soup: Any) -> dict:
+        """Return the screener's embedded ``data`` payload."""
+        data: dict = self._screener_payload(soup)["data"]
+        return data
+
+    def _warn_etf_fallback(self, soup: Any) -> None:
+        """Warn when a stock-only view was answered by the ETF screener."""
+        if self.etf_view or self._screener_payload(soup).get("screenerType") != "etf":
+            return
+        warnings.warn(
+            f"The finviz ETF screener has no {type(self).__name__} view; it "
+            "returned its ETF overview columns instead. Use Overview, "
+            "Performance, Technical or Custom for ETFs.",
+            stacklevel=3,
+        )
 
     def _get_page(self, soup: Any) -> int:
         """Check the page number"""
@@ -248,6 +273,7 @@ class Base:
         if page == 0:
             logger.warning("No ticker found.")
             return None
+        self._warn_etf_fallback(soup)
         df = self._parse_table(None, soup, limit)
         limit -= self.size
         if select_page:

@@ -16,3 +16,4 @@ class Ownership(Base):
     """
 
     v_page = 131
+    etf_view = False

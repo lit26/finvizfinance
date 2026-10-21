@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from finvizfinance.etf_constants import ETF_FILTERS
+
 NUMBER_COL = [
     "Market Cap",
     "P/E",
@@ -294,6 +296,16 @@ SCREENER_COLUMNS: dict[int, tuple[str, str, str]] = {
     126: ("securityType", "Security Type", "text"),
     127: ("candlestick", "Candlestick", "raw"),
     128: ("lastChange", "Change $", "raw"),
+}
+
+# ETF-only screener columns. The ETF screener (finviz redirects any
+# ETF-filtered request to ``/screener/etf``) renders these ``e.``-prefixed
+# ids, which have no custom-view index. Same (DataFrame column name, value
+# kind) shape as SCREENER_COLUMNS; AUM is already in dollars.
+ETF_SCREENER_COLUMNS: dict[str, tuple[str, str]] = {
+    "e.Category": ("Category", "text"),
+    "e.Tags": ("Tags", "text"),
+    "e.AssetsUnderManagement": ("AUM", "number"),
 }
 
 
@@ -2373,22 +2385,9 @@ util_dict: dict[str, Any] = {
                 "Over 1000M": "o1000",
             },
         },
-        "Net Expense Ratio": {
-            "prefix": "etf_netexpense",
-            "option": {
-                "Any": "",
-                "Under 0.1%": "u01",
-                "Under 0.2%": "u02",
-                "Under 0.3%": "u03",
-                "Under 0.4%": "u04",
-                "Under 0.5%": "u05",
-                "Under 0.6%": "u06",
-                "Under 0.7%": "u07",
-                "Under 0.8%": "u08",
-                "Under 0.9%": "u09",
-                "Under 1.0%": "u10",
-            },
-        },
+        # ETF filters (incl. "Net Expense Ratio") are generated into
+        # etf_constants.ETF_FILTERS and merged below.
+        **ETF_FILTERS,
     },
     "order": {
         "Ticker": "ticker",
