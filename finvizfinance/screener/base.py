@@ -204,7 +204,7 @@ class Base:
 
         Args:
             order(str): sort the table by the choice of order.
-            limit(int): set the top k rows of the screener.
+            limit(int): set the top k rows of the screener. -1 for all rows.
             select_page(int): set the page of the screener.
             verbose(int): choice of visual the progress. 1 for visualize progress.
             ascend(bool): if True, the order is ascending.
@@ -213,6 +213,10 @@ class Base:
             df(pandas.DataFrame): screener information table
         """
         validate_choice(order, order_dict, "order")
+        if limit == -1:
+            # -1 means "no limit", as in _get_table and Ticker.screener_view;
+            # without this the page countdown below stops after page one.
+            limit = 100000
         self.request_params["o"] = ("" if ascend else "-") + order_dict[order]
 
         if select_page:

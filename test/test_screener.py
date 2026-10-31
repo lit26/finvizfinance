@@ -38,6 +38,19 @@ def test_screener_overview_multipage():
     assert list(df["Ticker"]) == ["AAPL", "MSFT", "GOOGL"]
 
 
+def test_screener_custom_default_limit_fetches_all_pages():
+    # Custom.screener_view defaults to limit=-1 ("no limit"); the page
+    # countdown used to treat it as a number and stop after page one.
+    use_session(
+        [
+            html_response("screener_multi_p1.html"),
+            html_response("screener_multi_p2.html"),
+        ]
+    )
+    df = Custom().screener_view(verbose=0, sleep_sec=0)
+    assert list(df["Ticker"]) == ["AAPL", "MSFT", "GOOGL"]
+
+
 def test_screener_ticker_not_doubled():
     # Regression (#159): finviz nests two anchors in the ticker cell (a
     # logo/company-ticker link + a tab-link), so the cell's text repeats the
