@@ -49,7 +49,7 @@ class Custom(Base):
 
         Args:
             order(str): sort the table by the choice of order.
-            limit(int): set the top k rows of the screener.
+            limit(int): set the top k rows of the screener. -1 for all rows.
             select_page(int): set the page of the screener.
             verbose(int): choice of visual the progress. 1 for visualize progress.
             ascend(bool): if True, the order is ascending.
