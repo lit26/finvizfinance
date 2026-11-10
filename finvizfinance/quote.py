@@ -550,6 +550,40 @@ class finvizfinance:
                 ticker_signal.append(signal)
         return ticker_signal
 
+    def ticker_options(self, expiry: str | None = None) -> pd.DataFrame:
+        """Get the options chain for one expiry (#107).
+
+        Args:
+            expiry(str): expiry date "YYYY-MM-DD"; default is finviz's nearest.
+                Available expiries land in ``info["option_expiries"]``.
+        Returns:
+            df(pandas.DataFrame): one row per contract; ``type`` is call/put.
+        """
+        params = {"ty": "oc"}
+        if expiry is not None:
+            params["e"] = expiry
+        soup = web_scrap(self.quote_url, params)
+        tag = require(
+            soup.find("script", id="route-init-data"),
+            self.quote_url,
+            "script#route-init-data (options chain)",
+        )
+        try:
+            payload = json.loads(tag.string or tag.get_text())
+            options, expiries = payload["options"], payload["expiries"]
+        except (ValueError, KeyError, TypeError) as exc:
+            raise FinvizParseError(
+                url=self.quote_url, selector="route-init-data options"
+            ) from exc
+        if not isinstance(options, list):
+            raise FinvizParseError(
+                url=self.quote_url, selector="route-init-data options"
+            )
+        self.info["option_expiries"] = expiries
+        df = pd.DataFrame(options)
+        self.info["options"] = df
+        return df
+
     def ticker_full_info(self) -> dict:
         """Get all the ticker information.
 

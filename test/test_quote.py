@@ -220,3 +220,20 @@ def test_statements_missing_data_raises_parse_error():
     use_session(FakeResponse(content=b"{}"))
     with pytest.raises(FinvizParseError):
         Statements().get_statements("AAPL")
+
+
+def test_ticker_options_chain():
+    stock = _stock("quote_aapl.html")
+    fake = use_session(html_response("quote_options.html"))
+    df = stock.ticker_options(expiry="2026-11-20")
+    assert list(df["type"]) == ["put", "call"]
+    assert list(df["strike"]) == [100, 100]
+    assert stock.info["option_expiries"][0] == "2026-11-06"
+    assert fake.calls[-1]["params"] == {"ty": "oc", "e": "2026-11-20"}
+
+
+def test_ticker_options_drift_raises():
+    stock = _stock("quote_aapl.html")
+    use_session(html_response("quote_etf.html"))
+    with pytest.raises(FinvizParseError):
+        stock.ticker_options()

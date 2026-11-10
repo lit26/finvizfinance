@@ -96,6 +96,14 @@ outer_ratings_df = stock.ticker_outer_ratings()
 
 ![Outer Ratings example](asset/outer_rating.png)
 
+#### Options Chain
+
+```python
+options_df = stock.ticker_options()  # nearest expiry
+options_df = stock.ticker_options(expiry="2026-12-18")
+expiries = stock.info["option_expiries"]
+```
+
 #### Stock News
 
 ```python
