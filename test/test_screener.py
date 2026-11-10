@@ -1,7 +1,16 @@
 """Offline fixture tests for the screener views (see test_quote for the pattern)."""
 
+import json
+
+import pandas as pd
 import pytest
-from conftest import blocked_response, html_response, use_session
+from conftest import (
+    FakeResponse,
+    blocked_response,
+    html_response,
+    load_fixture,
+    use_session,
+)
 
 from finvizfinance.exceptions import FinvizBlockedError, FinvizParseError
 from finvizfinance.screener import (
@@ -112,6 +121,140 @@ def test_screener_ticker_missing_nbsp_no_indexerror():
     use_session(html_response("screener_ticker_no_nbsp.html"))
     tickers = Ticker().screener_view(verbose=0)
     assert tickers == ["AAPL", "MSFT"]
+
+
+# --- redesigned screener (/screener/stocks, Oct 2026) -------------------------
+# Results render as a div[role=grid]; paging metadata lives in the
+# <script data-ssr-props> JSON island. See issue #187.
+
+
+def test_screener_ssr_overview():
+    use_session(html_response("screener_ssr_overview.html"))
+    df = Overview().screener_view(verbose=0)
+    assert list(df.columns) == [
+        "Ticker",
+        "Company",
+        "Sector",
+        "Industry",
+        "Country",
+        "Market Cap",
+        "P/E",
+        "Price",
+        "Change",
+        "Volume",
+    ]
+    # The ticker cell also holds a logo-tile letter; data-ticker is the clean value.
+    assert list(df["Ticker"]) == ["A", "AAPL"]
+    assert list(df["Company"]) == ["Agilent Technologies Inc", "Apple Inc"]
+    # Cells keep the formatted text, so units match the legacy table parser.
+    assert df.loc[0, "Market Cap"] == 48.79e9
+    assert df.loc[0, "Change"] == pytest.approx(-0.0047)
+    assert df.loc[0, "Volume"] == 1760839
+
+
+def test_screener_ssr_multipage():
+    use_session(
+        [
+            html_response("screener_ssr_multi_p1.html"),
+            html_response("screener_ssr_multi_p2.html"),
+        ]
+    )
+    df = Overview().screener_view(verbose=0, sleep_sec=0)
+    assert list(df["Ticker"]) == ["A", "AAPL", "ALB", "ALGN"]
+    # A "-" cell still converts to a missing value.
+    assert pd.isna(df.loc[2, "P/E"])
+
+
+def test_screener_ssr_select_page_past_end_returns_none():
+    use_session(html_response("screener_ssr_overview.html"))
+    assert Overview().screener_view(verbose=0, select_page=2) is None
+
+
+def test_screener_ssr_legacy_labels():
+    # The grid relabels a few columns; they map back to the legacy names.
+    use_session(html_response("screener_ssr_valuation.html"))
+    df = Valuation().screener_view(verbose=0)
+    assert "Fwd P/E" in df.columns and "Forward P/E" not in df.columns
+    assert df.loc[0, "Fwd P/E"] == 25.77
+
+    use_session(html_response("screener_ssr_technical.html"))
+    df = Technical().screener_view(verbose=0)
+    assert {"Change", "Change from Open"} <= set(df.columns)
+    assert "Change %" not in df.columns
+
+
+def test_screener_ssr_no_results_returns_none():
+    use_session(html_response("screener_ssr_noresults.html"))
+    assert Overview().screener_view(verbose=0) is None
+
+
+def test_screener_ssr_missing_grid_raises_parse_error():
+    use_session(html_response("screener_ssr_drift.html"))
+    with pytest.raises(FinvizParseError):
+        Overview().screener_view(verbose=0)
+
+
+def test_screener_ssr_bad_island_raises_parse_error():
+    use_session(
+        FakeResponse(
+            text='<script type="application/json" data-ssr-props="x">{"url": "/"}</script>'
+        )
+    )
+    with pytest.raises(FinvizParseError):
+        Overview().screener_view(verbose=0)
+
+
+def test_screener_ssr_ticker_view():
+    use_session(html_response("screener_ssr_ticker.html"))
+    assert Ticker().screener_view(verbose=0) == ["A", "AAPL", "ABBV"]
+
+
+def test_screener_ssr_ticker_view_limit():
+    use_session(html_response("screener_ssr_ticker.html"))
+    assert Ticker().screener_view(verbose=0, limit=2) == ["A", "AAPL"]
+
+
+def test_screener_ssr_ticker_view_missing_rows_raises_parse_error():
+    # totalCount says there are symbols, but the island carries none: Drift.
+    html = load_fixture("screener_ssr_ticker.html")
+    start, end = html.index('"rows":['), html.index('],"totalCount"')
+    use_session(FakeResponse(text=html[:start] + '"rows":[' + html[end:]))
+    with pytest.raises(FinvizParseError):
+        Ticker().screener_view(verbose=0)
+
+
+def test_screener_ssr_page_size_mismatch_raises_parse_error():
+    # Paging steps by Base.size; a different server page size would skip rows.
+    html = load_fixture("screener_ssr_overview.html")
+    use_session(FakeResponse(text=html.replace('"pageSize":20', '"pageSize":50')))
+    with pytest.raises(FinvizParseError):
+        Overview().screener_view(verbose=0)
+
+
+def test_screener_ssr_virtualized_columns_raise_parse_error():
+    # A wide view renders only the columns that fit; aria-colcount counts all.
+    html = load_fixture("screener_ssr_overview.html")
+    use_session(
+        FakeResponse(text=html.replace('aria-colcount="11"', 'aria-colcount="40"'))
+    )
+    with pytest.raises(FinvizParseError):
+        Overview().screener_view(verbose=0)
+
+
+def test_screener_ssr_virtualized_rows_raise_parse_error():
+    # The island lists 2 rows; drop one from the grid.
+    html = load_fixture("screener_ssr_overview.html")
+    use_session(FakeResponse(text=html.replace('data-row-key="AAPL" ', "")))
+    with pytest.raises(FinvizParseError):
+        Overview().screener_view(verbose=0)
+
+
+def test_screener_ssr_header_without_label_raises_parse_error():
+    # Strip the label span from "No." and "Ticker"; the latter must raise.
+    html = load_fixture("screener_ssr_overview.html")
+    use_session(FakeResponse(text=html.replace("fv-table_header-label", "x", 2)))
+    with pytest.raises(FinvizParseError):
+        Overview().screener_view(verbose=0)
 
 
 def test_screener_get_settings():
@@ -254,3 +397,87 @@ def test_from_url_no_params_raises():
 def test_from_url_non_string_raises():
     with pytest.raises(TypeError):
         from_url(None)  # type: ignore[arg-type]
+
+
+def _ssr_grid_page(labels, rows):
+    """A minimal redesigned screener page: grid + SSR island.
+
+    ``labels`` excludes "No."; ``rows`` are lists of cell text, ticker first.
+    """
+    head = "".join(
+        f'<div role="columnheader" aria-colindex="{i + 2}">'
+        f'<span class="fv-table_header-label">{label}</span></div>'
+        for i, label in enumerate(labels)
+    )
+    body = "".join(
+        f'<div role="row" data-row-key="{cells[0]}">'
+        + "".join(
+            f'<div role="gridcell" aria-colindex="{i + 2}">{text}</div>'
+            for i, text in enumerate(cells)
+        )
+        + "</div>"
+        for cells in rows
+    )
+    island = {
+        "data": {
+            "rows": [{"text": {"ticker": cells[0]}} for cells in rows],
+            "totalCount": len(rows),
+            "firstRow": 0,
+            "pageSize": 20,
+        }
+    }
+    return FakeResponse(
+        text=(
+            f'<script type="application/json" data-ssr-props="x">'
+            f"{json.dumps(island)}</script>"
+            f'<div role="grid" aria-label="Screener results" '
+            f'aria-colcount="{len(labels) + 1}">'
+            f'<div role="row"><div role="columnheader" data-column-id="row">'
+            f'<span class="fv-table_header-label">No.</span></div>{head}</div>'
+            f"{body}</div>"
+        )
+    )
+
+
+def test_screener_custom_wide_view_is_chunked():
+    # The grid virtualizes columns past ~38, so a wide custom view is fetched
+    # as narrower chunks (each with Ticker) and joined back on the symbol.
+    columns = list(range(1, 61))  # Ticker + 59 others -> chunks of 28, 28, 3
+    chunks = [list(range(2, 30)), list(range(30, 58)), list(range(58, 61))]
+    tickers = ["AAPL", "MSFT"]
+    pages = []
+    for n, chunk in enumerate(chunks):
+        labels = ["Ticker"] + [f"C{c}" for c in chunk]
+        rows = [[t] + [f"{t}-{c}" for c in chunk] for t in tickers]
+        if n == 1:
+            rows.reverse()  # rows moved between requests: align by ticker
+        pages.append(_ssr_grid_page(labels, rows))
+    session = use_session(pages)
+
+    view = Custom()
+    view.set_filter(filters_dict={"Exchange": "NASDAQ"})
+    df = view.screener_view(columns=columns, verbose=0, sleep_sec=0)
+
+    assert list(df.columns) == ["Ticker"] + [f"C{c}" for c in range(2, 61)]
+    assert list(df["Ticker"]) == tickers
+    assert df.loc[1, "C40"] == "MSFT-40"
+    assert df.loc[0, "C60"] == "AAPL-60"
+    requested = [call["params"]["c"].split(",") for call in session.calls]
+    assert requested == [["0", "1", *map(str, chunk)] for chunk in chunks]
+    # Every chunk keeps the caller's filter.
+    assert all(call["params"].get("f") for call in session.calls)
+    assert columns == list(range(1, 61))  # caller's list untouched
+
+
+def test_screener_custom_wide_view_without_ticker_drops_it():
+    columns = list(range(2, 40))  # 38 non-ticker columns -> chunks of 28, 10
+    pages = [
+        _ssr_grid_page(
+            ["Ticker"] + [f"C{c}" for c in chunk],
+            [["AAPL"] + [str(c) for c in chunk]],
+        )
+        for chunk in (range(2, 30), range(30, 40))
+    ]
+    use_session(pages)
+    df = Custom().screener_view(columns=columns, verbose=0, sleep_sec=0)
+    assert list(df.columns) == [f"C{c}" for c in range(2, 40)]
