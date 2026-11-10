@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import re
 from datetime import date, datetime
@@ -344,6 +345,11 @@ class finvizfinance:
         Returns:
             df(pandas.DataFrame): outer ratings table, or None if absent.
         """
+        df = self._outer_ratings_from_ssr()
+        if df is not None:
+            self.info["ratings_outer"] = df
+            return df
+
         fullview_ratings_outer = optional(
             self.soup.find("table", class_="js-table-ratings"),
             self.quote_url,
@@ -380,6 +386,37 @@ class finvizfinance:
         df = pd.DataFrame(frame)
         self.info["ratings_outer"] = df
         return df
+
+    def _outer_ratings_from_ssr(self) -> pd.DataFrame | None:
+        """Parse outer ratings from the redesigned page's SSR island (#191).
+
+        Returns:
+            df(pandas.DataFrame): outer ratings table, or None if the island
+            is not on the page.
+        """
+        island = self.soup.find(
+            "script",
+            attrs={"data-ssr-props": re.compile(r"^ssr-island-analyst-ratings")},
+        )
+        if island is None:
+            return None
+        try:
+            ratings = json.loads(island.string or "")["ratings"]
+        except (ValueError, KeyError, TypeError) as exc:
+            raise FinvizParseError(
+                url=self.quote_url, selector="ssr-island-analyst-ratings"
+            ) from exc
+        frame = [
+            {
+                "Date": datetime.strptime(rating["date"], "%Y-%m-%d"),
+                "Status": rating.get("action", ""),
+                "Outer": rating.get("firm", ""),
+                "Rating": rating.get("rating", ""),
+                "Price": rating.get("priceTarget", ""),
+            }
+            for rating in ratings
+        ]
+        return pd.DataFrame(frame)
 
     def ticker_news(self) -> pd.DataFrame | None:
         """Get news information table.

@@ -132,6 +132,21 @@ def test_ticker_outer_ratings():
     assert list(df["Outer"]) == ["Morgan Stanley"]
 
 
+def test_ticker_outer_ratings_ssr_island():
+    df = _stock("quote_aapl_ssr.html").ticker_outer_ratings()
+    assert list(df.columns) == ["Date", "Status", "Outer", "Rating", "Price"]
+    assert list(df["Status"]) == ["Downgrade", "Upgrade"]
+    assert list(df["Outer"]) == ["Loop Capital", "Rothschild & Co Redburn"]
+    assert list(df["Rating"]) == ["Buy \u2192 Hold", "Neutral \u2192 Buy"]
+    assert list(df["Price"]) == ["$330", "$400"]
+    assert df["Date"][0].strftime("%Y-%m-%d") == "2026-10-20"
+
+
+def test_ticker_outer_ratings_ssr_drift_raises():
+    with pytest.raises(FinvizParseError):
+        _stock("quote_aapl_ssr_broken.html").ticker_outer_ratings()
+
+
 def test_ticker_outer_ratings_absent_returns_none_and_warns():
     stock = _stock("quote_etf.html")
     with pytest.warns(UserWarning):
