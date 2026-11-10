@@ -161,7 +161,9 @@ class finvizfinance:
         for key, tokens in href_tokens.items():
             if result[key]:
                 continue
-            anchor = self.soup.find("a", href=re.compile("|".join(re.escape(token) for token in tokens)))
+            anchor = self.soup.find(
+                "a", href=re.compile("|".join(re.escape(token) for token in tokens))
+            )
             if anchor is not None:
                 result[key] = anchor.text.strip()
 
