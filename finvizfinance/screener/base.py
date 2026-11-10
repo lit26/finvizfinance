@@ -18,7 +18,7 @@ from typing import Any
 import pandas as pd
 
 from finvizfinance.constants import NUMBER_COL, filter_dict, order_dict, signal_dict
-from finvizfinance.exceptions import FinvizParseError
+from finvizfinance.exceptions import FinvizBlockedError, FinvizParseError
 from finvizfinance.quote import finvizfinance
 from finvizfinance.util import (
     number_convert,
@@ -349,6 +349,10 @@ class Base:
             sleep_sec(int): sleep seconds for fetching each page.
         Returns:
             df(pandas.DataFrame): screener information table
+        Raises:
+            FinvizBlockedError: if finviz blocks a later page; ``err.partial``
+                holds the rows fetched so far and ``err.next_page`` the page
+                to resume from.
         """
         validate_choice(order, order_dict, "order")
         if limit == -1:
@@ -385,7 +389,15 @@ class Base:
             if verbose == 1:
                 progress_bar(i, page)
             self.request_params["r"] = i * self.size + 1
-            soup = web_scrap(self.url, self.request_params)
+            try:
+                soup = web_scrap(self.url, self.request_params)
+            except FinvizBlockedError as err:
+                # Long runs (#186) hit the Wall mid-way; keep the rows already
+                # fetched so the caller can resume with select_page.
+                err.partial = df
+                err.next_page = i + 1
+                self.reset()
+                raise
             df = self._parse_table(df, soup, limit)
             limit -= self.size
         self.reset()

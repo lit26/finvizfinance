@@ -494,3 +494,12 @@ def test_screener_custom_wide_view_without_ticker_drops_it():
     use_session(pages)
     df = Custom().screener_view(columns=columns, verbose=0, sleep_sec=0)
     assert list(df.columns) == [f"C{c}" for c in range(2, 40)]
+
+
+def test_screener_blocked_midway_keeps_partial_rows():
+    # #186: a Wall on page 2 of a long run must not discard page 1.
+    use_session([html_response("screener_multi_p1.html"), blocked_response()])
+    with pytest.raises(FinvizBlockedError) as exc:
+        Overview().screener_view(verbose=0, sleep_sec=0)
+    assert list(exc.value.partial["Ticker"]) == ["AAPL", "MSFT"]
+    assert exc.value.next_page == 2

@@ -135,9 +135,9 @@ def test_calendar_drift_raises_parse_error_not_silent_empty():
     use_session(html_response("calendar_drift.html"))
     with pytest.raises(FinvizParseError) as exc:
         Calendar().calendar()
-    assert (
-        exc.value.selector
-        == "script#route-init-data, table.calendar, or FinvizInitCalendar"
+    assert exc.value.selector == (
+        "script[data-ssr-props], script#route-init-data, table.calendar, "
+        "or FinvizInitCalendar"
     )
 
 
@@ -152,3 +152,18 @@ def test_calendar_missing_impact_is_none():
     with pytest.warns(UserWarning):
         df = Calendar().calendar()
     assert df.iloc[0]["Impact"] is None
+
+
+def test_calendar_ssr_island():
+    # Redesigned page (#185): entries live in the SSR island's economic.entries.
+    use_session(html_response("calendar_ssr.html"))
+    df = Calendar().calendar()
+    assert df["Release"][0] == "Consumer Credit Change"
+    assert df["Datetime"][0] == "Fri Nov 06, 03:00 PM"
+    assert df["Actual"][0] == "$27.84B"
+
+
+def test_calendar_ssr_island_drift_raises():
+    use_session(html_response("calendar_ssr_drift.html"))
+    with pytest.raises(FinvizParseError):
+        Calendar().calendar()

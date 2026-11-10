@@ -37,7 +37,9 @@ class Forex:
             url = "https://finviz.com/forex_performance.ashx?v=1&tv=2&o=-perfdaypct"
         else:
             raise ValueError("Options of change: percent(default), PIPS")
-        df = scrap_function(url)
+        df = scrap_function(
+            url, "forex-perf-init-data", name_col="Pair", pips=change == "PIPS"
+        )
         return df
 
     def chart(

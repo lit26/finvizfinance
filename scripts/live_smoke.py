@@ -67,6 +67,11 @@ def _checks() -> list[tuple[str, Callable[[], None]]]:
 
         Crypto().performance()
 
+    def forex() -> None:
+        from finvizfinance.forex import Forex
+
+        Forex().performance()
+
     def futures() -> None:
         from finvizfinance.future import Future
 
@@ -80,6 +85,7 @@ def _checks() -> list[tuple[str, Callable[[], None]]]:
         ("screener.overview", screener),
         ("group.overview", group),
         ("crypto.performance", crypto),
+        ("forex.performance", forex),
         ("future.performance", futures),
     ]
 

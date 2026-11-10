@@ -13,13 +13,16 @@ from typing import Any
 import pandas as pd
 
 from finvizfinance.exceptions import FinvizParseError
-from finvizfinance.util import decode_json_after, web_scrap
+from finvizfinance.util import decode_json_after, perf_init_rows, web_scrap
 
 FUTURES_URL = "https://finviz.com/futures_performance.ashx"
 
 
 def _extract_rows(soup: Any) -> Any:
-    """Extract rows from either the legacy or current init call."""
+    """Extract rows from the JSON script, or the legacy init calls."""
+    rows = perf_init_rows(soup, FUTURES_URL, "futures-perf-init-data")
+    if rows is not None:
+        return rows
     html = soup.prettify()
     patterns = [
         r"var\s+rows\s*=\s*",

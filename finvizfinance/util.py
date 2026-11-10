@@ -365,15 +365,71 @@ def scrap_group_table(soup: Any, url: str) -> pd.DataFrame:
     return pd.DataFrame(frame)
 
 
-def scrap_function(url: str) -> pd.DataFrame:
+# Redesigned (Nov 2026) performance pages ship rows as JSON in
+# <script id="<page>-perf-init-data">. Map them to the legacy column names.
+PERF_PERIODS = {
+    "5min": "Perf 5Min",
+    "Hour": "Perf Hour",
+    "Day": "Perf Day",
+    "Week": "Perf Week",
+    "Month": "Perf Month",
+    "Mtd": "Perf MTD",
+    "Quarter": "Perf Quarter",
+    "HalfYear": "Perf Half",
+    "Ytd": "Perf YTD",
+    "Year": "Perf Year",
+}
+
+
+def perf_init_rows(soup: Any, url: str, element_id: str) -> list[dict] | None:
+    """Rows of a ``<script id=element_id>`` perf payload; None if absent."""
+    tag = soup.find("script", id=element_id)
+    if tag is None:
+        return None
+    try:
+        rows = json.loads(tag.string or tag.get_text())["rows"]
+    except (ValueError, KeyError, TypeError) as err:
+        raise FinvizParseError(url=url, selector=f"script#{element_id} rows") from err
+    if not isinstance(rows, list) or not all(isinstance(r, dict) for r in rows):
+        raise FinvizParseError(url=url, selector=f"script#{element_id} rows")
+    return rows
+
+
+def perf_frame(rows: list[dict], name_col: str, pips: bool = False) -> pd.DataFrame:
+    """Legacy-shaped perf table: percent as fractions (0.025), or raw pips."""
+    frame = []
+    for row in rows:
+        out = {
+            "Ticker": row.get("ticker"),
+            name_col: row.get("label"),
+            "Price": row.get("last"),
+        }
+        for key, col in PERF_PERIODS.items():
+            value = row.get(f"perf{key}{'Pips' if pips else 'Pct'}")
+            out[col] = value if pips or value is None else round(value / 100, 6)
+        frame.append(out)
+    return pd.DataFrame(frame)
+
+
+def scrap_function(
+    url: str, element_id: str | None = None, name_col: str = "Name", pips: bool = False
+) -> pd.DataFrame:
     """Scrap forex, crypto information.
 
     Args:
         url(str): website
+        element_id(str): id of the redesigned page's JSON script, if any.
+        name_col(str): column name for the row label in the JSON shape.
+        pips(bool): report pips instead of percent change (JSON shape).
     Returns:
         df(pandas.DataFrame): performance table
     """
-    return scrap_group_table(web_scrap(url), url)
+    soup = web_scrap(url)
+    if element_id is not None:
+        rows = perf_init_rows(soup, url, element_id)
+        if rows is not None:
+            return perf_frame(rows, name_col, pips)
+    return scrap_group_table(soup, url)
 
 
 def image_scrap_function(

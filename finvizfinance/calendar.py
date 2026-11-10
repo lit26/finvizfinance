@@ -16,7 +16,8 @@ import pandas as pd
 from finvizfinance.exceptions import FinvizParseError
 from finvizfinance.util import decode_json_after, warn_missing, web_scrap
 
-CALENDAR_URL = "https://finviz.com/calendar.ashx"
+# calendar.ashx now redirects to the earnings season preview (Nov 2026).
+CALENDAR_URL = "https://finviz.com/calendar/economic"
 
 
 def _script_json(soup: Any, function_name: str) -> list[Any] | None:
@@ -47,7 +48,9 @@ class Calendar:
 
         # Current shape: the page is a client-rendered app and the calendar rows
         # ship as JSON inside <script id="route-init-data" type="application/json">.
-        entries = self._route_init_entries(soup)
+        entries = self._ssr_entries(soup)
+        if entries is None:
+            entries = self._route_init_entries(soup)
         if entries is not None:
             return self._entries_dataframe(entries)
 
@@ -63,10 +66,27 @@ class Calendar:
 
         raise FinvizParseError(
             url=CALENDAR_URL,
-            selector="script#route-init-data, table.calendar, or FinvizInitCalendar",
+            selector="script[data-ssr-props], script#route-init-data, table.calendar, or FinvizInitCalendar",
         )
 
     # -- current: route-init-data JSON ------------------------------------------
+
+    @staticmethod
+    def _ssr_entries(soup: Any) -> list[Any] | None:
+        """Entries from the redesigned page's SSR island (``economic.entries``)."""
+        for tag in soup.find_all("script", attrs={"data-ssr-props": True}):
+            raw = tag.string or tag.get_text() or ""
+            payload = decode_json_after(raw, 0, CALENDAR_URL, "ssr-island JSON")
+            if not isinstance(payload, dict) or "economic" not in payload:
+                continue
+            economic = payload["economic"]
+            entries = economic.get("entries") if isinstance(economic, dict) else None
+            if not isinstance(entries, list):
+                raise FinvizParseError(
+                    url=CALENDAR_URL, selector="ssr-island economic.entries"
+                )
+            return entries
+        return None
 
     @staticmethod
     def _route_init_entries(soup: Any) -> list[Any] | None:
