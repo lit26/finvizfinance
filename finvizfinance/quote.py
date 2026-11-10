@@ -153,15 +153,15 @@ class finvizfinance:
 
         # Drift fallback: match the classification anchors by their filter href.
         href_tokens = {
-            "Sector": "f=sec_",
-            "Industry": "f=ind_",
-            "Country": "f=geo_",
-            "Exchange": "f=exch_",
+            "Sector": ("f=sec_",),
+            "Industry": ("f=ind_", "f=industry_"),
+            "Country": ("f=geo_",),
+            "Exchange": ("f=exch_",),
         }
-        for key, token in href_tokens.items():
+        for key, tokens in href_tokens.items():
             if result[key]:
                 continue
-            anchor = self.soup.find("a", href=re.compile(re.escape(token)))
+            anchor = self.soup.find("a", href=re.compile("|".join(re.escape(token) for token in tokens)))
             if anchor is not None:
                 result[key] = anchor.text.strip()
 
