@@ -42,3 +42,13 @@ def test_forex_chart_url_mock(mocker):
         return_value="image_scrap_functionurl",
     )
     assert Forex().chart(forex="test") == "image_scrap_functionurl"
+
+
+def test_forex_perf_init_json_percent_and_pips():
+    # Redesigned page (#185): rows ship as JSON in script#forex-perf-init-data.
+    use_session(html_response("forex_perf_init.html"))
+    df = Forex().performance()
+    assert df["Pair"][0] == "AUD/USD"
+    assert df["Perf Day"][0] == pytest.approx(-0.0076)
+    use_session(html_response("forex_perf_init.html"))
+    assert Forex().performance(change="PIPS")["Perf Day"][0] == -53

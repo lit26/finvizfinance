@@ -20,6 +20,8 @@ types that previously propagated from that code path, so existing downstream
 
 from __future__ import annotations
 
+from typing import Any
+
 import requests
 
 
@@ -58,6 +60,11 @@ class FinvizBlockedError(FinvizError, requests.exceptions.HTTPError):
     challenge (HTTP 403 "Just a moment") or repeatedly times out. Carries the
     ``url``.
     """
+
+    # Set by multi-page screener runs blocked mid-way (#186): rows fetched so
+    # far and the page to resume from via select_page.
+    partial: Any = None
+    next_page: int | None = None
 
     def __init__(self, message: str | None = None, url: str | None = None) -> None:
         self.url = url

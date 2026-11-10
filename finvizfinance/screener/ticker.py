@@ -12,6 +12,7 @@ from time import sleep
 from typing import Any
 
 from finvizfinance.constants import order_dict
+from finvizfinance.exceptions import FinvizParseError
 from finvizfinance.screener.base import Base
 from finvizfinance.util import (
     progress_bar,
@@ -29,10 +30,33 @@ class Ticker(Base):
     """
 
     v_page = 411
+    size = 1000
 
     def _screener_helper(
         self, i: int, page: int, soup: Any, tickers: list[str], limit: int
     ) -> list[str]:
+        data = self._ssr_data(soup)
+        if data is not None:
+            # Redesigned page: the ticker list ships only in the SSR island.
+            rows = data.get("rows")
+            page_symbols = [
+                row["text"]["ticker"]
+                for row in rows or []
+                if isinstance(row, dict)
+                and isinstance(row.get("text"), dict)
+                and row["text"].get("ticker")
+            ]
+            # Only fetched pages within totalCount reach here, so an empty
+            # page is Drift, not "no results".
+            if not page_symbols:
+                raise FinvizParseError(
+                    url=self.url, selector="script[data-ssr-props] data.rows"
+                )
+            if i == page - 1:
+                page_symbols = page_symbols[: ((limit - 1) % self.size + 1)]
+            tickers.extend(page_symbols)
+            return tickers
+
         td = require(
             soup.find("td", class_="screener-tickers"),
             self.url,
@@ -40,7 +64,7 @@ class Ticker(Base):
         )
         page_tickers = td.find_all("span")
         if i == page - 1:
-            page_tickers = page_tickers[: ((limit - 1) % 1000 + 1)]
+            page_tickers = page_tickers[: ((limit - 1) % self.size + 1)]
         for span in page_tickers:
             parts = span.text.split("\xa0")
             # Cells normally read "<rank>\xa0<TICKER>"; fall back to the whole
@@ -75,8 +99,8 @@ class Ticker(Base):
             logger.warning("No ticker found.")
             return None
 
-        if limit != -1 and page > (limit - 1) // 1000 + 1:
-            page = (limit - 1) // 1000 + 1
+        if limit != -1 and page > (limit - 1) // self.size + 1:
+            page = (limit - 1) // self.size + 1
 
         if verbose == 1:
             progress_bar(1, page)
@@ -88,7 +112,7 @@ class Ticker(Base):
             sleep(sleep_sec)  # Adding sleep
             if verbose == 1:
                 progress_bar(i + 1, page)
-            self.request_params["r"] = i * 1000 + 1
+            self.request_params["r"] = i * self.size + 1
             soup = web_scrap(self.url, self.request_params)
             tickers = self._screener_helper(i, page, soup, tickers, limit)
         return tickers

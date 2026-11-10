@@ -42,3 +42,11 @@ def test_future_wall_raises_blocked_error():
 def test_future_invalid_timeframe():
     with pytest.raises(ValueError):
         Future().performance(timeframe="dummy")
+
+
+def test_future_perf_init_json():
+    # Redesigned page (#185): rows ship as JSON in script#futures-perf-init-data.
+    use_session(html_response("futures_perf_init.html"))
+    df = Future().performance()
+    assert df["ticker"][0] == "10Y"
+    assert "perfDayPct" in df.columns

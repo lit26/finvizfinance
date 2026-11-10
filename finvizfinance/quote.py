@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import re
 from datetime import date, datetime
@@ -152,15 +153,17 @@ class finvizfinance:
 
         # Drift fallback: match the classification anchors by their filter href.
         href_tokens = {
-            "Sector": "f=sec_",
-            "Industry": "f=ind_",
-            "Country": "f=geo_",
-            "Exchange": "f=exch_",
+            "Sector": ("f=sec_",),
+            "Industry": ("f=ind_", "f=industry_"),
+            "Country": ("f=geo_",),
+            "Exchange": ("f=exch_",),
         }
-        for key, token in href_tokens.items():
+        for key, tokens in href_tokens.items():
             if result[key]:
                 continue
-            anchor = self.soup.find("a", href=re.compile(re.escape(token)))
+            anchor = self.soup.find(
+                "a", href=re.compile("|".join(re.escape(token) for token in tokens))
+            )
             if anchor is not None:
                 result[key] = anchor.text.strip()
 
@@ -344,6 +347,11 @@ class finvizfinance:
         Returns:
             df(pandas.DataFrame): outer ratings table, or None if absent.
         """
+        df = self._outer_ratings_from_ssr()
+        if df is not None:
+            self.info["ratings_outer"] = df
+            return df
+
         fullview_ratings_outer = optional(
             self.soup.find("table", class_="js-table-ratings"),
             self.quote_url,
@@ -380,6 +388,37 @@ class finvizfinance:
         df = pd.DataFrame(frame)
         self.info["ratings_outer"] = df
         return df
+
+    def _outer_ratings_from_ssr(self) -> pd.DataFrame | None:
+        """Parse outer ratings from the redesigned page's SSR island (#191).
+
+        Returns:
+            df(pandas.DataFrame): outer ratings table, or None if the island
+            is not on the page.
+        """
+        island = self.soup.find(
+            "script",
+            attrs={"data-ssr-props": re.compile(r"^ssr-island-analyst-ratings")},
+        )
+        if island is None:
+            return None
+        try:
+            ratings = json.loads(island.string or "")["ratings"]
+        except (ValueError, KeyError, TypeError) as exc:
+            raise FinvizParseError(
+                url=self.quote_url, selector="ssr-island-analyst-ratings"
+            ) from exc
+        frame = [
+            {
+                "Date": datetime.strptime(rating["date"], "%Y-%m-%d"),
+                "Status": rating.get("action", ""),
+                "Outer": rating.get("firm", ""),
+                "Rating": rating.get("rating", ""),
+                "Price": rating.get("priceTarget", ""),
+            }
+            for rating in ratings
+        ]
+        return pd.DataFrame(frame)
 
     def ticker_news(self) -> pd.DataFrame | None:
         """Get news information table.
@@ -510,6 +549,40 @@ class finvizfinance:
             if fticker.screener_view(verbose=0) == [self.ticker.upper()]:
                 ticker_signal.append(signal)
         return ticker_signal
+
+    def ticker_options(self, expiry: str | None = None) -> pd.DataFrame:
+        """Get the options chain for one expiry (#107).
+
+        Args:
+            expiry(str): expiry date "YYYY-MM-DD"; default is finviz's nearest.
+                Available expiries land in ``info["option_expiries"]``.
+        Returns:
+            df(pandas.DataFrame): one row per contract; ``type`` is call/put.
+        """
+        params = {"ty": "oc"}
+        if expiry is not None:
+            params["e"] = expiry
+        soup = web_scrap(self.quote_url, params)
+        tag = require(
+            soup.find("script", id="route-init-data"),
+            self.quote_url,
+            "script#route-init-data (options chain)",
+        )
+        try:
+            payload = json.loads(tag.string or tag.get_text())
+            options, expiries = payload["options"], payload["expiries"]
+        except (ValueError, KeyError, TypeError) as exc:
+            raise FinvizParseError(
+                url=self.quote_url, selector="route-init-data options"
+            ) from exc
+        if not isinstance(options, list):
+            raise FinvizParseError(
+                url=self.quote_url, selector="route-init-data options"
+            )
+        self.info["option_expiries"] = expiries
+        df = pd.DataFrame(options)
+        self.info["options"] = df
+        return df
 
     def ticker_full_info(self) -> dict:
         """Get all the ticker information.

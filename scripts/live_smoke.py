@@ -37,6 +37,12 @@ def _checks() -> list[tuple[str, Callable[[], None]]]:
 
         finvizfinance("AAPL").ticker_fundament()
 
+    def quote_options() -> None:
+        from finvizfinance.quote import finvizfinance
+
+        if finvizfinance("AAPL").ticker_options().empty:
+            raise ValueError("empty options chain")
+
     def calendar() -> None:
         from finvizfinance.calendar import Calendar
 
@@ -67,6 +73,11 @@ def _checks() -> list[tuple[str, Callable[[], None]]]:
 
         Crypto().performance()
 
+    def forex() -> None:
+        from finvizfinance.forex import Forex
+
+        Forex().performance()
+
     def futures() -> None:
         from finvizfinance.future import Future
 
@@ -74,12 +85,14 @@ def _checks() -> list[tuple[str, Callable[[], None]]]:
 
     return [
         ("quote.ticker_fundament", quote_fundament),
+        ("quote.ticker_options", quote_options),
         ("calendar", calendar),
         ("insider", insider),
         ("news", news),
         ("screener.overview", screener),
         ("group.overview", group),
         ("crypto.performance", crypto),
+        ("forex.performance", forex),
         ("future.performance", futures),
     ]
 

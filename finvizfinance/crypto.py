@@ -28,7 +28,7 @@ class Crypto:
             df(pandas.DataFrame): crypto performance table
         """
         url = "https://finviz.com/crypto_performance.ashx"
-        df = scrap_function(url)
+        df = scrap_function(url, "crypto-perf-init-data")
         return df
 
     def chart(
