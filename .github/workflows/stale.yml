@@ -6,6 +6,12 @@ name: stale
 on:
   schedule:
     - cron: "0 7 * * 1" # weekly, Mondays 07:00 UTC
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "Report what would be marked stale or closed, change nothing"
+        type: boolean
+        default: true
 
 permissions:
   issues: write
@@ -30,3 +36,6 @@ jobs:
           exempt-issue-labels: pinned,security,live-smoke-drift
           exempt-pr-labels: pinned,security
           exempt-all-milestones: true
+          # Empty on the weekly schedule (acts for real); a dispatch defaults to
+          # a dry run so a manual test never touches anything.
+          debug-only: ${{ inputs.dry-run }}
