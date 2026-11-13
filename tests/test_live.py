@@ -7,7 +7,7 @@ Run them explicitly with::
 
     pytest --run-live
     # or target just this module:
-    RUN_LIVE=1 pytest test/test_live.py
+    RUN_LIVE=1 pytest tests/test_live.py
 
 Semantics mirror ``scripts/live_smoke.py``:
 

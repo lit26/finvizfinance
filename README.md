@@ -231,8 +231,9 @@ fearnings = Earnings(period='This Week')
 days = fearnings.partition_days(mode='financial')
 
 # optionally export the partitioned tables
-fearnings.output_excel('earning_days.xlsx')
 fearnings.output_csv('earning_days')
+# Excel export needs the optional extra: pip install finvizfinance[excel]
+fearnings.output_excel('earning_days.xlsx')
 ```
 
 ### Future

@@ -1,0 +1,3 @@
+# Default owner for everything in the repo. Reviews are requested from here when
+# a PR touches files with no more specific rule below.
+* @lit26

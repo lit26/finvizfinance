@@ -127,9 +127,18 @@ class Earnings:
     def output_excel(self, output_file: str = "earning_days.xlsx") -> None:
         """Output dataframes to single Excel file.
 
+        Requires the optional ``xlsxwriter`` extra:
+        ``pip install finvizfinance[excel]``.
+
         Args:
             output_file(str): name of the output excel file.
         """
+        try:
+            import xlsxwriter  # noqa: F401  (pandas needs it as the engine)
+        except ImportError as exc:
+            raise ImportError(
+                "output_excel requires xlsxwriter: pip install finvizfinance[excel]"
+            ) from exc
         logger.info("Writing earnings to Excel...")
         with pd.ExcelWriter(  # pylint: disable=abstract-class-instantiated
             output_file, datetime_format="YYYY-MM-DD", engine="xlsxwriter"

@@ -1,5 +1,7 @@
 """Offline fixture tests for the earnings exporter (composes the screeners)."""
 
+import sys
+
 import pytest
 from conftest import blocked_response, html_response, use_session
 
@@ -45,3 +47,22 @@ def test_earnings_no_results_raises_parse_error():
 def test_earnings_invalid_period():
     with pytest.raises(ValueError):
         Earnings("Invalid Period")
+
+
+def test_earnings_output_excel_writes_workbook(tmp_path):
+    use_session(html_response("earnings_screener.html"))
+    earnings = Earnings("This Week")
+    earnings.partition_days("financial")
+    out = tmp_path / "days.xlsx"
+    earnings.output_excel(str(out))
+    assert out.stat().st_size > 0
+
+
+def test_earnings_output_excel_without_xlsxwriter(monkeypatch):
+    # Both `test` and `dev` extras ship xlsxwriter, so simulate its absence.
+    monkeypatch.setitem(sys.modules, "xlsxwriter", None)
+    use_session(html_response("earnings_screener.html"))
+    earnings = Earnings("This Week")
+    earnings.partition_days("financial")
+    with pytest.raises(ImportError, match=r"pip install finvizfinance\[excel\]"):
+        earnings.output_excel()
