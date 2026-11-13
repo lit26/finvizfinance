@@ -7,8 +7,10 @@
 
 from __future__ import annotations
 
+import contextvars
 import json
 import logging
+import threading
 import time
 import warnings
 from datetime import date, datetime
@@ -33,12 +35,22 @@ headers = {
     "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 }
 
-# The single session every request funnels through. It is both the test seam
-# and the user-facing extension hook (inject proxies / rotating IPs).
-session = requests.Session()
+# Request configuration is per-context (thread, or async task within a thread)
+# so two callers in one process cannot leak a proxy, timeout or session into
+# each other. A module-level global would be shared by the whole process.
+_session_var: contextvars.ContextVar[Any] = contextvars.ContextVar(
+    "finvizfinance_session", default=None
+)
+_proxy_var: contextvars.ContextVar[dict | None] = contextvars.ContextVar(
+    "finvizfinance_proxy", default=None
+)
+_timeout_var: contextvars.ContextVar[float] = contextvars.ContextVar(
+    "finvizfinance_timeout", default=10
+)
 
-proxy_dict: dict | None = None
-timeout_value: float = 10
+# One real Session per thread. `requests.Session` is not thread-safe, so the
+# fallback used when nothing was injected must never be shared across threads.
+_fallback = threading.local()
 
 # Bounded exponential backoff for transient failures and Walls.
 MAX_RETRIES = 3
@@ -49,40 +61,79 @@ RETRY_STATUS = {429, 500, 502, 503, 504}
 
 
 def set_proxy(proxies: dict | None) -> None:
-    """Set proxies on the shared session's requests.
+    """Set proxies on this context's requests.
 
     Args:
         proxies(dict): requests-style proxies mapping.
     """
-    global proxy_dict
-    proxy_dict = proxies
+    _proxy_var.set(proxies)
+
+
+def get_proxy() -> dict | None:
+    """Return the proxies set for this context."""
+    return _proxy_var.get()
 
 
 def set_timeout(timeout: float) -> None:
-    """Set the per-request timeout (seconds)."""
-    global timeout_value
-    timeout_value = timeout
+    """Set the per-request timeout (seconds) for this context."""
+    _timeout_var.set(timeout)
+
+
+def get_timeout() -> float:
+    """Return the per-request timeout set for this context."""
+    return _timeout_var.get()
 
 
 def set_session(new_session: Any) -> None:
-    """Inject a custom session.
+    """Inject a custom session for this context.
 
     Lets high-volume users supply their own ``requests``-compatible session
     (with proxies / rotating IPs) to route around IP-reputation Walls. This
     supersedes and absorbs :func:`set_proxy` — a session's own proxy config is
     honored, and :func:`set_proxy` still layers on top.
 
+    The injection is scoped to the calling thread / async task, so one caller's
+    session cannot affect another's.
+
     Args:
         new_session: an object exposing ``get(url, params, headers, timeout,
             proxies, stream)`` like :class:`requests.Session`.
     """
-    global session
-    session = new_session
+    _session_var.set(new_session)
 
 
 def get_session() -> Any:
-    """Return the session currently used for requests."""
-    return session
+    """Return the session currently used for requests.
+
+    Falls back to a per-thread :class:`requests.Session` when nothing was
+    injected.
+    """
+    injected = _session_var.get()
+    if injected is not None:
+        return injected
+    per_thread = getattr(_fallback, "session", None)
+    if per_thread is None:
+        per_thread = requests.Session()
+        _fallback.session = per_thread
+    return per_thread
+
+
+def __getattr__(name: str) -> Any:
+    """Keep the pre-contextvar module-level reads working.
+
+    ``util.session`` / ``util.proxy_dict`` / ``util.timeout_value`` used to be
+    readable attributes. They are per-context now, so they are resolved on
+    access instead of being stored once at import time.
+    """
+    legacy = {
+        "session": get_session,
+        "proxy_dict": get_proxy,
+        "timeout_value": get_timeout,
+    }
+    try:
+        return legacy[name]()
+    except KeyError:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}") from None
 
 
 def _is_wall(response: Any) -> bool:
@@ -120,12 +171,12 @@ def _request(url: str, params: dict | None = None, stream: bool = False) -> Any:
     for attempt in range(MAX_RETRIES + 1):
         response = None
         try:
-            response = session.get(
+            response = get_session().get(
                 url,
                 params=params,
                 headers=headers,
-                timeout=timeout_value,
-                proxies=proxy_dict,
+                timeout=get_timeout(),
+                proxies=get_proxy(),
                 stream=stream,
             )
         except requests.exceptions.Timeout as err:

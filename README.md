@@ -231,8 +231,9 @@ fearnings = Earnings(period='This Week')
 days = fearnings.partition_days(mode='financial')
 
 # optionally export the partitioned tables
-fearnings.output_excel('earning_days.xlsx')
 fearnings.output_csv('earning_days')
+# Excel export needs the optional extra: pip install finvizfinance[excel]
+fearnings.output_excel('earning_days.xlsx')
 ```
 
 ### Future
@@ -259,6 +260,11 @@ from finvizfinance.util import set_proxy
 proxies={'http': 'http://127.0.0.1:8080'}
 set_proxy(proxies)
 ```
+
+`set_proxy`, `set_timeout` and `set_session` apply to the calling thread or
+async task only — a web app can configure each request handler differently
+without the settings bleeding into other callers. Threads that were given no
+session get their own default one, since `requests.Session` is not thread-safe.
 
 ### Credit
 

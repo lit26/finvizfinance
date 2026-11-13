@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Refresh committed live HTML snapshots from finviz through the transport.
 
-These live snapshots live under ``test/fixtures/live/`` and exist so that when
+These live snapshots live under ``tests/fixtures/live/`` and exist so that when
 finviz Drifts, re-running this script and committing produces a readable
 ``git diff`` of exactly what markup moved. They are intentionally SEPARATE from
-the curated minimal fixtures the unit suite asserts against (``test/fixtures``)
+the curated minimal fixtures the unit suite asserts against (``tests/fixtures``)
 so that a refresh never destabilizes deterministic tests.
 
 Requests go through ``finvizfinance.util`` so proxy/session config and the
@@ -25,7 +25,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from finvizfinance import util  # noqa: E402
 from finvizfinance.exceptions import FinvizBlockedError  # noqa: E402
 
-LIVE_DIR = os.path.join(os.path.dirname(__file__), "..", "test", "fixtures", "live")
+LIVE_DIR = os.path.join(os.path.dirname(__file__), "..", "tests", "fixtures", "live")
 
 TARGETS = {
     "quote_AAPL.html": "https://finviz.com/quote.ashx?t=AAPL",

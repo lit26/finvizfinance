@@ -22,6 +22,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Typing :: Typed",
     "Topic :: Office/Business :: Financial :: Investment",
 ]
 dependencies = [
@@ -29,13 +30,16 @@ dependencies = [
     "requests>=2.32.0",
     "beautifulsoup4>=4.9",
     "lxml>=4.6",
-    "xlsxwriter>=3.0",
 ]
 
 [project.optional-dependencies]
+# Only `Earnings.output_excel` needs this; it is imported lazily so the core
+# install stays lean.
+excel = ["xlsxwriter>=3.0"]
 test = [
     "pytest>=7.0",
     "pytest-mock",
+    "finvizfinance[excel]",
 ]
 docs = [
     "sphinx>=7.2",
@@ -55,6 +59,7 @@ Homepage = "https://github.com/lit26/finvizfinance"
 Documentation = "https://finvizfinance.readthedocs.io/en/latest/"
 Repository = "https://github.com/lit26/finvizfinance"
 Issues = "https://github.com/lit26/finvizfinance/issues"
+Changelog = "https://github.com/lit26/finvizfinance/blob/master/CHANGELOG.md"
 
 [tool.hatch.version]
 path = "finvizfinance/__init__.py"

@@ -39,8 +39,56 @@ We use GitHub issues to track public bugs. Report a bug by [opening a new issue]
 
 People *love* thorough bug reports. I'm not even kidding.
 
+## Local development
+
+```bash
+python -m venv .venv && . .venv/bin/activate
+pip install -e .[dev]
+ruff check . && ruff format --check .
+pytest                      # offline suite, no network
+mypy                        # config lives in pyproject.toml
+coverage run -m pytest && coverage report -m
+```
+
+`pytest` runs entirely against HTML snapshots in `tests/fixtures/`, so it is
+fast and safe to run offline. A Cloudflare block or a finviz markup change will
+never make it flaky.
+
+## Refreshing fixtures
+
+Finviz changes its markup regularly. When a parser test fails because the
+window changed, refresh the snapshots instead of hand-editing HTML:
+
+```bash
+python scripts/refresh_fixtures.py            # uncurated live snapshots -> tests/fixtures/live/
+python scripts/refresh_fixtures.py --help     # available options
+```
+
+The curated, minimal fixtures the unit suite asserts against live in
+`tests/fixtures/`. Trim a refreshed snapshot down to the markup a single
+assertion needs before committing it, so tests stay readable. Full-page live
+snapshots under `tests/fixtures/live/` are the reference for what the current
+site actually returns.
+
+A scheduled `live-smoke` workflow runs against the real site weekly and files an
+issue automatically when it detects drift, so a markup change is noticed even
+when nobody is looking.
+
+## Releasing
+
+1. Bump `__version__` in `finvizfinance/__init__.py`.
+2. Add a row to `CHANGELOG.md` (newest first) linking the issues and PRs.
+3. Draft a GitHub Release for the new tag — publishing it triggers
+   `publish.yml`, which builds and uploads to PyPI via Trusted Publishing
+   (OIDC, no stored token). Nothing is published until that release is
+   published.
+
 ## Coding Style
 Please follow [Python PEP 8](https://google.github.io/styleguide/pyguide.html)
+
+`ruff check` and `ruff format --check` are enforced in CI, and `mypy` runs
+against `finvizfinance/` and `scripts/` with `disallow_untyped_defs`, so new
+code needs type hints.
 
 ## License
 By contributing, you agree that your contributions will be licensed under its MIT License.
