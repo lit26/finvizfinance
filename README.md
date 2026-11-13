@@ -261,6 +261,11 @@ proxies={'http': 'http://127.0.0.1:8080'}
 set_proxy(proxies)
 ```
 
+`set_proxy`, `set_timeout` and `set_session` apply to the calling thread or
+async task only — a web app can configure each request handler differently
+without the settings bleeding into other callers. Threads that were given no
+session get their own default one, since `requests.Session` is not thread-safe.
+
 ### Credit
 
 Developed by Tianning Li. Feel free to give comments or suggestions.

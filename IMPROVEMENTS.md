@@ -20,6 +20,7 @@ config only up to the first job.
 | 5.2 | Fixture workflow undocumented | `CONTRIBUTING.md` now covers local setup, why the suite is offline, `scripts/refresh_fixtures.py`, and the release steps. |
 | 6.1 | `test/` vs `tests/` | Renamed `test/` to `tests/`; updated `pytest.ini`, both CI invocations, and the `refresh_fixtures.py` output path. |
 | 6.2 | No review/triage policy | Added `.github/CODEOWNERS` and a weekly `stale.yml` (comments at 60 days, closes at 81, exempts pinned/security/milestone issues). |
+| 3.3 | Module-level mutable HTTP state | `util.session`, `proxy_dict` and `timeout_value` were process globals: one caller's `set_proxy` leaked into every other caller, and the default `requests.Session` was shared across threads. They are now `contextvars` — per thread and per async task — with a per-thread fallback session. `set_proxy`/`set_timeout`/`set_session` keep their signatures, and `util.session` / `util.proxy_dict` / `util.timeout_value` still read correctly via a module `__getattr__` shim. Six tests cover the isolation. |
 
 ## Already in place (audit was wrong)
 
@@ -41,7 +42,6 @@ config only up to the first job.
 
 | # | Item | Why not done |
 |---|------|--------------|
-| 3.3 | Module-level mutable HTTP state | `util.session`, `timeout_value`, `proxy_dict` are process globals — not thread-safe, and one caller's `set_proxy` leaks into every other caller. Fixing it properly means threading a client object through every class and is a breaking API change for `set_session`/`set_proxy` users. Needs an explicit decision. |
 | 4.1 | Automated PyPI publish | `publish.yml` is correct but the PyPI pending publisher still has to be registered once by the account owner (GitHub Actions · `lit26/finvizfinance` · `publish.yml` · environment `pypi`). Not something a repo change can do. |
 
 ## Known limits

@@ -1,3 +1,5 @@
+import asyncio
+import threading
 import warnings
 
 import pytest
@@ -245,3 +247,83 @@ def test_non_retry_http_error_is_reraised_without_retry():
     with pytest.raises(requests.exceptions.HTTPError):
         web_scrap("https://finviz.com/x")
     assert len(fake.calls) == 1
+
+
+# --- per-context isolation --------------------------------------------------
+
+
+def _in_thread(fn):
+    """Run ``fn`` in a fresh thread and return its result or exception."""
+    result = {}
+
+    def worker():
+        try:
+            result["value"] = fn()
+        except BaseException as exc:  # surfaced to the caller below
+            result["error"] = exc
+
+    thread = threading.Thread(target=worker)
+    thread.start()
+    thread.join()
+    if "error" in result:
+        raise result["error"]
+    return result["value"]
+
+
+def test_proxy_does_not_leak_across_threads():
+    util.set_proxy(None)
+
+    def worker():
+        before = util.get_proxy()
+        util.set_proxy({"https": "http://10.0.0.9:1080"})
+        return before, util.get_proxy()
+
+    before, after = _in_thread(worker)
+    assert before is None  # a new thread starts clean
+    assert after == {"https": "http://10.0.0.9:1080"}
+    assert util.get_proxy() is None  # and cannot affect its parent
+
+
+def test_set_session_does_not_leak_across_threads():
+    fake = use_session(FakeResponse(text="<html></html>"))
+    assert _in_thread(util.get_session) is not fake
+
+
+def test_timeout_does_not_leak_across_threads():
+    util.set_timeout(3)
+
+    def worker():
+        before = util.get_timeout()
+        util.set_timeout(45)
+        return before, util.get_timeout()
+
+    before, after = _in_thread(worker)
+    assert before == 10  # the default, not the parent's 3
+    assert after == 45
+    assert util.get_timeout() == 3
+
+
+def test_default_session_is_per_thread():
+    main_session = util.get_session()
+    assert util.get_session() is main_session  # stable within one thread
+    assert _in_thread(util.get_session) is not main_session
+
+
+def test_legacy_module_attributes_track_the_current_context():
+    util.set_timeout(7)
+    util.set_proxy({"https": "http://10.0.0.2:1080"})
+    assert util.timeout_value == 7
+    assert util.proxy_dict == {"https": "http://10.0.0.2:1080"}
+    assert util.session is util.get_session()
+    assert not hasattr(util, "does_not_exist")
+
+
+def test_timeout_does_not_leak_out_of_an_async_task():
+    util.set_timeout(11)
+
+    async def child():
+        util.set_timeout(99)
+        return util.get_timeout()
+
+    assert asyncio.run(child()) == 99
+    assert util.get_timeout() == 11

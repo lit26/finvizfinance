@@ -159,7 +159,9 @@ def _no_sleep_and_restore(request, monkeypatch):
     if request.node.get_closest_marker("live") is None:
         monkeypatch.setattr(time, "sleep", lambda *a, **k: None)
     original = util.get_session()
-    original_proxy = util.proxy_dict
+    original_proxy = util.get_proxy()
+    original_timeout = util.get_timeout()
     yield
     util.set_session(original)
     util.set_proxy(original_proxy)
+    util.set_timeout(original_timeout)
