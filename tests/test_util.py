@@ -362,3 +362,8 @@ def test_timeout_does_not_leak_out_of_an_async_task():
 
     assert asyncio.run(child()) == 99
     assert util.get_timeout() == 11
+
+
+def test_number_convert_whitespace_only_cell_is_a_missing_value():
+    # `num[-1]` used to raise IndexError for a whitespace-only cell.
+    assert number_convert("   ") is None

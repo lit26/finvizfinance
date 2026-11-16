@@ -58,13 +58,13 @@ class Base:
     v_page: int | None = None
     url = "https://finviz.com/screener.ashx"
     size = 20
-    # (soup, data) of the last parsed SSR island, so one page is decoded once.
-    _ssr_cache: tuple[Any, dict | None] | None = None
 
     def __init__(self) -> None:
         """initiate module"""
         self.request_params: dict = {"v": self.v_page}
-        self._ssr_cache = None
+        # (soup, data) of the last parsed SSR island, so one page is decoded
+        # once within a run.
+        self._ssr_cache: tuple[Any, dict | None] | None = None
 
     def _set_signal(self, signal: str) -> None:
         """set signal.
@@ -332,7 +332,11 @@ class Base:
         return
 
     def _empty_frame(self, soup: Any) -> pd.DataFrame:
-        """An empty result table, with the view's columns when available."""
+        """An empty result table, with the view's columns when available.
+
+        The fallback to a bare frame only happens on a no-results page, where a
+        missing table is legitimate rather than Drift (ADR-0002).
+        """
         try:
             return self._parse_table(None, soup, 0)
         except FinvizParseError:
@@ -389,23 +393,26 @@ class Base:
 
         self._parse_columns(columns)
 
-        soup = web_scrap(self.url, self.request_params)
-
-        page = self._get_page(soup)
-        if page == 0:
-            logger.warning("No ticker found.")
-            return self._empty_frame(soup)
-        df = self._parse_table(None, soup, limit)
-        limit -= self.size
-        if select_page:
-            if select_page > page:
-                return self._empty_frame(soup)
-            warnings.warn(
-                "Limit parameter is ignored when page is selected.", stacklevel=2
-            )
-            return df
-
+        # The whole fetch-and-parse block sits in the try, so *every* exit —
+        # including a no-results page, a past-the-end select_page, or a
+        # first-page parse error — clears the page offset before returning.
         try:
+            soup = web_scrap(self.url, self.request_params)
+
+            page = self._get_page(soup)
+            if page == 0:
+                logger.warning("No ticker found.")
+                return self._empty_frame(soup)
+            df = self._parse_table(None, soup, limit)
+            limit -= self.size
+            if select_page:
+                if select_page > page:
+                    return self._empty_frame(soup)
+                warnings.warn(
+                    "Limit parameter is ignored when page is selected.", stacklevel=2
+                )
+                return df
+
             for i in range(1, page):
                 if limit <= 0:
                     break
@@ -424,11 +431,11 @@ class Base:
                     raise
                 df = self._parse_table(df, soup, limit)
                 limit -= self.size
+            return df
         finally:
-            # Also on a parse error: a leftover page offset would make the
-            # caller's retry start mid-way through the results.
+            # A leftover page offset would make the caller's next run start
+            # mid-way through the results.
             self.reset()
-        return df
 
     def compare(
         self,

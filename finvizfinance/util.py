@@ -539,6 +539,8 @@ def number_convert(num: str) -> float | None:
     if not num or num == "-":  # Check if the string is empty or is "-"
         return None
     num = num.strip()  # Remove any surrounding whitespace
+    if not num:  # a whitespace-only cell
+        return None
     if num[-1] == "%":
         return float(num[:-1]) / 100
     elif num[-1] == "T":

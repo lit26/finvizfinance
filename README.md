@@ -201,6 +201,12 @@ they are ignored in the URL. Any filter/signal/view code that finvizfinance does
 not recognize raises a `ValueError` naming the code, rather than silently
 dropping it and returning the wrong stocks.
 
+Filters set on an instance stay on it between calls, so one screener object can
+be reused. `screener_view()` returns an empty `DataFrame` when a view has no
+matches — never `None` — and `Ticker.screener_view()` returns an empty list; a
+long run blocked mid-way keeps what it already fetched on `err.partial` and can
+be resumed with `select_page=err.next_page`.
+
 ### Screener (Ticker)
 
 Getting list of tickers according to the filters.

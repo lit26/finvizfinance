@@ -605,3 +605,40 @@ def test_screener_keeps_raw_text_for_unparsable_numeric_cell():
     )
     assert df.loc[0, "Market Cap"] == "N/A"
     assert df.loc[0, "Volume"] == 12500000000.0
+
+
+def test_screener_select_page_past_end_leaves_no_page_offset():
+    # The try/finally used to start after the first fetch, so this early
+    # return leaked `r` into the caller's next run.
+    use_session(html_response("screener_overview.html"))
+    view = Overview()
+    view.set_filter(filters_dict={"Sector": "Technology"})
+    assert view.screener_view(verbose=0, select_page=5).empty
+    assert "r" not in view.request_params
+    # ...and the next plain run starts at page 1 with the filters intact.
+    fake = use_session(html_response("screener_overview.html"))
+    view.screener_view(verbose=0)
+    assert "r" not in fake.calls[0]["params"]
+    assert fake.calls[0]["params"]["f"] == "sec_technology"
+
+
+def test_screener_first_page_parse_error_leaves_no_page_offset():
+    use_session(html_response("screener_drift.html"))
+    view = Overview()
+    with pytest.raises(FinvizParseError):
+        view.screener_view(verbose=0, select_page=3)
+    assert "r" not in view.request_params
+
+
+def test_screener_wide_custom_view_on_no_results_returns_empty_frame():
+    # A no-results page has no table, so the empty frame has no columns; the
+    # Ticker-column slice in the chunked view must not raise IndexError.
+    use_session(html_response("screener_noresults.html"))
+    df = Custom().screener_view(columns=list(range(2, 60)), verbose=0)
+    assert df.empty
+
+
+def test_screener_ticker_no_results_returns_empty_list():
+    # `screener_view` return shape: empty, never None.
+    use_session(html_response("screener_noresults.html"))
+    assert Ticker().screener_view(verbose=0) == []

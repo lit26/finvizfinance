@@ -79,7 +79,7 @@ class Ticker(Base):
         verbose: int = 1,
         ascend: bool = True,
         sleep_sec: int = 1,
-    ) -> list[str] | None:
+    ) -> list[str]:
         """Get screener stocks.
 
         Args:
@@ -89,24 +89,25 @@ class Ticker(Base):
             ascend(bool): if True, the order is ascending.
             sleep_sec(int): sleep seconds for fetching each page.
         Returns:
-            tickers(list): get all the tickers as list.
+            tickers(list): get all the tickers as list; empty when nothing
+                matched (never None).
         """
         validate_choice(order, order_dict, "order")
         self.request_params["o"] = ("" if ascend else "-") + order_dict[order]
-        soup = web_scrap(self.url, self.request_params)
-        page = self._get_page(soup)
-        if page == 0:
-            logger.warning("No ticker found.")
-            return None
-
-        if limit != -1 and page > (limit - 1) // self.size + 1:
-            page = (limit - 1) // self.size + 1
-
-        if verbose == 1:
-            progress_bar(1, page)
-
-        tickers: list[str] = []
         try:
+            soup = web_scrap(self.url, self.request_params)
+            page = self._get_page(soup)
+            if page == 0:
+                logger.warning("No ticker found.")
+                return []
+
+            if limit != -1 and page > (limit - 1) // self.size + 1:
+                page = (limit - 1) // self.size + 1
+
+            if verbose == 1:
+                progress_bar(1, page)
+
+            tickers: list[str] = []
             tickers = self._screener_helper(0, page, soup, tickers, limit)
 
             for i in range(1, page):
