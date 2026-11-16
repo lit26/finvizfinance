@@ -290,8 +290,10 @@ class Base:
                 headers.append(LEGACY_LABELS.get(text, text))
             return headers
         table = self._screener_table(soup)
-        rows = table.find_all("tr")
-        table_headers = [i.text.strip() for i in rows[0].find_all("th")][1:]
+        header_row = require(
+            table.find("tr"), self.url, "table.screener_table header row"
+        )
+        table_headers = [i.text.strip() for i in header_row.find_all("th")][1:]
         return table_headers
 
     def _parse_rows(self, soup: Any) -> list[list[Any]]:
@@ -332,17 +334,19 @@ class Base:
         return
 
     def _empty_frame(self, soup: Any) -> pd.DataFrame:
-        """An empty result table, with the view's columns when available.
+        """Empty table for a page finviz reports as having no results.
 
-        The fallback to a bare frame only happens on a no-results page, where a
-        missing table is legitimate rather than Drift (ADR-0002).
+        The page usually still carries its header row, so the frame keeps the
+        view's columns. A page with no results table at all is the legitimate
+        no-results shape rather than Drift; a table that *is* there but no
+        longer parses still raises (ADR-0002).
         """
-        try:
-            return self._parse_table(None, soup, 0)
-        except FinvizParseError:
-            # A no-results page may drop the table entirely; an empty frame is
-            # still better than None for callers that index the result.
+        if (
+            self._ssr_data(soup) is None
+            and soup.find("table", class_="screener_table") is None
+        ):
             return pd.DataFrame()
+        return self._parse_table(None, soup, 0)
 
     def reset(self) -> None:
         """Drop per-run state, keeping the caller's filters.

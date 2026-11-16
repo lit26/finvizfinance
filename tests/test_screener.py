@@ -642,3 +642,11 @@ def test_screener_ticker_no_results_returns_empty_list():
     # `screener_view` return shape: empty, never None.
     use_session(html_response("screener_noresults.html"))
     assert Ticker().screener_view(verbose=0) == []
+
+
+def test_screener_no_results_with_broken_table_raises_parse_error():
+    # A page that *has* a results table but no usable header row is Drift, not
+    # an empty result: `_empty_frame` must not swallow it (ADR-0002).
+    use_session(html_response("screener_noresults_broken_table.html"))
+    with pytest.raises(FinvizParseError):
+        Overview().screener_view(verbose=0)
