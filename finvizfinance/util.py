@@ -511,7 +511,11 @@ def image_scrap_function(
     content = require(soup.find("div", class_="container"), url, "div.container")
     imgs = content.find_all("img")
     for img in imgs:
-        website = img["src"]
+        website = img.get("src", "")
+        if "?" not in website:
+            # A chart image without a query string (Drift) is skipped, not an
+            # IndexError that hides which chart was missing.
+            continue
         name = website.split("?")[1].split("&")[0].split(".")[0]
         chart_name = name.split("_")[0]
         if chart.lower() == chart_name:
@@ -535,8 +539,12 @@ def number_convert(num: str) -> float | None:
     if not num or num == "-":  # Check if the string is empty or is "-"
         return None
     num = num.strip()  # Remove any surrounding whitespace
+    if not num:  # a whitespace-only cell
+        return None
     if num[-1] == "%":
         return float(num[:-1]) / 100
+    elif num[-1] == "T":
+        return float(num[:-1]) * 1000000000000
     elif num[-1] == "B":
         return float(num[:-1]) * 1000000000
     elif num[-1] == "M":
@@ -568,7 +576,9 @@ def format_datetime(date_str: str) -> datetime:
         hour, minute = map(int, time_str[:-2].split(":"))
         ampm = time_str[-2:]
 
-        if ampm.lower() == "pm" and hour != 12:
+        if ampm.lower() == "am" and hour == 12:
+            hour = 0
+        elif ampm.lower() == "pm" and hour != 12:
             hour += 12
         return datetime(today.year, today.month, today.day, hour, minute)
     else:

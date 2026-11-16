@@ -33,7 +33,7 @@ class Spectrum(Base):
         validate_choice(group, group_dict, "group")
         validate_choice(order, group_order_dict, "order")
 
-        self.request_params.update(group_dict[group])
+        self.request_params = {"v": self.v_page, **group_dict[group]}
         self.request_params["o"] = group_order_dict[order]
 
         soup = web_scrap(self.url, self.request_params)

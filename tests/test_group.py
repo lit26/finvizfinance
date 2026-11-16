@@ -108,3 +108,26 @@ def test_group_util_helpers():
     orders = get_orders()
     assert isinstance(groups, list) and "Sector" in groups
     assert isinstance(orders, list) and len(orders) > 0
+
+
+def test_group_view_does_not_keep_the_previous_axis_param():
+    # Switching group kept the old axis sub-group ("sg"), silently narrowing
+    # the new table to the previous industry.
+    use_session(html_response("groups_table.html"))
+    view = Overview()
+    view.screener_view(group="Industry (Basic Materials)")
+    view.screener_view(group="Sector")
+    assert view.request_params == {"v": view.v_page, "g": "sector", "o": "name"}
+
+
+def test_group_spectrum_does_not_keep_the_previous_axis_param(monkeypatch):
+    # Same axis leak as group/base.py, but Spectrum rebuilt its params with
+    # dict.update().
+    import finvizfinance.group.spectrum as spectrum_module
+
+    monkeypatch.setattr(spectrum_module, "image_scrap", lambda *a, **k: None)
+    use_session(html_response("group_spectrum.html"))
+    view = Spectrum()
+    view.screener_view(group="Industry (Basic Materials)")
+    view.screener_view(group="Sector")
+    assert view.request_params == {"v": view.v_page, "g": "sector", "o": "name"}

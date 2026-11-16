@@ -201,6 +201,12 @@ they are ignored in the URL. Any filter/signal/view code that finvizfinance does
 not recognize raises a `ValueError` naming the code, rather than silently
 dropping it and returning the wrong stocks.
 
+Filters set on an instance stay on it between calls, so one screener object can
+be reused. `screener_view()` returns an empty `DataFrame` when a view has no
+matches — never `None` — and `Ticker.screener_view()` returns an empty list; a
+long run blocked mid-way keeps what it already fetched on `err.partial` and can
+be resumed with `select_page=err.next_page`.
+
 ### Screener (Ticker)
 
 Getting list of tickers according to the filters.
@@ -265,6 +271,27 @@ set_proxy(proxies)
 async task only — a web app can configure each request handler differently
 without the settings bleeding into other callers. Threads that were given no
 session get their own default one, since `requests.Session` is not thread-safe.
+
+That also means a thread-pool worker starts with an empty context: a `set_proxy`
+or `set_session` call made in the parent thread is **not** visible inside
+`ThreadPoolExecutor` workers, and they fall back to a default session with the
+default timeout. Configure inside the worker, or carry the context over:
+
+```python
+import contextvars
+from concurrent.futures import ThreadPoolExecutor
+
+from finvizfinance.util import set_proxy
+
+set_proxy({"https": "http://127.0.0.1:8080"})
+ctx = contextvars.copy_context()
+
+with ThreadPoolExecutor() as pool:
+    list(pool.map(lambda t: ctx.copy().run(scrape, t), tickers))
+```
+
+A session shared across workers also needs a big enough connection pool
+(`HTTPAdapter(pool_maxsize=...)`), because `requests` defaults to 10.
 
 ### Credit
 

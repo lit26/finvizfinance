@@ -41,9 +41,6 @@ def _extract_rows(soup: Any) -> Any:
 class Future:
     """Getting information from the finviz future page."""
 
-    def __init__(self) -> None:
-        pass
-
     def performance(self, timeframe: str = "D") -> pd.DataFrame:
         """Get futures performance table."""
         timeframe_dict = {"W": 12, "M": 13, "Q": 14, "HY": 15, "Y": 16}
