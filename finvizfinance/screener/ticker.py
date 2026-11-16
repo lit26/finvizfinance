@@ -12,7 +12,7 @@ from time import sleep
 from typing import Any
 
 from finvizfinance.constants import order_dict
-from finvizfinance.exceptions import FinvizParseError
+from finvizfinance.exceptions import FinvizBlockedError, FinvizParseError
 from finvizfinance.screener.base import Base
 from finvizfinance.util import (
     progress_bar,
@@ -106,13 +106,22 @@ class Ticker(Base):
             progress_bar(1, page)
 
         tickers: list[str] = []
-        tickers = self._screener_helper(0, page, soup, tickers, limit)
+        try:
+            tickers = self._screener_helper(0, page, soup, tickers, limit)
 
-        for i in range(1, page):
-            sleep(sleep_sec)  # Adding sleep
-            if verbose == 1:
-                progress_bar(i + 1, page)
-            self.request_params["r"] = i * self.size + 1
-            soup = web_scrap(self.url, self.request_params)
-            tickers = self._screener_helper(i, page, soup, tickers, limit)
+            for i in range(1, page):
+                sleep(sleep_sec)  # Adding sleep
+                if verbose == 1:
+                    progress_bar(i + 1, page)
+                self.request_params["r"] = i * self.size + 1
+                try:
+                    soup = web_scrap(self.url, self.request_params)
+                except FinvizBlockedError as err:
+                    # Keep the tickers fetched so far, like Base.screener_view.
+                    err.partial = tickers
+                    err.next_page = i + 1
+                    raise
+                tickers = self._screener_helper(i, page, soup, tickers, limit)
+        finally:
+            self.reset()
         return tickers

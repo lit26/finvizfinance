@@ -39,9 +39,6 @@ def _script_json(soup: Any, function_name: str) -> list[Any] | None:
 class Calendar:
     """Getting information from the finviz calendar page."""
 
-    def __init__(self) -> None:
-        pass
-
     def calendar(self) -> pd.DataFrame:
         """Get economic calendar table."""
         soup = web_scrap(CALENDAR_URL)

@@ -66,3 +66,10 @@ def test_earnings_output_excel_without_xlsxwriter(monkeypatch):
     earnings.partition_days("financial")
     with pytest.raises(ImportError, match=r"pip install finvizfinance\[excel\]"):
         earnings.output_excel()
+
+
+def test_earnings_invalid_mode():
+    use_session(html_response("earnings_screener.html"))
+    earnings = Earnings("This Week")
+    with pytest.raises(ValueError, match="Invalid mode"):
+        earnings.partition_days("bogus")

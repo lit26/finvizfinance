@@ -17,10 +17,6 @@ class Crypto:
     Getting information from the finviz crypto page.
     """
 
-    def __init__(self) -> None:
-        """initiate module"""
-        pass
-
     def performance(self) -> pd.DataFrame:
         """Get crypto performance table.
 

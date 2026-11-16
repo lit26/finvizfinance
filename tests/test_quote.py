@@ -237,3 +237,19 @@ def test_ticker_options_drift_raises():
     use_session(html_response("quote_etf.html"))
     with pytest.raises(FinvizParseError):
         stock.ticker_options()
+
+
+def test_inside_trader_row_without_links_keeps_none():
+    # A row missing the Form-4 / owner anchors used to raise AttributeError and
+    # lose the whole table (insider.get_insider already guarded this).
+    from bs4 import BeautifulSoup
+
+    stock = _stock("quote_aapl.html")
+    stock.soup = BeautifulSoup(
+        "<table class='body-table'><tr><th>Insider</th><th>Cost</th></tr>"
+        "<tr><td>Jane Doe</td><td>150</td></tr></table>",
+        "lxml",
+    )
+    df = stock.ticker_inside_trader()
+    assert df.loc[0, "SEC Form 4 Link"] is None
+    assert df.loc[0, "Insider_id"] is None

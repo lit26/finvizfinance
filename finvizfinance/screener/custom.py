@@ -108,8 +108,6 @@ class Custom(Base):
                 [1, *others[start : start + step]],
                 sleep_sec,
             )
-            if df is None:
-                return None
             frames.append(df)
 
         tickers = frames[0].iloc[:, 0]

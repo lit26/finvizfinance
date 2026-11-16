@@ -32,16 +32,6 @@ from finvizfinance.util import (
 logger = logging.getLogger(__name__)
 
 QUOTE_URL = "https://finviz.com/quote.ashx?t={ticker}"
-NUM_COL = [
-    "P/E",
-    "EPS (ttm)",
-    "Insider Own",
-    "Shs Outstand",
-    "Market Cap",
-    "Forward P/E",
-    "EPS nest Y",
-    "Insider ",
-]
 
 
 class Quote:
@@ -488,9 +478,19 @@ class finvizfinance:
         num_col_index = [table_header.index(i) for i in table_header if i in num_col]
         for row in rows[1:]:
             cols = row.find_all("td")
+            if not cols:
+                continue
             info_dict = row_to_dict(cols, table_header, num_col_index)
-            info_dict["SEC Form 4 Link"] = cols[-1].find("a").attrs["href"]
-            info_dict["Insider_id"] = cols[0].a["href"].split("oc=")[1].split("&tc=")[0]
+            # A row without the Form-4 anchor / owner link (Drift) yields
+            # None, as insider.get_insider already does, instead of an
+            # AttributeError that loses the whole table.
+            link = cols[-1].find("a")
+            info_dict["SEC Form 4 Link"] = link.attrs["href"] if link else None
+            owner = cols[0].find("a")
+            href = owner.get("href", "") if owner is not None else ""
+            info_dict["Insider_id"] = (
+                href.split("oc=")[1].split("&tc=")[0] if "oc=" in href else None
+            )
             frame.append(info_dict)
         df = pd.DataFrame(frame)
         self.info["inside trader"] = df

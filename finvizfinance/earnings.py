@@ -23,6 +23,16 @@ from finvizfinance.screener.valuation import Valuation
 
 logger = logging.getLogger(__name__)
 
+# Public ``partition_days`` mode -> screener class for the second fetch.
+# "financial" reuses the rows already fetched, so it is not in this map.
+PARTITION_MODES = {
+    "overview": Overview,
+    "valuation": Valuation,
+    "ownership": Ownership,
+    "performance": Performance,
+    "technical": Technical,
+}
+
 
 class Earnings:
     """Earnings
@@ -59,7 +69,7 @@ class Earnings:
         filters_dict = {"Earnings Date": period}
         ffinancial.set_filter(filters_dict=filters_dict)
         self.df = ffinancial.screener_view(order="Earnings Date", verbose=0)
-        if self.df is None:
+        if self.df is None or self.df.empty:
             # No data from the underlying screener is a Structural break for
             # earnings (there should be earnings in the period) — surface it as
             # a typed error rather than crashing later on ``self.df["Earnings"]``.
@@ -76,16 +86,11 @@ class Earnings:
             mode(str): choose an option of mode (financial, overview, valuation,
                        ownership, performance, technical).
         """
-        check_list = [
-            "financial",
-            "overview",
-            "valuation",
-            "ownership",
-            "performance",
-            "technical",
-        ]
-        if mode not in check_list:
-            raise ValueError(f"Invalid mode '{mode}'. Available mode: {check_list}")
+        if mode not in {"financial", *PARTITION_MODES}:
+            raise ValueError(
+                f"Invalid mode '{mode}'. Available mode: "
+                f"{['financial', *PARTITION_MODES]}"
+            )
 
         for earning_day in self.earning_days:
             if mode == "financial":
@@ -97,22 +102,12 @@ class Earnings:
                     "Ticker"
                 ].to_list()
 
-        fearnings: Base | None = None
         if mode == "financial":
             return self.df_days
-        elif mode == "overview":
-            fearnings = Overview()
-        elif mode == "valuation":
-            fearnings = Valuation()
-        elif mode == "ownership":
-            fearnings = Ownership()
-        elif mode == "performance":
-            fearnings = Performance()
-        elif mode == "technical":
-            fearnings = Technical()
+
+        fearnings: Base = PARTITION_MODES[mode]()
 
         filters_dict = {"Earnings Date": self.period}
-        assert fearnings is not None  # a non-financial mode is always set above
         fearnings.set_filter(filters_dict=filters_dict)
         df2 = fearnings.screener_view(order="Earnings Date", verbose=0)
         df2_days: dict = {}

@@ -104,9 +104,12 @@ def test_screener_drift_raises_parse_error():
         Overview().screener_view(verbose=0)
 
 
-def test_screener_no_results_returns_none():
+def test_screener_no_results_returns_empty_frame():
+    # This page ships no table at all, so the frame has no columns either way;
+    # what matters is that the caller gets a DataFrame, never None.
     use_session(html_response("screener_noresults.html"))
-    assert Overview().screener_view(verbose=0) is None
+    df = Overview().screener_view(verbose=0)
+    assert isinstance(df, pd.DataFrame) and df.empty
 
 
 def test_screener_wall_raises_blocked_error():
@@ -178,9 +181,9 @@ def test_screener_ssr_multipage():
     assert pd.isna(df.loc[2, "P/E"])
 
 
-def test_screener_ssr_select_page_past_end_returns_none():
+def test_screener_ssr_select_page_past_end_returns_empty_frame():
     use_session(html_response("screener_ssr_overview.html"))
-    assert Overview().screener_view(verbose=0, select_page=2) is None
+    assert Overview().screener_view(verbose=0, select_page=2).empty
 
 
 def test_screener_ssr_legacy_labels():
@@ -196,9 +199,9 @@ def test_screener_ssr_legacy_labels():
     assert "Change %" not in df.columns
 
 
-def test_screener_ssr_no_results_returns_none():
+def test_screener_ssr_no_results_returns_empty_frame():
     use_session(html_response("screener_ssr_noresults.html"))
-    assert Overview().screener_view(verbose=0) is None
+    assert Overview().screener_view(verbose=0).empty
 
 
 def test_screener_ssr_missing_grid_raises_parse_error():
@@ -503,3 +506,102 @@ def test_screener_blocked_midway_keeps_partial_rows():
         Overview().screener_view(verbose=0, sleep_sec=0)
     assert list(exc.value.partial["Ticker"]) == ["AAPL", "MSFT"]
     assert exc.value.next_page == 2
+
+
+# --- per-run state ----------------------------------------------------------
+
+
+def test_screener_keeps_filters_across_runs():
+    # `reset()` used to rebuild request_params, dropping the caller's filters:
+    # a second call on the same instance silently screened the whole market.
+    use_session(html_response("screener_overview.html"))
+    view = Overview()
+    view.set_filter(filters_dict={"Sector": "Technology"})
+    view.screener_view(verbose=0)
+    assert view.request_params["f"] == "sec_technology"
+    view.screener_view(verbose=0)
+    assert view.request_params["f"] == "sec_technology"
+
+
+def test_screener_blocked_midway_keeps_filters_for_resume():
+    use_session([html_response("screener_multi_p1.html"), blocked_response()])
+    view = Overview()
+    view.set_filter(filters_dict={"Sector": "Technology"})
+    with pytest.raises(FinvizBlockedError) as exc:
+        view.screener_view(verbose=0, sleep_sec=0)
+    assert exc.value.next_page == 2
+    # Resuming must page a filtered result set, not the whole market.
+    assert view.request_params["f"] == "sec_technology"
+    assert "r" not in view.request_params
+
+
+def test_screener_clears_page_offset_after_a_parse_error():
+    use_session(
+        [
+            html_response("screener_multi_p1.html"),
+            html_response("screener_drift.html"),
+        ]
+    )
+    view = Overview()
+    with pytest.raises(FinvizParseError):
+        view.screener_view(verbose=0, sleep_sec=0)
+    assert "r" not in view.request_params
+
+
+_TICKER_TWO_PAGES = (
+    '<html><body><td class="screener-tickers">'
+    "<span>1\xa0AAA</span><span>2\xa0BBB</span></td>"
+    '<select id="pageSelect"><option>1</option><option>2</option></select>'
+    "</body></html>"
+)
+
+
+def test_ticker_clears_page_offset_between_runs():
+    # Ticker.screener_view kept `r` from the previous run, so a second call
+    # started on the last page fetched instead of page one.
+    fake = use_session(FakeResponse(text=_TICKER_TWO_PAGES))
+    view = Ticker()
+    view.screener_view(verbose=0, sleep_sec=0)
+    fake.calls.clear()
+    view.screener_view(verbose=0, sleep_sec=0)
+    assert "r" not in fake.calls[0]["params"]
+
+
+def test_ticker_blocked_midway_keeps_partial_tickers():
+    use_session([FakeResponse(text=_TICKER_TWO_PAGES), blocked_response()])
+    with pytest.raises(FinvizBlockedError) as exc:
+        Ticker().screener_view(verbose=0, sleep_sec=0)
+    assert exc.value.partial == ["AAA", "BBB"]
+    assert exc.value.next_page == 2
+
+
+def test_compare_default_order_is_valid(monkeypatch):
+    # `compare(order="ticker")` shipped a default its own validator rejects.
+    import finvizfinance.screener.base as base_module
+
+    monkeypatch.setattr(
+        base_module,
+        "finvizfinance",
+        lambda ticker: type(
+            "Stock",
+            (),
+            {"ticker_fundament": lambda self: {"Sector": "Technology"}},
+        )(),
+    )
+    use_session(html_response("screener_overview.html"))
+    df = Overview().compare("AAPL", ["Sector"], verbose=0)
+    assert list(df["Ticker"]) == ["AAPL", "MSFT"]
+
+
+def test_screener_keeps_raw_text_for_unparsable_numeric_cell():
+    # A numeric column holding text (Drift) must not cost the whole page.
+    from bs4 import BeautifulSoup
+
+    cells = BeautifulSoup("<td>AAPL</td><td>N/A</td><td>12.5B</td>", "lxml").find_all(
+        "td"
+    )
+    df = Overview()._get_table(
+        [cells], pd.DataFrame(), [1, 2], ["Ticker", "Market Cap", "Volume"]
+    )
+    assert df.loc[0, "Market Cap"] == "N/A"
+    assert df.loc[0, "Volume"] == 12500000000.0

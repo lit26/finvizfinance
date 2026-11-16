@@ -15,6 +15,7 @@ from finvizfinance.exceptions import (
 )
 from finvizfinance.util import (
     find_table_by_headers,
+    format_datetime,
     number_convert,
     number_covert,
     optional,
@@ -166,8 +167,42 @@ def test_find_table_by_headers_missing_raises_parse_error_not_indexerror():
 def test_number_convert():
     assert number_convert("1.5%") == 0.015
     assert number_convert("2B") == 2000000000
+    assert number_convert("4.19T") == pytest.approx(4.19e12)
     assert number_convert("-") is None
     assert number_convert("1,234") == 1234.0
+
+
+def test_format_datetime_midnight_and_noon():
+    # 12 AM used to be parsed as noon (the "hour != 12" guard was PM-only).
+    assert format_datetime("Today 12:05AM").hour == 0
+    assert format_datetime("Today 12:05PM").hour == 12
+    assert format_datetime("Today 01:05PM").hour == 13
+
+
+def test_image_scrap_function_skips_image_without_query_string():
+    # An "img[src]" without a query string used to raise IndexError.
+    soup = BeautifulSoup(
+        '<div class="container"><img src="/gfx/chart_forex.png">'
+        '<img src="/gfx/chart_forex_d1.png?forex_d1.png&x=1">'
+        "</div>",
+        "lxml",
+    )
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(util, "web_scrap", lambda *a, **k: soup)
+        assert (
+            util.image_scrap_function("https://finviz.com/x?tf=", "forex", "D", True)
+            == "https://finviz.com//gfx/chart_forex_d1.png?forex_d1.png&x=1"
+        )
+
+
+def test_image_scrap_function_returns_none_when_no_chart_matches():
+    soup = BeautifulSoup('<div class="container"><img src="/a.png"></div>', "lxml")
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(util, "web_scrap", lambda *a, **k: soup)
+        assert (
+            util.image_scrap_function("https://finviz.com/x?tf=", "forex", "D", True)
+            is None
+        )
 
 
 def test_number_covert_is_deprecated_alias():

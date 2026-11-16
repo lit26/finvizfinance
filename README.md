@@ -266,6 +266,27 @@ async task only — a web app can configure each request handler differently
 without the settings bleeding into other callers. Threads that were given no
 session get their own default one, since `requests.Session` is not thread-safe.
 
+That also means a thread-pool worker starts with an empty context: a `set_proxy`
+or `set_session` call made in the parent thread is **not** visible inside
+`ThreadPoolExecutor` workers, and they fall back to a default session with the
+default timeout. Configure inside the worker, or carry the context over:
+
+```python
+import contextvars
+from concurrent.futures import ThreadPoolExecutor
+
+from finvizfinance.util import set_proxy
+
+set_proxy({"https": "http://127.0.0.1:8080"})
+ctx = contextvars.copy_context()
+
+with ThreadPoolExecutor() as pool:
+    list(pool.map(lambda t: ctx.copy().run(scrape, t), tickers))
+```
+
+A session shared across workers also needs a big enough connection pool
+(`HTTPAdapter(pool_maxsize=...)`), because `requests` defaults to 10.
+
 ### Credit
 
 Developed by Tianning Li. Feel free to give comments or suggestions.

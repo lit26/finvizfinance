@@ -58,13 +58,13 @@ class Base:
     v_page: int | None = None
     url = "https://finviz.com/screener.ashx"
     size = 20
-    request_params: dict = {}
     # (soup, data) of the last parsed SSR island, so one page is decoded once.
     _ssr_cache: tuple[Any, dict | None] | None = None
 
     def __init__(self) -> None:
         """initiate module"""
-        self.reset()
+        self.request_params: dict = {"v": self.v_page}
+        self._ssr_cache = None
 
     def _set_signal(self, signal: str) -> None:
         """set signal.
@@ -215,7 +215,13 @@ class Base:
                     # attribute: data-boxover-ticker (legacy) or data-ticker.
                     row_values.append(ticker)
                 elif i in num_col_index:
-                    row_values.append(number_convert(col.text))
+                    try:
+                        row_values.append(number_convert(col.text))
+                    except ValueError:
+                        # An unknown suffix or drifted cell text must not cost
+                        # the whole page: keep the raw value (as
+                        # quote._parse_column already does).
+                        row_values.append(col.text)
                 else:
                     row_values.append(col.text)
             # Pad short rows so every row matches the header width.
@@ -284,8 +290,8 @@ class Base:
                 headers.append(LEGACY_LABELS.get(text, text))
             return headers
         table = self._screener_table(soup)
-        rows = table.findAll("tr")
-        table_headers = [i.text.strip() for i in rows[0].findAll("th")][1:]
+        rows = table.find_all("tr")
+        table_headers = [i.text.strip() for i in rows[0].find_all("th")][1:]
         return table_headers
 
     def _parse_rows(self, soup: Any) -> list[list[Any]]:
@@ -325,8 +331,25 @@ class Base:
     def _parse_columns(self, columns: list | None) -> None:
         return
 
+    def _empty_frame(self, soup: Any) -> pd.DataFrame:
+        """An empty result table, with the view's columns when available."""
+        try:
+            return self._parse_table(None, soup, 0)
+        except FinvizParseError:
+            # A no-results page may drop the table entirely; an empty frame is
+            # still better than None for callers that index the result.
+            return pd.DataFrame()
+
     def reset(self) -> None:
-        self.request_params = {"v": self.v_page}
+        """Drop per-run state, keeping the caller's filters.
+
+        Filters, signal and ticker live in ``request_params`` alongside the
+        page offset, so rebuilding the dict here would silently drop them —
+        including on the blocked-run path, where the caller resumes with
+        ``select_page`` and would then page through an unfiltered result set.
+        """
+        self.request_params.pop("r", None)
+        self._ssr_cache = None
 
     def screener_view(
         self,
@@ -371,43 +394,47 @@ class Base:
         page = self._get_page(soup)
         if page == 0:
             logger.warning("No ticker found.")
-            return None
+            return self._empty_frame(soup)
         df = self._parse_table(None, soup, limit)
         limit -= self.size
         if select_page:
             if select_page > page:
-                return None
+                return self._empty_frame(soup)
             warnings.warn(
                 "Limit parameter is ignored when page is selected.", stacklevel=2
             )
             return df
 
-        for i in range(1, page):
-            if limit <= 0:
-                break
-            sleep(sleep_sec)
-            if verbose == 1:
-                progress_bar(i, page)
-            self.request_params["r"] = i * self.size + 1
-            try:
-                soup = web_scrap(self.url, self.request_params)
-            except FinvizBlockedError as err:
-                # Long runs (#186) hit the Wall mid-way; keep the rows already
-                # fetched so the caller can resume with select_page.
-                err.partial = df
-                err.next_page = i + 1
-                self.reset()
-                raise
-            df = self._parse_table(df, soup, limit)
-            limit -= self.size
-        self.reset()
+        try:
+            for i in range(1, page):
+                if limit <= 0:
+                    break
+                sleep(sleep_sec)
+                if verbose == 1:
+                    progress_bar(i, page)
+                self.request_params["r"] = i * self.size + 1
+                try:
+                    soup = web_scrap(self.url, self.request_params)
+                except FinvizBlockedError as err:
+                    # Long runs (#186) hit the Wall mid-way; keep the rows
+                    # already fetched so the caller can resume with
+                    # select_page from the same (still filtered) settings.
+                    err.partial = df
+                    err.next_page = i + 1
+                    raise
+                df = self._parse_table(df, soup, limit)
+                limit -= self.size
+        finally:
+            # Also on a parse error: a leftover page offset would make the
+            # caller's retry start mid-way through the results.
+            self.reset()
         return df
 
     def compare(
         self,
         ticker: str,
         compare_list: list[str],
-        order: str = "ticker",
+        order: str = "Ticker",
         verbose: int = 1,
     ) -> pd.DataFrame:
         """Get screener table of similar property (Sector, Industry, Country)
