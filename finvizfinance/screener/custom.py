@@ -95,8 +95,8 @@ class Custom(Base):
         for start in range(0, len(others), step):
             if start:
                 sleep(sleep_sec)
-            # Base.screener_view resets request_params (filters included) when
-            # it finishes, so each chunk starts from the caller's settings.
+            # Base.screener_view clears its page offset when it finishes, so
+            # each chunk starts from the caller's settings.
             self.request_params = dict(params)
             df = Base.screener_view(
                 self,
@@ -108,9 +108,13 @@ class Custom(Base):
                 [1, *others[start : start + step]],
                 sleep_sec,
             )
-            if df is None:
-                return None
             frames.append(df)
+
+        if any(df.empty for df in frames):
+            # A no-results page can yield a frame with no columns at all;
+            # iloc[:, 0] below would raise "single positional indexer is
+            # out-of-bounds" instead of returning the empty result.
+            return pd.DataFrame()
 
         tickers = frames[0].iloc[:, 0]
         parts = [tickers]

@@ -17,10 +17,6 @@ class Forex:
     Getting information from the finviz forex page.
     """
 
-    def __init__(self) -> None:
-        """initiate module"""
-        pass
-
     def performance(self, change: str = "percent") -> pd.DataFrame:
         """Get forex performance table.
 

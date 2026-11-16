@@ -47,7 +47,7 @@ class Base:
         validate_choice(order, group_order_dict, "order")
 
         self.request_params = {
-            **self.request_params,
+            "v": self.v_page,
             **group_dict[group],
             "o": group_order_dict[order],
         }
