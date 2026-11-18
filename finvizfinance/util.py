@@ -10,6 +10,7 @@ from __future__ import annotations
 import contextvars
 import json
 import logging
+import sys
 import threading
 import time
 import warnings
@@ -53,9 +54,11 @@ _timeout_var: contextvars.ContextVar[float] = contextvars.ContextVar(
 _fallback = threading.local()
 
 # Bounded exponential backoff for transient failures and Walls.
-MAX_RETRIES = 3
-BACKOFF_BASE = 0.5
-BACKOFF_CAP = 8.0
+# Long enough (~1 min total) for finviz's per-IP rate limit to clear on
+# multi-page screener runs (#210); a few seconds was not.
+MAX_RETRIES = 5
+BACKOFF_BASE = 2.0
+BACKOFF_CAP = 30.0
 # Transient HTTP statuses worth retrying (a Wall/403 is handled separately).
 RETRY_STATUS = {429, 500, 502, 503, 504}
 
@@ -586,4 +589,9 @@ def format_datetime(date_str: str) -> datetime:
 
 
 def progress_bar(page: int, total: int) -> None:
-    logger.info("loading page %d/%d", page, total)
+    # verbose=1 is an explicit opt-in, so print it; logging hid it (#210).
+    bar_len = 30
+    filled_len = int(round(bar_len * page / float(total)))
+    bar = "#" * filled_len + "-" * (bar_len - filled_len)
+    sys.stdout.write(f"[Info] loading page [{bar}] {page}/{total} \r")
+    sys.stdout.flush()

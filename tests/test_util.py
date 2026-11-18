@@ -367,3 +367,10 @@ def test_timeout_does_not_leak_out_of_an_async_task():
 def test_number_convert_whitespace_only_cell_is_a_missing_value():
     # `num[-1]` used to raise IndexError for a whitespace-only cell.
     assert number_convert("   ") is None
+
+
+def test_progress_bar_prints_to_stdout(capsys):
+    # #210: verbose=1 progress must be visible without logging configured.
+    util.progress_bar(3, 10)
+    out = capsys.readouterr().out
+    assert "loading page" in out and "3/10" in out
